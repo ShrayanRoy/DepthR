@@ -13,9 +13,9 @@ blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
   if(kern == "norm"){
     g$kval <- as.vector(outer(dnorm(x,sd = h/3),dnorm(x,sd = h/3)))
   }else if(kern == "circnorm"){
-    g$kval <- as.vector(outer(dnorm(x,sd = h/3),dnorm(x,sd = h/3)) * (outer(x^2,x^2,"+") < rad^2))
+    g$kval <- as.vector(outer(dnorm(x,sd = h/3),dnorm(x,sd = h/3)) * (outer(x^2,x^2,"+") <= rad^2))
   }else if(kern == "cauchy"){
-    g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (h/3)^2)^1.5) * (outer(x^2,x^2,"+") < rad^2))
+    g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (h/3)^2)^1.5) * (outer(x^2,x^2,"+") <= rad^2))
   }else if(kern == "disc"){
     g$kval <- as.vector(outer(x^2,x^2,"+") <= rad^2)
   }else{
