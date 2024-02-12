@@ -1,6 +1,5 @@
-
 blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
-                       rad = 3,h = rad,gridsize = 10){
+                       rad = 5,h = rad,gridsize = 10){
 
   kdim <- max(floor(h - 0.5) + 1.5,0.5)
   if(!kern == "norm") kdim <- max(floor(rad - 0.5) + 1.5,0.5)
@@ -10,11 +9,11 @@ blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
   g <- expand.grid(f1 = f, f2 = f, KEEP.OUT.ATTRS = FALSE)
 
   if(kern == "norm"){
-    g$kval <- as.vector(outer(dnorm(x,sd = 0.5*h),dnorm(x,sd = 0.5*h)))
+    g$kval <- as.vector(outer(dnorm(x,sd = h/3),dnorm(x,sd = h/3)))
   }else if(kern == "circnorm"){
-    g$kval <- as.vector(outer(dnorm(x,sd = 0.5*h),dnorm(x,sd = 0.5*h)) * (outer(x^2,x^2,"+") < rad^2))
+    g$kval <- as.vector(outer(dnorm(x,sd = h/3),dnorm(x,sd = h/3)) * (outer(x^2,x^2,"+") < rad^2))
   }else if(kern == "cauchy"){
-    g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (0.5*h)^2)^1.5) * (outer(x^2,x^2,"+") < rad^2))
+    g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (h/3)^2)^1.5) * (outer(x^2,x^2,"+") < rad^2))
   }else if(kern == "disc"){
     g$kval <- as.vector(outer(x^2,x^2,"+") <= rad^2)
   }else{
