@@ -1,3 +1,5 @@
+
+
 blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
                        rad = 5,h = rad,gridsize = 10){
 
