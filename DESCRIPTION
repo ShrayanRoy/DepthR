@@ -4,7 +4,7 @@ Title: Monocular Depth Estimation of Natural Images in R
 Version: 0.1.0
 Author: Shrayan Roy, Deepayan Sarkar
 Maintainer: Shrayan Roy <shrayan420@gmail.com>
-Description: Collection of functions to estimate estimate depth from natural images.
+Description: Collection of functions to estimate depth from natural images.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
