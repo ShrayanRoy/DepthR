@@ -1,0 +1,27 @@
+---
+title: "**Depth Estimation Using Segmentation in Natural Images**"
+author: "Shrayan Roy"
+date: "Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
+mainfont: Roboto
+monofont: Consolas
+geometry: left=1.27in,right=1.27in,top=0.8in,bottom=0.8in
+output: 
+  pdf_document:
+    toc: no
+    number_sections: false
+urlcolor: blue
+fontsize: 11pt
+header-includes:
+  - \usepackage{setspace}
+  - \onehalfspacing
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\begin{abstract} 
+\small{Estimating depth from a single photograph is an intriguing problem with many applications. Levin et al.'s proposed a method which requires a modified camera with special coded aperture. We aim to explore whether similar tasks can be done using standard cameras. We have formulated simple parametric models for depth blurring, which we hope will lead to more efficient estimates.}\\
+ \small{ \textbf{Keywords:} AR Prior, Point Spread Function, Depth Map, Image Segmentation}
+\end{abstract}
