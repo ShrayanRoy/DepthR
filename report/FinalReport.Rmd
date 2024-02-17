@@ -156,7 +156,7 @@ $$k(x,y) = \frac{1}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_{\{x^2
 - \textbf{Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$.
       $$k(x,y) = \frac{1}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$
 
-\textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times c_{diam}$ with $\kappa \in (0,\frac{1}{2}]$ and depends upon particular camera. Which means that we cannot change $h$ and $r$ independently.
+\textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times c_{diam}$ with $\kappa \in (0,\frac{1}{2}]$, which depends upon particular camera. This implies that we cannot change $h$ and $r$ independently.
 
 # Maximum Likelihood Estimation of Blur Kernel Parameters
 
@@ -183,8 +183,6 @@ The above considerations are only for gradients in a particular direction, i.e.,
 \end{equation} 
 
 Our goal is to find maximizer of $L(\boldsymbol{\theta})$ or equivalently of $\log(L(\boldsymbol{\theta})) = log(L_h(\boldsymbol{\theta})) + log(L_v(\boldsymbol{\theta}))$ as a function of $\boldsymbol{\theta}$. For the spatially varying case, we simply apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain.
-
-
 
 
 
