@@ -106,7 +106,7 @@ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Trans
   \boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}
 \end{equation}
 
-\textbf{Remark:} In practice the size of the blur kernel $\boldsymbol{k}$ is much smaller compared to the latent image $\boldsymbol{l}$ and $\boldsymbol{x}$. But for (\ref{eq:3.6}), the size of $\boldsymbol{K}$ must be the same as the size of $\boldsymbol{X}$. Thus, we pad $\boldsymbol{k}$ symmetrically with zeros to make it the same size as $\boldsymbol{x}$ and then take DFT.
+\textbf{Remark:} In practice the size of the blur kernel $\boldsymbol{k}$ is much smaller compared to the latent image $\boldsymbol{l}$ and $\boldsymbol{x}$. But for (\ref{eq:3.6}), the size of $\boldsymbol{K}$ must be the same as the size of $\boldsymbol{X}$. Thus, we pad $\boldsymbol{k}$ symmetrically with zeros to make of same size as $\boldsymbol{x}$ and then take DFT.
 
 ## Motivation and Formulation of Generalized Prior
 
@@ -145,16 +145,16 @@ In a given camera setting (i.e., fixed $a_{diam}$ and $f$)^[For most cameras, $d
 
 $$k(x,y) = \frac{1}{\pi r^2} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
-- \textbf{Circular Gaussian Kernel:} An obvious choice of kernel in any scientific study is the the widely used Gaussian/Normal distribution. Here, we will consider a truncated version of it over circular region. We characterize the kernel using the radius of circle $r$ and scale parameter $h$. 
+- \textbf{Circular Gaussian Kernel:} An obvious choice of kernel in any scientific study is the the widely used Gaussian/Normal distribution. Here, we will consider a truncated version of it over circular region. We characterize the kernel using the radius of circle $r$ and scale parameter $h$.
 
-$$k(x,y) = \frac{1}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
+$$k(x,y) = \frac{c_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
 - \textbf{Circular Cauchy Kernel:}  We know that the intercept on the x-axis of a beam of light coming from the point $(0,h)$ under certain assumption is distributed as a Cauchy$(0,h)$ distribution. Extending this concept to the two-dimensional case, we have a bivariate Cauchy distribution over a circular support. We characterize this using the radius of the circle r and the scale parameter $h$.
 
-  $$k(x,y) = \frac{h}{2\pi}\frac{1}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
+  $$k(x,y) = \frac{c_{h,r}}{2\pi}\frac{h}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
 - \textbf{Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$.
-      $$k(x,y) = \frac{1}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$
+      $$k(x,y) = \frac{c_{h}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$
 
 \textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times c_{diam}$ with $\kappa \in (0,\frac{1}{2}]$, which depends upon particular camera. This implies that we cannot change $h$ and $r$ independently.
 
@@ -168,11 +168,11 @@ From (\ref{eq:3.7}) we have, $\boldsymbol{Y_{\omega}} \sim \mathcal{CN}(0,\sigma
 
 \textbf{Result:} \textit{If $Z \sim \mathcal{CN}(0,\sigma^2)$. Then, $\text{Re}(Z)$ and $\text{Im}(Z)$ follows $\mathcal{N}(0,\frac{\sigma^2}{2})$ independently. Hence, $|Z|^2  = \text{Re}^2(Z) + \text{Im}^2(Z) \sim \frac{\sigma^2}{2}\chi^2_2 \equiv \text{Exp}(\lambda = \frac{1}{\sigma^2})$.}
 
-Using the above result, $\boldsymbol{|Y_\omega|^2} \sim \text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ $\boldsymbol{\forall \omega}$ independently. If $f_\theta(|Y_\omega|^2)$ denotes the pdf of $\text{Exp}(\lambda_\omega = \frac{1}{\eta^2h_\omega + \sigma^2 |K_\omega|^2g_\omega})$ for given parameters $\boldsymbol{\theta}$ (say,) of blur kernel. Then, likelihood of $\boldsymbol{|Y_\omega|^2}$ is given by - 
+Using the above result, $\boldsymbol{|Y_\omega|^2} \sim \text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ $\boldsymbol{\forall \omega}$ independently. If $f_{\theta,\omega}(.)$ denotes the pdf of $\text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ for given parameters $\boldsymbol{\theta}$ (say,) of blur kernel model. Then, likelihood of $\boldsymbol{|Y_\omega|^2}$ is given by - 
 
 \begin{equation}
  \label{eq:5.1}
- f_{\theta}(|Y_{\omega}|^2,\forall \omega) = \prod_{\omega} f_\theta(|Y_{\omega}|^2)
+ f_{\theta}(|Y_{\omega}|^2,\forall \omega) = \prod_{\omega} f_{\theta,\omega}(|Y_{\omega}|^2)
 \end{equation} 
 
 The above considerations are only for gradients in a particular direction, i.e., *horizontal* or *vertical*. We should incorporate both directions in the estimation procedure. For simplicity we assume that they are independent although clearly they are not as they must integrate to the same latent image $\boldsymbol{l}$. The joint likelihood is given by 
