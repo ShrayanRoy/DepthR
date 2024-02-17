@@ -1,5 +1,7 @@
 
 
+#Function to find parametric blur kernel for given choice of parameters
+
 blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
                        rad = 5,h = rad,gridsize = 10){
 
