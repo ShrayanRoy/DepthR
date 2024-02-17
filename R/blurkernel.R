@@ -1,9 +1,15 @@
 
 
 # Function to find parametric blur kernel for given choice of parameters
+# Parameters:
+# kern: "norm" for rectangular gaussian kernel,"circnorm" for circular gaussian kernel,
+#       "cauchy" for circular cauchy kernel and "disc" for disc kernel
+# rad: radius of circular support for circular kernels
+# h: scale of blur kernel
+# gridsize: Controls discrete approximation of continuous kernel
 
 blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
-                       rad = 5,h = 2*rad,gridsize = 10){
+                       rad = 5,h = rad,gridsize = 10){
 
   kdim <- max(floor(h - 0.5) + 1.5,0.5)
   if(!kern == "norm") kdim <- max(floor(rad - 0.5) + 1.5,0.5)
@@ -12,14 +18,15 @@ blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
   f <- cut(x,seq(-kdim,kdim,by = 1),include.lowest = TRUE)
   g <- expand.grid(f1 = f, f2 = f, KEEP.OUT.ATTRS = FALSE)
 
-  # Need to choose a proper relation between rad and h
-  # From Theory, h = \kappa \times rad with \kappa \in (0,1]
+  # FIX: Need to choose a proper relation between rad and h
+  # From Theory, h = k x rad with k \in (0,1]
+
   if(kern == "norm"){
     g$kval <- as.vector(outer(dnorm(x,sd = h/3),dnorm(x,sd = h/3)))
   }else if(kern == "circnorm"){
-    g$kval <- as.vector(outer(dnorm(x,sd = h/2),dnorm(x,sd = h/2)) * (outer(x^2,x^2,"+") <= rad^2))
+    g$kval <- as.vector(outer(dnorm(x,sd = h),dnorm(x,sd = h)) * (outer(x^2,x^2,"+") <= rad^2))
   }else if(kern == "cauchy"){
-    g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (h/2)^2)^1.5) * (outer(x^2,x^2,"+") <= rad^2))
+    g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (h)^2)^1.5) * (outer(x^2,x^2,"+") <= rad^2))
   }else if(kern == "disc"){
     g$kval <- as.vector(outer(x^2,x^2,"+") <= rad^2)
   }else{
@@ -31,3 +38,4 @@ blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
 
   as.rip(kk)
 }
+

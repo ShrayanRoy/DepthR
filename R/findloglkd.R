@@ -1,29 +1,64 @@
 
 
-# Function to find both log likelihood values of horizontal and vertical gradient
-# given observed blurred image
+# Function to calculate log likelihood for both horizontal and vertical gradient given observed blurred image
+# over a sqaure rectangular of value for prior sd sigma and prior parameter
+# Parameters:
+# kern: "norm" for rectangular gaussian kernel,"circnorm" for circular gaussian kernel,
+#       "cauchy" for circular cauchy kernel and "disc" for disc kernel
+# rad: sequence of radius for circular support for circular kernels
+# h: sequence of scale for blur kernel
+# ar: If TRUE uses AR Prior
 
 findloglkd <- function(y, kern = c("norm","circnorm","cauchy","disc"),
-                    h = seq(1,5.5,by = 0.05), sigma = seq(0.01,0.2,by = 0.01), ar = FALSE) {
-
-  param <- expand.grid(h = h,sigma = sigma)
+                    rad = seq(1,5.5,by = 0.05), h = rad, sigma = seq(0.01,0.2,by = 0.01), ar = FALSE) {
 
   dx.h <- rip.conv(y, rip.grad$x,"valid")
   dx.v <- rip.conv(y, rip.grad$y,"valid")
   Xh <- Mod(rip.ndft(dx.h))
   Xv <- Mod(rip.ndft(dx.v))
 
-  if(ar) {
+  if(ar){
+
     G <- g.autoreg(y)
     Hh <- h.theoretical(dim(Xh))$h
     Hv <- h.theoretical(dim(Xv))$v
-    likval <- apply(param,1,FUN = function(param){
-      c(lkd_gen(Xh,blurkernel(kern,rad = param[1]),G = G$h,H = Hh,sigma = param[2]),
-        lkd_gen(Xv,blurkernel(kern,rad = param[1]),G = G$v,H = Hv,sigma = param[2]))  } )
-  } else {
-    likval <- apply(param,1,FUN = function(param){
-      c(lkd_gen(Xh,blurkernel(kern,rad = param[1]),sigma = param[2]),
-        lkd_gen(Xv,blurkernel(kern,rad = param[1]),sigma = param[2])) } )
+
+    if(!kern == "norm"){  #If Circular support type Kernel
+
+      param <- expand.grid(rad = rad,sigma = sigma)
+
+      likval <- apply(param,1,FUN = function(param){
+        c(lkd_gen(Xh,blurkernel(kern,rad = param[1]),G = G$h,H = Hh,sigma = param[2]),
+          lkd_gen(Xv,blurkernel(kern,rad = param[1]),G = G$v,H = Hv,sigma = param[2]))})
+
+    }else{   #If rectangular support type Kernel
+
+      param <- expand.grid(h = h,sigma = sigma)
+
+      likval <- apply(param,1,FUN = function(param){
+        c(lkd_gen(Xh,blurkernel(kern,h = param[1]),G = G$h,H = Hh,sigma = param[2]),
+          lkd_gen(Xv,blurkernel(kern,h = param[1]),G = G$v,H = Hv,sigma = param[2]))})
+    }
+
+   }else {
+
+     if(!kern == "norm"){  #If Circular support type Kernel
+
+       param <- expand.grid(rad = rad,sigma = sigma)
+
+       likval <- apply(param,1,FUN = function(param){
+         c(lkd_gen(Xh,blurkernel(kern,rad = param[1]),sigma = param[2]),
+           lkd_gen(Xv,blurkernel(kern,rad = param[1]),sigma = param[2]))})
+
+     }else{   #If rectangular support type Kernel
+
+       param <- expand.grid(h = h,sigma = sigma)
+
+       likval <- apply(param,1,FUN = function(param){
+         c(lkd_gen(Xh,blurkernel(kern,h = param[1]),sigma = param[2]),
+           lkd_gen(Xv,blurkernel(kern,h = param[1]),sigma = param[2]))})
+     }
+
   }
 
   likdata <- data.frame(param, likh = likval[1,],likv = likval[2,])
