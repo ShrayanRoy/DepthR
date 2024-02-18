@@ -19,6 +19,9 @@ header-includes:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# Set custom margins
+par(mar = c(3, 3, 1, 1))  # Adjust the margin values as needed
+par(oma = c(0, 0, 0, 0))   # Adjust the outer margin values as needed
 ```
 
 \begin{abstract} 
@@ -80,6 +83,11 @@ Where $p_j$'s are mixture probabilities and $\sigma_j$'s are corresponding scale
   \delta_h\otimes\boldsymbol{b} = \delta_h \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\delta_h\otimes \boldsymbol{\epsilon}) =  k \otimes(\delta_h \ \otimes \ \boldsymbol{l}) \ + \ (\delta_h\otimes \boldsymbol{\epsilon})
 \end{equation}  
 
+```{r plot_1,warning=FALSE,echo=FALSE,out.width='100%',fig.align='center',echo=FALSE,fig.cap = "Eight sharp images (top row) and their density plot of horizontal gradients (middle row) and plot of log modulus DFT coefficients of horizontal gradients (bottom row). Similar observations are found for vertical gradients as well."}
+knitr::include_graphics("C:/Users/User/Desktop/Github Projects/DepthR/report/images/3.1.png")
+
+```
+
 \begin{equation}
   \label{eq:3.4}
   \delta_v\otimes\boldsymbol{b} = \delta_v \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\delta_v\otimes \boldsymbol{\epsilon}) =  k \otimes(\delta_v \ \otimes \ \boldsymbol{l}) \ + \ (\delta_v\otimes \boldsymbol{\epsilon})
@@ -108,16 +116,12 @@ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Trans
 
 \textbf{Remark:} In practice the size of the blur kernel $\boldsymbol{k}$ is much smaller compared to the latent image $\boldsymbol{l}$ and $\boldsymbol{x}$. But for (\ref{eq:3.6}), the size of $\boldsymbol{K}$ must be the same as the size of $\boldsymbol{X}$. Thus, we pad $\boldsymbol{k}$ symmetrically with zeros to make of same size as $\boldsymbol{x}$ and then take DFT.
 
-```{r plot_1,warning=FALSE,echo=FALSE,out.width='100%',fig.align='center',echo=FALSE,fig.cap = "Eight sharp images (top row) and their density plot of horizontal gradients (middle row) and plot of log modulus DFT coefficients of horizontal gradients (bottom row). Similar observations are found for vertical gradients as well."}
-knitr::include_graphics("C:/Users/User/Desktop/Github Projects/DepthR/report/images/3.1.png")
-
-```
 
 ## Motivation and Formulation of Generalized Prior
 
 If the elements of $\boldsymbol{x}$ are zero mean IID random variables with Hyper-Laplacian Distribution. Then by orthogonality of DFT, $X_{\omega}$'s must be IID complex normal when $\alpha = 2$ and uncorrelated and asymptotically complex normal when $\alpha \neq 2$ by CLT of Peligrad and Wu \textbf{[8]}. To ascertain whether this is the case, we have plotted the log-transformed modulus of fourier transforms of eight sharp images (Figure \ref{fig:plot_1}). These can be viewed as realizations from the prior on $\boldsymbol{x}$ or equivalently $\boldsymbol{X}$. There doesn't appear to be any systematic patterns in the plot, suggesting plausibility of the independence assumption. Also, the log-transformed Modulus DFT coefficients are smaller in magnitude at middle frequencies and lighter at large and small frequencies. These findings imply that the variance of DFT coefficients differ across frequencies. To explore further, Figure \ref{fig:plot_2} demonstrates smoothing $\log|\boldsymbol{X_{\omega}}|$ with a Gaussian kernel. The resulting pattern is not flat, contrary to what we should expect for IID $|\boldsymbol{X_{\omega}}|$. It's smaller in the middle and grows towards the corners. This kind of pattern is typically associated with non-IID stationary process. 
 
-```{r plot_2,warning=FALSE,echo=FALSE,out.width='100%',fig.align='center',echo=FALSE,fig.cap="Plot of Local Smoothing of periodogram of both horizontal (top row) and vertical (bottom row) gradients for eight example images in Figure \\ref{fig:plot_1}."}
+```{r plot_2,warning=FALSE,echo=FALSE,out.width='90%',fig.align='center',echo=FALSE,fig.cap="Plot of Local Smoothing of periodogram of both horizontal (top row) and vertical (bottom row) gradients for eight example images in Figure \\ref{fig:plot_1}."}
 knitr::include_graphics("C:/Users/User/Desktop/Github Projects/DepthR/report/images/3.2.png")
 ```
 
@@ -147,7 +151,7 @@ For spatially varying blur, it is not immediately clear how we can express (\ref
 
 # Parametric Models for Blur Kernel
 
-From a single point source, light rays emit in different directions and fall on the lens of the camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle*. The diameter of the blur circle ($c_{diam}$) and the depth of an object in a given camera setting are related as:
+From a single point source, light rays emit in different directions and fall on the lens of the camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object in a given camera setting are related as:
 
 \begin{equation}
  \label{eq:4.1}
@@ -156,19 +160,25 @@ From a single point source, light rays emit in different directions and fall on 
 
 In a given camera setting (i.e., fixed $a_{diam}$ and $f$)^[For most cameras, $d_{focus} >> f$, hence the approximation.], $c_{diam} \propto \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$. As we move away from the plane of focus on either side, we encounter a similar type of $c_{diam}$. Thus, from the diameter of the blur circle, it is challenging to accurately estimate the depth $d$ of an object in an image because for each value of $c_{diam}$, two possible values of $d$ exist. It is evident from (\ref{eq:4.1}) that, the support of PSF in our case must be circular rather than square. Due to *diffraction* caused by the camera lens and the boundaries of the circular aperture, we expect the intensity distribution of light to be spherical symmetrically distributed over the circular support. Keeping all these in mind we propose the following models for blur kernel.
 
-- \textbf{Disc Kernel:} It is the simplest model for blur kernel. The assumption being that uniform spread of light over disc. We characterize the kernel using the parameter $r$. 
+```{r plot_4,warning=FALSE,echo=FALSE,out.width='80%',out.height= '30%',fig.align='center',echo=FALSE,fig.cap="Thin Lens Model of Camera and Circle of Confusion $c_{diam}$ in a given camera setting"}
+
+knitr::include_graphics("C:/Users/User/Desktop/Github Projects/DepthR/report/images/4.1.png")
+```
+
+
+\textbf{1. Disc Kernel:} It is the simplest model for blur kernel. The assumption being that uniform spread of light over disc. We characterize the kernel using the parameter $r$. 
 
 $$k(x,y) = \frac{1}{\pi r^2} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
-- \textbf{Circular Gaussian Kernel:} An obvious choice of kernel in any scientific study is the the widely used Gaussian/Normal distribution. Here, we will consider a truncated version of it over circular region. We characterize the kernel using the radius of circle $r$ and scale parameter $h$.
+\textbf{2. Circular Gaussian Kernel:} An obvious choice of kernel in any scientific study is the the widely used Gaussian/Normal distribution. Here, we will consider a truncated version of it over circular region. We characterize the kernel using the radius of circle $r$ and scale parameter $h$.
 
 $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
-- \textbf{Circular Cauchy Kernel:}  We know that the intercept on the x-axis of a beam of light coming from the point $(0,h)$ under certain assumption is distributed as a Cauchy$(0,h)$ distribution. Extending this concept to the two-dimensional case, we have a bivariate Cauchy distribution over a circular support. We characterize this using the radius of the circle r and the scale parameter $h$.
+\textbf{3. Circular Cauchy Kernel:}  We know that the intercept on the x-axis of a beam of light coming from the point $(0,h)$ under certain assumption is distributed as a Cauchy$(0,h)$ distribution. Extending this concept to the two-dimensional case, we have a bivariate Cauchy distribution over a circular support. We characterize this using the radius of the circle r and the scale parameter $h$.
 
   $$k(x,y) = \frac{C_{h,r}}{2\pi}\frac{h}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
-- \textbf{Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$.
+\textbf{4. Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$.
       $$k(x,y) = \frac{C_{h}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$
 
 \textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times c_{diam}$ with $\kappa \in (0,\frac{1}{2}]$, which depends upon particular camera. This implies that we cannot change $h$ and $r$ independently.
@@ -183,7 +193,7 @@ From (\ref{eq:3.7}) we have, $\boldsymbol{Y_{\omega}} \sim \mathcal{CN}(0,\sigma
 
 \textbf{Result:} \textit{If $Z \sim \mathcal{CN}(0,\sigma^2)$. Then, $\text{Re}(Z)$ and $\text{Im}(Z)$ follows $\mathcal{N}(0,\frac{\sigma^2}{2})$ independently. Hence, $|Z|^2  = \text{Re}^2(Z) + \text{Im}^2(Z) \sim \frac{\sigma^2}{2}\chi^2_2 \equiv \text{Exp}(\lambda = \frac{1}{\sigma^2})$.}
 
-Using the above result, $\boldsymbol{|Y_\omega|^2} \sim \text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ $\boldsymbol{\forall \omega}$ independently. If $f_{\theta,\omega}(.)$ denotes the pdf of $\text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ for given parameters $\boldsymbol{\theta}$ (say,) of blur kernel model. Then, likelihood of $\boldsymbol{|Y_\omega|^2}$ is given by - 
+Using last result, $\boldsymbol{|Y_\omega|^2} \sim \text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ $\boldsymbol{\forall \omega}$ independently. If $f_{\theta,\omega}(.)$ denotes the pdf of $\text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ for given parameters $\boldsymbol{\theta}$ (say,) of blur kernel model. Then, likelihood of $\boldsymbol{|Y_\omega|^2}$ is given by - 
 
 \begin{equation}
  \label{eq:5.1}

@@ -3,8 +3,8 @@
 # Function to calculate log likelihood for both horizontal and vertical gradient given observed blurred image
 # over a sqaure rectangular of value for prior sd sigma and prior parameter
 # Parameters:
-# kern: "norm" for rectangular gaussian kernel,"circnorm" for circular gaussian kernel,
-#       "cauchy" for circular cauchy kernel and "disc" for disc kernel
+# kern: "norm" for Rectangular Gaussian kernel,"circnorm" for Circular Gaussian kernel,
+#       "cauchy" for Circular Cauchy kernel and "disc" for Disc kernel
 # rad: sequence of radius for circular support for circular kernels
 # h: sequence of scale for blur kernel
 # ar: If TRUE uses AR Prior

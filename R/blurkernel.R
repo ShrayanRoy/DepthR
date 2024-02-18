@@ -15,14 +15,14 @@ blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
   if(!(kap > 0 & kap <= 1)){ stop("kap must be postive number less than equal to 1") }
 
   kdim <- max(floor(h - 0.5) + 1.5,0.5)
-  if(!kern == "norm") kdim <- max(floor(rad - 0.5) + 1.5,0.5)
+  if(!(kern == "norm")) kdim <- max(floor(rad - 0.5) + 1.5,0.5)
 
   x <- seq(-kdim,kdim,length.out = 2*kdim*gridsize)
   f <- cut(x,seq(-kdim,kdim,by = 1),include.lowest = TRUE)
   g <- expand.grid(f1 = f, f2 = f, KEEP.OUT.ATTRS = FALSE)
 
   # FIX: Need to choose a proper relation between rad and h
-  # From Theory, h = kap x rad with k \in (0,1]
+  # From Theory, h = kap x rad with kap \in (0,1]
 
   if(kern == "norm"){
     g$kval <- as.vector(outer(dnorm(x,sd = h/3),dnorm(x,sd = h/3)))
