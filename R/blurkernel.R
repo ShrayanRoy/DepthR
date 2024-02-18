@@ -10,7 +10,7 @@
 # gridsize: Controls discrete approximation of continuous kernel
 
 blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
-                       rad = 5,h = rad,kap = 1,gridsize = 10){
+                       rad = 5,h = kap*rad,kap = 1,gridsize = 10){
 
   if(!(kap > 0 & kap <= 1)){ stop("kap must be postive number less than equal to 1") }
 
@@ -27,9 +27,9 @@ blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
   if(kern == "norm"){
     g$kval <- as.vector(outer(dnorm(x,sd = h/3),dnorm(x,sd = h/3)))
   }else if(kern == "circnorm"){
-    g$kval <- as.vector(outer(dnorm(x,sd = kap*h),dnorm(x,sd = kap*h)) * (outer(x^2,x^2,"+") <= rad^2))
+    g$kval <- as.vector(outer(dnorm(x,sd = h),dnorm(x,sd = h)) * (outer(x^2,x^2,"+") <= rad^2))
   }else if(kern == "cauchy"){
-    g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (kap*h)^2)^1.5) * (outer(x^2,x^2,"+") <= rad^2))
+    g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (h)^2)^1.5) * (outer(x^2,x^2,"+") <= rad^2))
   }else if(kern == "disc"){
     g$kval <- as.vector(outer(x^2,x^2,"+") <= rad^2)
   }else{
