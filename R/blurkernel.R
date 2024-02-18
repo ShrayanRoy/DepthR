@@ -12,7 +12,7 @@
 blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
                        rad = 5,h = rad,kap = 1,gridsize = 10){
 
-  if(kap > 0 & kap <= 1){ stop("kap must be postive number less than equal to 1") }
+  if(!(kap > 0 & kap <= 1)){ stop("kap must be postive number less than equal to 1") }
 
   kdim <- max(floor(h - 0.5) + 1.5,0.5)
   if(!kern == "norm") kdim <- max(floor(rad - 0.5) + 1.5,0.5)
