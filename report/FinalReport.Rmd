@@ -4,7 +4,7 @@ author: "Shrayan Roy"
 date: "Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
 mainfont: Roboto
 monofont: Consolas
-geometry: left=1.1in,right=1.1in,top=0.8in,bottom=1in
+geometry: left=1.1in,right=1.1in,top=0.8in,bottom=0.8in
 output: 
   pdf_document:
     toc: no
@@ -50,6 +50,11 @@ When light rays spread from a single point source and hit the camera lens, they 
 
 Where $\boldsymbol{k}$ is an $m \times n$ blur kernel, $\boldsymbol{l}$ is the $(M + m) \times (N + n)$ *true latent image* which we want to estimate, $\boldsymbol{\epsilon}$ is an $M \times N$ matrix of noise, and $\otimes$ denotes the *convolution* operator (By *convolution* we mean *valid* convolution). Constructing the latent image from observed blurred image is called **image deconvolution problem**. Depending on whether the blur kernel is known or unknown, we classify it as *non-blind deconvolution* or *blind deconvolution* problem. In either case, it is an ill-posed problem because the number of parameters is larger than the number of observations $MN$. One solution to this is to assume a prior for the latent image $\boldsymbol{l}$.
 
+```{r svar,warning=FALSE,echo=FALSE,out.width='80%',out.height = '70%',fig.align='center',echo=FALSE,fig.cap = "Example of Spatially Varying Blur: Each patch exhibits a distinct level of blur."}
+knitr::include_graphics("C:/Users/User/Desktop/Github Projects/DepthR/report/images/2.1.png")
+
+```
+
 Note that, the model defined above assumes that the associated PSF is *shift invariant*, meaning the same PSF applies to all pixels of the underlying latent image. However, this may not be the case (Figure \ref{fig:svar}). In the context of depth from defocus blur, the PSF function is *not* shift invariant i.e. it is *spatially varying*. Therefore, (\ref{eq:2.1}) will not hold. We redefine it as:
 
 \begin{equation}
@@ -57,12 +62,7 @@ Note that, the model defined above assumes that the associated PSF is *shift inv
   \boldsymbol{b[t]} = (\boldsymbol{k_t} \ \otimes \ \boldsymbol{l})\boldsymbol{[t]} \ + \ \boldsymbol{\epsilon[t]}
 \end{equation}
 
-Where $[t]$ indicates the corresponding elements at pixel location $\boldsymbol{t}$. $\boldsymbol{k_t}$ is the spatially varying blur kernel at pixel location $\boldsymbol{t}$. Now, the problem of estimating blur kernel and latent image becomes more ill-posed because for each pixel, we need to estimate a blur kernel. However, if the blurring is only due to the objects being away from the plane of focus, we can assume special structures of the associated blur kernels. We model the blur kernel $\boldsymbol{k_t}$ as some probability density over a square grid. For each pixel location $\boldsymbol{t}$, we characterize the blur kernel by the parameter $\boldsymbol{\theta_t}$ that determines the *scale* or *spread* of the associated probability distribution (e.g. scale parameters in bivariate normal distribution). This parameter $\boldsymbol{\theta_t}$ encompasses information regarding the level of blur, hence providing insight into depth. Our objective is to estimate this parameter $\boldsymbol{\theta_t}$ based on the observed blurred image $\boldsymbol{b}$ for each pixel location $\boldsymbol{t}$. 
-
-```{r svar,warning=FALSE,echo=FALSE,out.width='80%',out.height = '90%',fig.align='center',echo=FALSE,fig.cap = "Example of Spatially Varying Blur: Each patch exhibits a distinct level of blur."}
-knitr::include_graphics("C:/Users/User/Desktop/Github Projects/DepthR/report/images/2.1.png")
-
-```
+Where $[t]$ indicates the corresponding elements at pixel location $\boldsymbol{t}$ and $\boldsymbol{k_t}$ is the spatially varying blur kernel at pixel location $\boldsymbol{t}$. Now, the problem of estimating blur kernel and latent image becomes more ill-posed because for each pixel, we need to estimate a blur kernel. However, if the blurring is only due to the objects being away from the plane of focus, we can assume special structures of the associated blur kernels. We model the blur kernel $\boldsymbol{k_t}$ as some probability density over a square grid. For each pixel location $\boldsymbol{t}$, we characterize the blur kernel by the parameter $\boldsymbol{\theta_t}$ that determines the *scale* or *spread* of the associated probability distribution (e.g. scale parameters in bivariate normal distribution). This parameter $\boldsymbol{\theta_t}$ encompasses information regarding the level of blur, hence providing insight into depth. Our objective is to estimate this parameter $\boldsymbol{\theta_t}$ based on the observed blurred image $\boldsymbol{b}$ for each pixel location $\boldsymbol{t}$. 
 
 # Priors on Natural Images
 
@@ -189,15 +189,15 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
 \textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times c_{diam}$ with $\kappa \in (0,\frac{1}{2}]$, which depends upon particular camera. This implies that we cannot change $h$ and $r$ independently.
 
-# Maximum Likelihood Estimation of Blur Kernel Parameters
+# ML Estimation of Blur Kernel Parameters
 
 Our main focus in this section is to develop *Maximum Likelihood Estimation* procedure for the parameter $\boldsymbol{\theta_t}$ of blur kernel for each pixel location $\boldsymbol{t}$. For the first three kernels $\boldsymbol{\theta_t} = (r_t,h_t)$, and for the Gaussian kernel $\boldsymbol{\theta_t} = h_t$. Our objective is to estimate these parameters based on the observed image $\boldsymbol{b}$ or equivalently $\boldsymbol{y}$. For that we need joint distribution of elements of $\boldsymbol{y}$. 
 
 For easier calculations we move to frequency domain. In the case of generalized prior we have $\boldsymbol{X_{\omega}} \sim \mathcal{CN}(0,\sigma^2 g_{\omega}) \ \ \forall \omega$ independently. In addition, if the errors in the original image, given by $\boldsymbol{\epsilon}$, are assumed to be IID Gaussian, then its gradient $\boldsymbol{n}$ will have correlated elements and successive elements in the direction of the gradient will have correlation 0.5, while all other pairs will be uncorrelated. This will induce a non-constant variance for $\boldsymbol{N_{\omega}}$, given by a function $h_{\omega}$ such that $Var(\boldsymbol{N_{\omega}}) = \eta^2 h_{\omega}$. Hence, $\boldsymbol{N_{\omega}} \sim \mathcal{CN}(0,\eta^2 h_{\omega})$ independently. An explicit expression for $h_{\omega}$ can be found similarly to that of $g_{\omega}$.
 
-From (\ref{eq:3.7}) we have, $\boldsymbol{Y_{\omega}} \sim \mathcal{CN}(0,\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}) \ \ \boldsymbol{\forall \omega}$. For a given choice of model for blur kernel, we estimate parameters $\boldsymbol{\theta}$ based on $\boldsymbol{Y_{\omega}}$'s. For ease of calculation we find the likelihood based on $|\boldsymbol{Y_{\omega}}|^2$'s.
+From (\ref{eq:3.7}) we have, $\boldsymbol{Y_{\omega}} \sim \mathcal{CN}(0,\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}) \ \ \boldsymbol{\forall \omega}$. For a given choice of model for blur kernel, we estimate parameters $\boldsymbol{\theta}$ based on $\boldsymbol{Y_{\omega}}$'s using maximum likelihood principle. For ease of calculation we have used likelihood of $|\boldsymbol{Y_{\omega}}|^2$'s.
 
-\textbf{Result:} \textit{If $Z \sim \mathcal{CN}(0,\sigma^2)$. Then, $\text{Re}(Z)$ and $\text{Im}(Z)$ follows $\mathcal{N}(0,\frac{\sigma^2}{2})$ independently. Hence, $|Z|^2  = \text{Re}^2(Z) + \text{Im}^2(Z) \sim \frac{\sigma^2}{2}\chi^2_2 \equiv \text{Exp}(\lambda = \frac{1}{\sigma^2})$.}
+\textbf{Result:} \textit{If $Z \sim \mathcal{CN}(0,\sigma^2)$. We know that $\text{Re}(Z)$ and $\text{Im}(Z)$ follows $\mathcal{N}(0,\frac{\sigma^2}{2})$ independently. Then, $|Z|^2  = \text{Re}^2(Z) + \text{Im}^2(Z) \sim \frac{\sigma^2}{2}\chi^2_2 \equiv \text{Exp}(\lambda = \frac{1}{\sigma^2})$.}
 
 Using last result, $\boldsymbol{|Y_\omega|^2} \sim \text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ $\boldsymbol{\forall \omega}$ independently. If $f_{\theta,\omega}(.)$ denotes the pdf of $\text{Exp}(\lambda_\omega = \frac{1}{\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}})$ for given parameters $\boldsymbol{\theta}$ (say,) of blur kernel model. Then, likelihood of $\boldsymbol{|Y_\omega|^2}$ is given by - 
 
@@ -215,11 +215,7 @@ The above considerations are only for gradients in a particular direction, i.e.,
 
 Our goal is to find maximizer of $L(\boldsymbol{\theta})$ or equivalently of $\log(L(\boldsymbol{\theta})) = log(L_h(\boldsymbol{\theta})) + log(L_v(\boldsymbol{\theta}))$ as a function of $\boldsymbol{\theta}$. For the spatially varying case, we simply apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain.
 
-
-
-# References and Bibliography
-
-# Appendix
+# References
 
 
 
