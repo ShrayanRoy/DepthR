@@ -4,7 +4,7 @@ author: "Shrayan Roy"
 date: "Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
 mainfont: Roboto
 monofont: Consolas
-geometry: left=1.1in,right=1.1in,top=0.8in,bottom=0.8in
+geometry: left=1.1in,right=1.1in,top=0.9in,bottom=0.9in
 output: 
   pdf_document:
     toc: no
@@ -141,7 +141,7 @@ To check whether the image gradients $\boldsymbol{x}$ are independent, we have p
 knitr::include_graphics("C:/Users/User/Desktop/Github Projects/DepthR/report/images/3.3.png")
 ```
 
-If we assume the elements of $\boldsymbol{x}$ are marginally distributed as (\ref{eq:3.2}) with correlation structure given by (\ref{eq:3.8}), then we can easily find an explicit expression for $g_{\omega}$. For the rest of the paper we will work under this simple generalized lag-1 auto regressive model. $\rho_1$ and $\rho_2$ are hyperparameters and values of $\rho_1 = 0.3$ and $\rho_2 = 0.6$ are found to be appropriate for most of the images.  Note that in this case, $g_{\omega} = 1$ we have IID *Sparse MOG Prior*. 
+If we assume the elements of $\boldsymbol{x}$ are marginally distributed as (\ref{eq:3.2}) with correlation structure given by (\ref{eq:3.8}), then we can easily find an explicit expression for $g_{\omega}$. For the rest of the text we will work under this simple generalized lag-1 auto regressive model. $\rho_1$ and $\rho_2$ are hyperparameters and values of $\rho_1 = 0.3$ and $\rho_2 = 0.6$ are found to be appropriate for most of the images.  Note that in this case, $g_{\omega} = 1$ we have IID *Sparse MOG Prior*. 
 
 \begin{equation}
  \label{eq:3.8}
