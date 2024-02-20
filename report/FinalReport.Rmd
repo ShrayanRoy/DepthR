@@ -2,19 +2,19 @@
 title: "Depth Estimation in Natural Images Using Segmentation"
 author: "Shrayan Roy"
 date: "Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
-mainfont: Roboto
-monofont: Consolas
 geometry: left=1.1in,right=1.1in,top=0.9in,bottom=0.9in
 output: 
   pdf_document:
     toc: no
     number_sections: true
+    citation_package: biblatex
 urlcolor: blue
 fontsize: 11pt
 header-includes:
   - \usepackage{setspace}
   - \onehalfspacing
 bibliography: references.bib
+csl: ieee.csl
 ---
 
 ```{r setup, include=FALSE}
@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 \begin{abstract} 
-\small{Estimating depth map from a single photograph is an intriguing problem with many applications. Levin et al. proposed a method which requires a modified camera with special coded aperture. We aim to explore whether similar tasks can be done using standard cameras. We have formulated simple parametric models for depth blurring, which we hope will lead to more efficient estimates.}\\
+\small{Estimating depth map from a single photograph is an intriguing problem with many applications. Levin et al. \cite{levin2007image} proposed a method which requires a modified camera with special coded aperture. We aim to explore whether similar tasks can be done using standard cameras. We have formulated simple parametric models for depth blurring, which we hope will lead to more efficient estimates.}\\
  \small{ \textbf{Keywords:} Auto Regressive Prior, Blur Kernel, Depth Map, Image Segmentation }
 \end{abstract}
 
@@ -30,14 +30,14 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Traditional photographs are two dimensional projections of a three dimensional scene. The third dimension is _depth_, which represents the distance between camera lens and objects in the image. Depth perception is crucial for understanding spatial relationships, with various applications in computer vision tasks. Additionally, photography and cinematography benefit from depth perception, aiding in the creation of visually compelling compositions. 
 
-Most methods to estimate depth involve analyzing multiple images of the same scene to measure pixel sharpness across the stack and determine depth based on the distance from the sharpest pixel [1]. Hardware-based solutions are also available, usually involving extra apparatus such as light emitters.
+Most methods to estimate depth involve analyzing multiple images of the same scene to measure pixel sharpness across the stack and determine depth based on the distance from the sharpest pixel [@gross1987]. Hardware-based solutions are also available, usually involving extra apparatus such as light emitters.
 
-Depth estimation based on single image is a more challenging problem because we have a single observation for each pixel of the scene. Depth estimation from defocus blur exploits the phenomenon where objects appear more blurred depending on their distance from the camera lens, serving as a depth surrogate.  @levin2007image utilized this idea with a *sparse gradient prior* on natural images to estimate the *level of blur* per pixel. However, this method requires a modified camera with a special coded aperture. Zhu et al \textbf{[3]} employed Gabor filters for local frequency component analysis and utilized a *simple gradient prior*, without the need for a special coded aperture. After estimating depth for each pixel, an energy minimization technique based on Markov Random Field over the image is used to generate a smooth depth map.
+Depth estimation based on single image is a more challenging problem because we have a single observation for each pixel of the scene. Depth estimation from defocus blur exploits the phenomenon where objects appear more blurred depending on their distance from the camera lens, serving as a depth surrogate.  @levin2007image utilized this idea with a *sparse gradient prior* on natural images to estimate the *level of blur* per pixel. However, this method requires a modified camera with a special coded aperture. @zhu2013 employed Gabor filters for local frequency component analysis and utilized a *simple gradient prior*, without the need for a special coded aperture. After estimating depth for each pixel, an energy minimization technique based on Markov Random Field over the image is used to generate a smooth depth map.
 
-In this project, we will explore whether a somewhat different approach can be used for the same problem. Instead of using a MRF approach for depth segmentation, we plan to start with modern high-performance segmentation algorithms such as Segment Anything \textbf{[6]}. Our hope is that if blurring is uniform within each segmented portion, it will be easier to estimate the blur kernel without a special coded aperture. We follow the approach developed by @nandy2021dependent to estimate the blur kernel, using in particular the locally dependent gradient prior proposed by them. However, instead of their nonparametric approach, we formulate and use simple parametric models for depth blurring, which we hope will lead to more efficient estimates for smaller image segments.
+In this project, we will explore whether a somewhat different approach can be used for the same problem. Instead of using a MRF approach for depth segmentation, we plan to start with modern high-performance segmentation algorithms such as Segment Anything [@sam2023]. Our hope is that if blurring is uniform within each segmented portion, it will be easier to estimate the blur kernel without a special coded aperture. We follow the approach developed by @nandy2021dependent to estimate the blur kernel, using in particular the locally dependent gradient prior proposed by them. However, instead of their nonparametric approach, we formulate and use simple parametric models for depth blurring, which we hope will lead to more efficient estimates for smaller image segments.
 
 
-```{r,warning=FALSE,echo=FALSE,out.width='80%',out.height = '90%',fig.align='center',echo=FALSE,fig.cap = "Example of Depth Map from Levin et al.\\textbf{[2]}. Original image (Left panel) and corresponding Depth map (right panel)"}
+```{r,warning=FALSE,echo=FALSE,out.width='80%',out.height = '90%',fig.align='center',echo=FALSE,fig.cap = "Example of Depth Map from \\cite{levin2007image}. Original image (Left panel) and corresponding Depth map (right panel)"}
 knitr::include_graphics("images/1.1.png")
 
 ```
@@ -82,9 +82,9 @@ The prior family used for the latent *natural image*^[By *natural*, we refer to 
  f_{\alpha}(z) = \frac{\alpha}{2\Gamma(\frac{1}{\alpha})}\text{exp}{(-|z|^{\alpha})}, z \in \mathbb{R} \ \ \text{and} \ \ \alpha > 0
 \end{equation}
 
-For $\alpha = 2$ we have Gaussian distribution and for $\alpha = 1$ we have Laplace distribution. @levin2007image used $\alpha = 0.8$, while Zhu et al. \textbf{[3]} utilized $\alpha = 2$, assuming IID gradients [FIXME: Zhu et al was gradient?]. @nandy2021dependent show that the assumption of independent image gradients is incorrect, and model the dependency structure of gradients using a simple first-order AR Model.
+For $\alpha = 2$ we have Gaussian distribution and for $\alpha = 1$ we have Laplace distribution. @levin2007image used $\alpha = 0.8$, while @zhu2013 utilized $\alpha = 2$, assuming IID gradients. @nandy2021dependent showed that the assumption of independent image gradients is incorrect, and modeled the dependency structure of gradients using a simple first-order AR Model.
 
-To use these priors to estimate the blur kernel, we first formulate the prior in the frequency domain. We will do this for (\ref{eq:2.1}). If $\delta_h = [-1,1]$ and $\delta_v = [-1,1]^T$, then the horizontal and vertical gradients are given by
+To apply these priors, we must express the blur model in terms of image gradients, specifically in frequency domain. We will do this for (\ref{eq:2.1}). If $\delta_h = [-1,1]$ and $\delta_v = [-1,1]^T$, then the horizontal and vertical gradients are given by
 \begin{equation}
   \label{eq:3.3}
   \delta_h\otimes\boldsymbol{b} = \delta_h \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\delta_h\otimes \boldsymbol{\epsilon}) =  k \otimes(\delta_h \ \otimes \ \boldsymbol{l}) \ + \ (\delta_h\otimes \boldsymbol{\epsilon})
@@ -121,9 +121,9 @@ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Trans
 
 ## Prior on Fourier coefficients
 
-If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}). Then by orthogonality of DFT, $X_{\omega}$'s must be IID complex normal when $\alpha = 2$ and uncorrelated and asymptotically complex normal when $\alpha \neq 2$ by CLT of Peligrad and Wu \textbf{[8]}. When elements of $\boldsymbol{x}$ are correlated, then $X_{\omega}$'s are still asymptotically independent and complex normal; however,  depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ is known explicitly.
+If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}). Then by orthogonality of DFT, $X_{\omega}$'s must be IID complex normal when $\alpha = 2$ and uncorrelated and asymptotically complex normal when $\alpha \neq 2$ by CLT of @peligrad2010. When elements of $\boldsymbol{x}$ are correlated, $X_{\omega}$'s are still asymptotically independent and complex normal; however, depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ is known explicitly.
 
-For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. We need to assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$ (\ref{eq:3.9}). This assumption is more or less true, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). Then, we apply the prior discussed above to that specific patch of the image.
+For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. We need to assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$. This assumption is more or less true, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). Then, we apply the prior discussed above to that specific patch of the image.
 
 \begin{equation}
  \label{eq:3.9}
@@ -132,7 +132,7 @@ For spatially varying blur, it is not immediately clear how we can express (\ref
 
 # Parametric Models for Blur Kernel
 
-From a single point source, light rays emit in different directions and fall on the lens of the camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object in a given camera setting are related as:
+From a single point source, light rays emit in different directions and fall on the lens of the camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object in a given camera setting are related as shown in @barsky2003:
 
 \begin{equation}
  \label{eq:4.1}
@@ -164,7 +164,7 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
 \textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times c_{diam}$ with $\kappa \in (0,\frac{1}{2}]$, which depends upon particular camera. This implies that we cannot change $h$ and $r$ independently.
 
-# ML Estimation of Blur Kernel Parameters
+# Maximum Likelihood Estimation of Blur Kernel Parameters
 
 Our main focus in this section is to develop *Maximum Likelihood Estimation* procedure for the parameter $\boldsymbol{\theta_t}$ of blur kernel for each pixel location $\boldsymbol{t}$. For the first three kernels $\boldsymbol{\theta_t} = (r_t,h_t)$, and for the Gaussian kernel $\boldsymbol{\theta_t} = h_t$. Our objective is to estimate these parameters based on the observed image $\boldsymbol{b}$ or equivalently $\boldsymbol{y}$. For that we need joint distribution of elements of $\boldsymbol{y}$. 
 
@@ -189,6 +189,8 @@ The above considerations are only for gradients in a particular direction, i.e.,
 \end{equation} 
 
 Our goal is to find maximizer of $L(\boldsymbol{\theta})$ or equivalently of $\log(L(\boldsymbol{\theta})) = log(L_h(\boldsymbol{\theta})) + log(L_v(\boldsymbol{\theta}))$ as a function of $\boldsymbol{\theta}$. For the spatially varying case, we simply apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain.
+
+# Future Work
 
 # References
 
