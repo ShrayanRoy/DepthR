@@ -1,5 +1,5 @@
 ---
-title: "Depth Estimation in Natural Images Using Segmentation"
+title: "**Depth Estimation in Natural Images using Segmentation**"
 author: "Shrayan Roy"
 date: "Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
 geometry: left=1.1in,right=1.1in,top=0.9in,bottom=0.9in
@@ -53,7 +53,7 @@ When light rays spread from a single point source and hit the camera lens, they 
 
 Where $\boldsymbol{k}$ is an $m \times n$ blur kernel, $\boldsymbol{l}$ is the $(M + m) \times (N + n)$ *true latent image* which we want to estimate, $\boldsymbol{\epsilon}$ is an $M \times N$ matrix of noise, and $\otimes$ denotes the *convolution* operator (By *convolution* we mean *valid* convolution). Reconstructing the latent image from an observed blurred image is called the **image deconvolution problem**. Depending on whether the blur kernel is known or unknown, we classify it as *non-blind deconvolution* or *blind deconvolution* problem. In either case, it is an ill-posed problem because the number of parameters is larger than the number of observations $MN$. One solution to this is to assume a prior for the latent image $\boldsymbol{l}$.
 
-```{r svar,warning=FALSE,echo=FALSE,out.width='80%',out.height = '70%',fig.align='center',echo=FALSE,fig.cap = "Example of Spatially Varying Blur: Each patch exhibits a distinct level of blur."}
+```{r svar,warning=FALSE,echo=FALSE,out.width='70%',out.height = '60%',fig.align='center',echo=FALSE,fig.cap = "Example of Spatially Varying Blur: Each patch exhibits a distinct level of blur."}
 knitr::include_graphics("images/2.1.png")
 
 ```
@@ -109,7 +109,7 @@ Where, $\boldsymbol{y}$ is the horizontal (or, vertical) gradient of observed bl
   \boldsymbol{Y} = \boldsymbol{K} \odot \boldsymbol{X} + \boldsymbol{N}
 \end{equation}
 
-Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Transform*'s of $\boldsymbol{y,k,x}$ and $\boldsymbol{n}$ respectively. $\odot$ indicates the *element wise product* operator. $\forall \ \omega = (\omega_1,\omega_2)$ we have
+Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Transform*'s of $\boldsymbol{y,k,x}$ and $\boldsymbol{n}$ respectively. $\odot$ indicates the *element wise product* operator. $\forall \ \boldsymbol{\omega} = (\omega_1,\omega_2)$ we have
 
 \begin{equation}
   \label{eq:3.7}
@@ -123,7 +123,7 @@ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Trans
 
 If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}). Then by orthogonality of DFT, $X_{\omega}$'s must be IID complex normal when $\alpha = 2$ and uncorrelated and asymptotically complex normal when $\alpha \neq 2$ by CLT of @peligrad2010. When elements of $\boldsymbol{x}$ are correlated, $X_{\omega}$'s are still asymptotically independent and complex normal; however, depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ is known explicitly.
 
-For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. We need to assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$. This assumption is more or less true, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). Then, we apply the prior discussed above to that specific patch of the image.
+For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. We need to assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$. Then we get equation (\ref{eq:3.9}) as model for blur. This assumption is more or less true, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). We apply the priors discussed above to these specific patches of the image.
 
 \begin{equation}
  \label{eq:3.9}
@@ -132,7 +132,7 @@ For spatially varying blur, it is not immediately clear how we can express (\ref
 
 # Parametric Models for Blur Kernel
 
-From a single point source, light rays emit in different directions and fall on the lens of the camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object in a given camera setting are related as shown in @barsky2003:
+From a single point source, light rays emit in different directions and fall on the lens of the camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object in a given camera setting are related as given in [@barsky2003]:
 
 \begin{equation}
  \label{eq:4.1}
