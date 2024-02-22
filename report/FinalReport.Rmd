@@ -2,15 +2,16 @@
 title: "**Depth Estimation Using Segmentation in Natural Images**"
 author: "Shrayan Roy"
 date: "Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
-geometry: left=1.1in,right=1.1in,top=0.9in,bottom=0.9in
+geometry: left = 1.1in, right = 1.1in, top = 0.8in, bottom = 0.8in
 output: 
   pdf_document:
     toc: no
     number_sections: true
     citation_package: biblatex
+fontsize: 11pt    
 urlcolor: blue
-fontsize: 11pt
 header-includes:
+  - \usepackage{paralist}
   - \usepackage{setspace}
   - \onehalfspacing
 bibliography: references.bib
@@ -86,7 +87,7 @@ The prior family used for the latent *natural image*^[By *natural*, we refer to 
 
 For $\alpha = 2$ we have Gaussian distribution and for $\alpha = 1$ we have Laplace distribution. @levin2007image used $\alpha = 0.8$, while @zhu2013 utilized $\alpha = 2$, assuming IID gradients. @nandy2021dependent showed that the assumption of independent image gradients is incorrect, and modeled the dependency structure of gradients using a simple first-order AR Model.
 
-To apply these priors, we must express the blur model in terms of image gradients, specifically in frequency domain. We will do this for (\ref{eq:2.1}). If $\delta_h = [-1,1]$ and $\delta_v = [-1,1]^T$, then the horizontal and vertical gradients are given by
+To apply these priors, we must express the blur model in terms of image gradients, specifically in frequency domain. We will do this for (\ref{eq:2.1}). If $\boldsymbol{\delta_h} = [-1,1]$ and $\boldsymbol{\delta_v} = [-1,1]^T$, then the horizontal and vertical gradients are given by
 \begin{equation}
   \label{eq:3.3}
   \delta_h\otimes\boldsymbol{b} = \delta_h \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\delta_h\otimes \boldsymbol{\epsilon}) =  k \otimes(\delta_h \ \otimes \ \boldsymbol{l}) \ + \ (\delta_h\otimes \boldsymbol{\epsilon})
@@ -123,7 +124,7 @@ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Trans
 
 ## Prior on Fourier coefficients
 
-If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}). Then by orthogonality of DFT, $X_{\omega}$'s must be IID complex normal when $\alpha = 2$ and uncorrelated and asymptotically complex normal when $\alpha \neq 2$ by CLT of @peligrad2010. When elements of $\boldsymbol{x}$ are correlated, $X_{\omega}$'s are still asymptotically independent and complex normal; however, depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ is known explicitly.
+If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}). Then by orthogonality of DFT, $\boldsymbol{X_{\omega}}$'s must be IID complex normal when $\alpha = 2$ and uncorrelated and asymptotically complex normal when $\alpha \neq 2$ by CLT of @peligrad2010. When elements of $\boldsymbol{x}$ are correlated, $\boldsymbol{X_{\omega}}$'s are still asymptotically independent and complex normal; however, depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ known explicitly.
 
 For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. We need to assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$. Then we get equation (\ref{eq:3.9}) as model for blur. This assumption is more or less true, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). We apply the priors discussed above to these specific patches of the image.
 
@@ -170,7 +171,7 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
 Our main focus in this section is to develop *Maximum Likelihood Estimation* procedure for the parameter $\boldsymbol{\theta_t}$ of blur kernel for each pixel location $\boldsymbol{t}$. For the first three kernels $\boldsymbol{\theta_t} = (r_t,h_t)$, and for the Gaussian kernel $\boldsymbol{\theta_t} = h_t$. Our objective is to estimate these parameters based on the observed image $\boldsymbol{b}$ or equivalently $\boldsymbol{y}$. For that we need joint distribution of elements of $\boldsymbol{y}$. 
 
-For easier calculations we move to frequency domain. In the case of generalized prior we have $\boldsymbol{X_{\omega}} \sim \mathcal{CN}(0,\sigma^2 g_{\omega}) \ \ \forall \omega$ independently. In addition, if the errors in the original image, given by $\boldsymbol{\epsilon}$, are assumed to be IID Gaussian, then its gradient $\boldsymbol{n}$ will have correlated elements and successive elements in the direction of the gradient will have correlation 0.5, while all other pairs will be uncorrelated. This will induce a non-constant variance for $\boldsymbol{N_{\omega}}$, given by a function $h_{\omega}$ such that $Var(\boldsymbol{N_{\omega}}) = \eta^2 h_{\omega}$. Hence, $\boldsymbol{N_{\omega}} \sim \mathcal{CN}(0,\eta^2 h_{\omega})$ independently. An explicit expression for $h_{\omega}$ can be found similarly to that of $g_{\omega}$.
+For easier calculations we move to frequency domain. In the case of generalized prior we have $\boldsymbol{X_{\omega}} \sim \mathcal{CN}(0,\sigma^2 g_{\omega}) \ \ \forall \boldsymbol{\omega}$ independently. In addition, if the errors in the original image, given by $\boldsymbol{\epsilon}$, are assumed to be IID Gaussian, then its gradient $\boldsymbol{n}$ will have correlated elements and successive elements in the direction of the gradient will have correlation 0.5, while all other pairs will be uncorrelated. This will induce a non-constant variance for $\boldsymbol{N_{\omega}}$, given by a function $h_{\omega}$ such that $Var(\boldsymbol{N_{\omega}}) = \eta^2 h_{\omega}$. Hence, $\boldsymbol{N_{\omega}} \sim \mathcal{CN}(0,\eta^2 h_{\omega})$ independently. An explicit expression for $h_{\omega}$ can be found similarly to that of $g_{\omega}$.
 
 From (\ref{eq:3.7}) we have, $\boldsymbol{Y_{\omega}} \sim \mathcal{CN}(0,\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}) \ \ \boldsymbol{\forall \omega}$. For a given choice of model for blur kernel, we estimate parameters $\boldsymbol{\theta}$ based on $\boldsymbol{Y_{\omega}}$'s using maximum likelihood principle. For ease of calculation we have used likelihood of $|\boldsymbol{Y_{\omega}}|^2$'s.
 
@@ -213,17 +214,17 @@ knitr::include_graphics("images/6.2.png")
 
 From Figure \ref{fig:plot8},\ref{fig:plot9} and \ref{fig:plot10}. we observe that as patch size increases, the estimated $r$ becomes more stable as a function of $\sigma$. Most importantly for $\sigma = 0.2$, the estimated $r$ closely matches with the true value $r_{true}$ across all cases, indicating that $\sigma = 0.2$ is a suitable choice for the prior parameter. This observation is consistent with Figures \ref{fig:plot6} and \ref{fig:plot7}. It is also clear that the maximum likelihood estimation does not perform well for small patch sizes. It is expected, because we have less number observations for small patch sizes.
 
-```{r plot8,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "51 $\\times$ 51 Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
+```{r plot8,warning=FALSE,echo=FALSE,out.width='100%',out.height= '95%',fig.align='center',echo=FALSE,fig.cap = "$51 \\times 51$ Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
 
 knitr::include_graphics("images/6.4.png")
 ```
 
-```{r plot9,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "101 x 101 Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
+```{r plot9,warning=FALSE,echo=FALSE,out.width='100%',out.height= '95%',fig.align='center',echo=FALSE,fig.cap = "$101 \\times 101$ Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
 
 knitr::include_graphics("images/6.5.png")
 ```
 
-```{r plot10,warning=FALSE,echo=FALSE,out.width='100%',out.height= '90%',fig.align='center',echo=FALSE,fig.cap = "201 x 201 Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
+```{r plot10,warning=FALSE,echo=FALSE,out.width='100%',out.height= '90%',fig.align='center',echo=FALSE,fig.cap = "$201 \\times 201$ Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
 
 knitr::include_graphics("images/6.6.png")
 ```
