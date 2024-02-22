@@ -164,7 +164,7 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 \textbf{4. Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$.
       $$k(x,y) = \frac{C_{h}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$
 
-\textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times r$ with $\kappa \in (0,1]$ depending upon particular camera. This implies that we cannot change $h$ and $r$ independently.
+\textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times r$ with $\kappa$ depending upon particular camera. This implies that we cannot change $h$ and $r$ independently.
 
 # Maximum Likelihood Estimation of Blur Kernel Parameters
 
