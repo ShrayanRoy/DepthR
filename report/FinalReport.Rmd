@@ -15,6 +15,7 @@ header-includes:
   - \onehalfspacing
 bibliography: references.bib
 csl: ieee.csl
+nocite: "@rip2010"
 ---
 
 ```{r setup, include=FALSE}
@@ -228,8 +229,6 @@ knitr::include_graphics("images/6.6.png")
 # Future Work
 
 So far, we have conducted preliminary simulation studies to understand the behavior of the maximum likelihood procedure in local patches of images. Next, we will evaluate how this method performs for the image segments identified by segmentation algorithms. We need to formulate mathematical expressions to determine the depth from the level of blur for each segment. Additionally, we will conduct empirical analysis to ascertain which blur kernel model is applicable in real-life blurred images.
-
-TODO deblurring !
 
 # References
 
