@@ -184,7 +184,7 @@ Using last result, $\boldsymbol{|Y_\omega|^2} \sim \text{Exp}(\lambda_\omega = \
 The above considerations are only for gradients in a particular direction, i.e., *horizontal* or *vertical*. To incorporate both directions in the estimation procedure, we assume for simplicity that they are independent. The joint likelihood is then given by 
 \begin{equation}
  \label{eq:5.2}
- L(\theta) = L_h(\theta)\times L_v(\theta) = f_{\theta}(|Y_{h,\omega}|^2,\forall \omega) \times f_{\theta}(|Y_{v,\omega'}|^2,\forall \omega')
+ L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta}) = f_{\theta}(|Y_{h,\omega}|^2,\forall \omega) \times f_{\theta}(|Y_{v,\omega'}|^2,\forall \omega')
 \end{equation} 
 
 Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})$, or equivalently $\log L(\boldsymbol{\theta}) = \log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})$. We do this by numerically optimizing the objective (log-likelhood) function. For the spatially varying case, we can simply apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain, or to segments identified by segmentation algorithms.
@@ -194,7 +194,7 @@ Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})
 The log likelihood defined in (\ref{eq:5.2}) is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. The parameter is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the *disc kernel*. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.4 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.001$ constant. 
 
 
-```{r plot6,warning=FALSE,echo=FALSE,out.width='80%',out.height= '30%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Image Patch, (b) Blurred Image Using disc kernel with r = 3, (c) Disc Kernel with r = 3, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
+```{r plot6,warning=FALSE,echo=FALSE,out.width='80%',out.height= '30%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 3$, (c) Disc Kernel with $r = 3$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
 
 knitr::include_graphics("images/6.3.png")
 ```
@@ -203,7 +203,7 @@ In Figure \ref{fig:plot6}, (a) shows the original sharp image of size $101 \time
 
 Simply looking for global maxima is not the solution. Choice of the prior parameter $\sigma$ significantly affects the performance of ML Estimation. In the Bayesian Paradigm, this is quite common. If we can choose $\sigma$ such that the maximizer of the log-likelihood for that given $\sigma$ closely matches the true parameter, then we are done. To find a reasonable value of $\sigma$ we use simulation. We consider five sharp images of size $255 \times 255$ and true parameter values $r_{true} = 1, 3, 5$ to simulate defocus blur. For each $r_{true}$ value and fixed patch size, we randomly select five patches from each image and plot the estimated $r$ as a function of $\sigma$ for each random patch. We have considered patch sizes $51 \times 51$, $101 \times 101$, and $201 \times 201$.
 
-```{r plot7,warning=FALSE,echo=FALSE,out.width='80%',out.height= '40%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Image Patch, (b) Blurred Image Using disc kernel with r = 2.5, (c) Disc Kernel with r = 2.5, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
+```{r plot7,warning=FALSE,echo=FALSE,out.width='80%',out.height= '40%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 2.5$, (c) Disc Kernel with $r = 2.5$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
 
 knitr::include_graphics("images/6.2.png")
 ```
@@ -215,12 +215,12 @@ From Figure \ref{fig:plot8},\ref{fig:plot9} and \ref{fig:plot10}. we observe tha
 knitr::include_graphics("images/6.4.png")
 ```
 
-```{r plot9,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "101 x 101 Patch and Disc Kernel : Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
+```{r plot9,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "101 x 101 Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
 
 knitr::include_graphics("images/6.5.png")
 ```
 
-```{r plot10,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "201 x 201 Patch and Disc Kernel : Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
+```{r plot10,warning=FALSE,echo=FALSE,out.width='100%',out.height= '90%',fig.align='center',echo=FALSE,fig.cap = "201 x 201 Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
 
 knitr::include_graphics("images/6.6.png")
 ```
