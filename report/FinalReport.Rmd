@@ -1,5 +1,5 @@
 ---
-title: "**Depth Estimation in Natural Images using Segmentation**"
+title: "**Depth Estimation in Natural Images Using Segmentation**"
 author: "Shrayan Roy"
 date: "Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
 geometry: left=1.1in,right=1.1in,top=0.9in,bottom=0.9in
@@ -15,7 +15,9 @@ header-includes:
   - \onehalfspacing
 bibliography: references.bib
 csl: ieee.csl
+nocite: "@rip2010"
 ---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -37,7 +39,7 @@ Depth estimation based on single image is a more challenging problem because we 
 In this project, we will explore whether a somewhat different approach can be used for the same problem. Instead of using a MRF approach for depth segmentation, we plan to start with modern high-performance segmentation algorithms such as Segment Anything [@sam2023]. Our hope is that if blurring is uniform within each segmented portion, it will be easier to estimate the blur kernel without a special coded aperture. We follow the approach developed by @nandy2021dependent to estimate the blur kernel, using in particular the locally dependent gradient prior proposed by them. However, instead of their nonparametric approach, we formulate and use simple parametric models for depth blurring, which we hope will lead to more efficient estimates for smaller image segments.
 
 
-```{r,warning=FALSE,echo=FALSE,out.width='80%',out.height = '90%',fig.align='center',echo=FALSE,fig.cap = "Example of Depth Map from \\cite{levin2007image}. Original image (Left panel) and corresponding Depth map (right panel)"}
+```{r,warning=FALSE,echo=FALSE,out.width='85%',out.height = '95%',fig.align='center',echo=FALSE,fig.cap = "Example of Depth Map from \\cite{levin2007image}. Original image (Left panel) and corresponding Depth map (right panel)"}
 knitr::include_graphics("images/1.1.png")
 
 ```
@@ -162,7 +164,7 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 \textbf{4. Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$.
       $$k(x,y) = \frac{C_{h}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$
 
-\textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times c_{diam}$ with $\kappa \in (0,\frac{1}{2}]$, which depends upon particular camera. This implies that we cannot change $h$ and $r$ independently.
+\textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times r$ with $\kappa \in (0,1]$ depending upon particular camera. This implies that we cannot change $h$ and $r$ independently.
 
 # Maximum Likelihood Estimation of Blur Kernel Parameters
 
@@ -184,21 +186,53 @@ Using last result, $\boldsymbol{|Y_\omega|^2} \sim \text{Exp}(\lambda_\omega = \
 The above considerations are only for gradients in a particular direction, i.e., *horizontal* or *vertical*. To incorporate both directions in the estimation procedure, we assume for simplicity that they are independent. The joint likelihood is then given by 
 \begin{equation}
  \label{eq:5.2}
- L(\theta) = L_h(\theta)\times L_v(\theta) = f_{\theta}(|Y_{h,\omega}|^2,\forall \omega) \times f_{\theta}(|Y_{v,\omega'}|^2,\forall \omega')
+ L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta}) = f_{\theta}(|Y_{h,\omega}|^2,\forall \omega) \times f_{\theta}(|Y_{v,\omega'}|^2,\forall \omega')
 \end{equation} 
 
 Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})$, or equivalently $\log L(\boldsymbol{\theta}) = \log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})$. We do this by numerically optimizing the objective (log-likelhood) function. For the spatially varying case, we can simply apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain, or to segments identified by segmentation algorithms.
 
 # Results
 
-TODO
+
+The log likelihood defined in (\ref{eq:5.2}) is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. The parameter is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the *disc kernel*. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.4 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.001$ constant. 
+
+
+```{r plot6,warning=FALSE,echo=FALSE,out.width='80%',out.height= '30%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 3$, (c) Disc Kernel with $r = 3$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
+
+knitr::include_graphics("images/6.3.png")
+```
+
+In Figure \ref{fig:plot6}, (a) shows the original sharp image of size $101 \times 101$. We use a disc kernel with $r_{\text{true}} = 3$ to simulate defocus blur as shown in (b). The log likelihood is plotted as a function of $r$ and $\sigma$ in (d). Three local maxima points are visible in the plot, indicated by red dots. The global maximum is located near $r = 3$, with the corresponding value of $\sigma$ around 0.17. Maximizing the log likelihood over a grid of values of $(r,\sigma)$ gives a correct estimate of $r$ in this case. However, it is not guaranteed that the global maximum always indicates the true parameter $r$. Figure \ref{fig:plot7} shows another example, where we implement the same simulation with $r_{\text{true}} = 2.5$. But this time the global maximum is attained at $r = 1.65$ with corresponding $\sigma = 0.04$, which is different from the true parameter value. In this case, we have three local maxima, with one near the true parameter value and corresponding $\sigma$ near 0.2.
+
+Simply looking for global maxima is not the solution. Choice of the prior parameter $\sigma$ significantly affects the performance of ML Estimation. In the Bayesian Paradigm, this is quite common. If we can choose $\sigma$ such that the maximizer of the log-likelihood for that given $\sigma$ closely matches the true parameter, then we are done. To find a reasonable value of $\sigma$ we use simulation. We consider five sharp images of size $255 \times 255$ and true parameter values $r_{true} = 1, 3, 5$ to simulate defocus blur. For each $r_{true}$ value and fixed patch size, we randomly select five patches from each image and plot the estimated $r$ as a function of $\sigma$ for each random patch. We have considered patch sizes $51 \times 51$, $101 \times 101$, and $201 \times 201$.
+
+```{r plot7,warning=FALSE,echo=FALSE,out.width='80%',out.height= '40%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 2.5$, (c) Disc Kernel with $r = 2.5$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
+
+knitr::include_graphics("images/6.2.png")
+```
+
+From Figure \ref{fig:plot8},\ref{fig:plot9} and \ref{fig:plot10}. we observe that as patch size increases, the estimated $r$ becomes more stable as a function of $\sigma$. Most importantly for $\sigma = 0.2$, the estimated $r$ closely matches with the true value $r_{true}$ across all cases, indicating that $\sigma = 0.2$ is a suitable choice for the prior parameter. This observation is consistent with Figures \ref{fig:plot6} and \ref{fig:plot7}. It is also clear that the maximum likelihood estimation does not perform well for small patch sizes. It is expected, because we have less number observations for small patch sizes.
+
+```{r plot8,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "51 $\\times$ 51 Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
+
+knitr::include_graphics("images/6.4.png")
+```
+
+```{r plot9,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "101 x 101 Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
+
+knitr::include_graphics("images/6.5.png")
+```
+
+```{r plot10,warning=FALSE,echo=FALSE,out.width='100%',out.height= '90%',fig.align='center',echo=FALSE,fig.cap = "201 x 201 Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
+
+knitr::include_graphics("images/6.6.png")
+```
 
 # Future Work
 
-TODO
+So far, we have conducted preliminary simulation studies to understand the behavior of the maximum likelihood procedure in local patches of images. Next, we will evaluate how this method performs for the image segments identified by segmentation algorithms. We need to formulate mathematical expressions to determine the depth from the level of blur for each segment. Additionally, we will conduct empirical analysis to ascertain which blur kernel model is applicable in real-life blurred images.
 
 # References
-
 
 
 
