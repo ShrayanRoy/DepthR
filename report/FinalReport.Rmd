@@ -1,7 +1,7 @@
 ---
 title: "**Depth Estimation Using Segmentation in Natural Images**"
-author: "Shrayan Roy"
-date: "Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
+author: "Shrayan Roy, Roll No: MD2220"
+date: "Project Supervisor: Dr. Deepayan Sarkar^[Theoretical Statistics and Mathematics Unit, ISI Delhi < deepayan@isid.ac.in >]" 
 geometry: left = 1.1in, right = 1.1in, top = 0.8in, bottom = 0.8in
 output: 
   pdf_document:
