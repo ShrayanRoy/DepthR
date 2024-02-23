@@ -25,7 +25,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 \begin{abstract} 
-\small{Estimating depth map from a single photograph is an intriguing problem with many applications. Levin et al. \cite{levin2007image} proposed a method which requires a modified camera with special coded aperture. We aim to explore whether similar tasks can be done using standard cameras. We have formulated simple parametric models for depth blurring, which we hope will lead to more efficient estimates.}\\
+\small{Estimating depth map from a single photograph is an intriguing problem with many interesting practical applications. Levin et al. \cite{levin2007image} proposed a method which requires a modified camera with a specialized coded aperture. However, this approach is not applicable in practice since it requires modifying the camera before capturing the image, which may not always be feasible. We aim to explore whether similar tasks can be done using standard cameras. We have formulated simple parametric models for depth blurring, which we hope will lead to more efficient estimates.}\\
  \small{ \textbf{Keywords:} Auto Regressive Prior, Blur Kernel, Depth Map, Image Segmentation }
 \end{abstract}
 
@@ -35,7 +35,7 @@ Traditional photographs are two dimensional projections of a three dimensional s
 
 Most methods to estimate depth involve analyzing multiple images of the same scene to measure pixel sharpness across the stack and determine depth based on the distance from the sharpest pixel [@gross1987]. Hardware-based solutions are also available, usually involving extra apparatus such as light emitters.
 
-Depth estimation based on single image is a more challenging problem because we have a single observation for each pixel of the scene. Depth estimation from defocus blur exploits the phenomenon where objects appear more blurred depending on their distance from the camera lens, serving as a depth surrogate.  @levin2007image utilized this idea with a *sparse gradient prior* on natural images to estimate the *level of blur* per pixel. However, this method requires a modified camera with a special coded aperture. @zhu2013 employed Gabor filters for local frequency component analysis and utilized a *simple gradient prior*, without the need for a special coded aperture. After estimating depth for each pixel, an energy minimization technique based on Markov Random Field over the image is used to generate a smooth depth map.
+Depth estimation based on single image is a more challenging problem because we have single observation for each pixel of the scene. Depth estimation from defocus blur exploits the phenomenon where objects appear more blurred depending on their distance from the camera lens, serving as a depth surrogate.  @levin2007image utilized this idea with a *sparse gradient prior* on natural images to estimate the *level of blur* per pixel. However, this method requires a modified camera with a special coded aperture. @zhu2013 employed Gabor filters for local frequency component analysis and utilized a *simple gradient prior*, without the need for a special coded aperture. After estimating depth for each pixel, an energy minimization technique based on Markov Random Field over the image is used to generate a smooth depth map.
 
 In this project, we will explore whether a somewhat different approach can be used for the same problem. Instead of using a MRF approach for depth segmentation, we plan to start with modern high-performance segmentation algorithms such as Segment Anything [@sam2023]. Our hope is that if blurring is uniform within each segmented portion, it will be easier to estimate the blur kernel without a special coded aperture. We follow the approach developed by @nandy2021dependent to estimate the blur kernel, using in particular the locally dependent gradient prior proposed by them. However, instead of their nonparametric approach, we formulate and use simple parametric models for depth blurring, which we hope will lead to more efficient estimates for smaller image segments.
 
@@ -90,12 +90,12 @@ For $\alpha = 2$ we have Gaussian distribution and for $\alpha = 1$ we have Lapl
 To apply these priors, we must express the blur model in terms of image gradients, specifically in frequency domain. We will do this for (\ref{eq:2.1}). If $\boldsymbol{\delta_h} = [-1,1]$ and $\boldsymbol{\delta_v} = [-1,1]^T$, then the horizontal and vertical gradients are given by
 \begin{equation}
   \label{eq:3.3}
-  \delta_h\otimes\boldsymbol{b} = \delta_h \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\delta_h\otimes \boldsymbol{\epsilon}) =  k \otimes(\delta_h \ \otimes \ \boldsymbol{l}) \ + \ (\delta_h\otimes \boldsymbol{\epsilon})
+  \boldsymbol{\delta_h}\otimes\boldsymbol{b} = \boldsymbol{\delta_h} \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_h}\otimes \boldsymbol{\epsilon}) =  k \otimes(\boldsymbol{\delta_h} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_h}\otimes \boldsymbol{\epsilon})
 \end{equation}  
 
 \begin{equation}
   \label{eq:3.4}
-  \delta_v\otimes\boldsymbol{b} = \delta_v \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\delta_v\otimes \boldsymbol{\epsilon}) =  k \otimes(\delta_v \ \otimes \ \boldsymbol{l}) \ + \ (\delta_v\otimes \boldsymbol{\epsilon})
+  \boldsymbol{\delta_v}\otimes\boldsymbol{b} = \boldsymbol{\delta_v} \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon}) =  k \otimes(\boldsymbol{\delta_v} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon})
 \end{equation}
 
 To keep the notations simple, we will henceforth take the model by combining (\ref{eq:3.3}) and (\ref{eq:3.4})
@@ -135,14 +135,14 @@ For spatially varying blur, it is not immediately clear how we can express (\ref
 
 # Parametric Models for Blur Kernel
 
-From a single point source, light rays emit in different directions and fall on the lens of the camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object in a given camera setting are related as given in [@barsky2003]:
+From a single point source, light rays emit in different directions and fall on the lens of camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object ($d$) in a given camera setting are related as given in [@barsky2003]:
 
 \begin{equation}
  \label{eq:4.1}
  c_{diam} = a_{diam}f \left|\frac{d - d_{focus}}{d(d_{focus} - f)}\right| \approx a_{diam}f \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|
 \end{equation}
 
-In a given camera setting (i.e., fixed $a_{diam}$ and $f$)^[For most cameras, $d_{focus} >> f$, hence the approximation.], $c_{diam} \propto \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$. As we move away from the plane of focus on either side, we encounter a similar type of $c_{diam}$. Thus, from the diameter of the blur circle, it is challenging to accurately estimate the depth $d$ of an object in an image because for each value of $c_{diam}$, two possible values of $d$ exist. It is evident from (\ref{eq:4.1}) that, the support of PSF in our case must be circular rather than square. Due to *diffraction* caused by the camera lens and the boundaries of the circular aperture, we expect the intensity distribution of light to be spherical symmetrically distributed over the circular support. Keeping all these in mind we propose the following models for blur kernel.
+In a given camera setting (i.e., fixed $a_{diam}$ and $f$)^[For most cameras, $d_{focus} >> f$, hence the approximation.], $c_{diam} \propto \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$. As we move away from the plane of focus on either side, we encounter a similar type of $c_{diam}$. Thus, from the diameter of the blur circle, it is challenging to accurately estimate the depth $d$ of an object in an image. Because for each value of $c_{diam}$, two possible values of $d$ exist. It is evident from (\ref{eq:4.1}) that, the support of PSF in our case must be circular rather than square. Due to *diffraction* caused by the camera lens and the boundaries of the circular aperture, we expect the intensity distribution of light to be spherical symmetrically distributed over the circular support. Keeping all these in mind we propose the following models for blur kernel.
 
 ```{r plot_4,warning=FALSE,echo=FALSE,out.width='70%',out.height= '30%',fig.align='center',echo=FALSE,fig.cap="Thin Lens Model of Camera and Circle of Confusion $c_{diam}$ in a given camera setting"}
 
@@ -169,9 +169,9 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
 # Maximum Likelihood Estimation of Blur Kernel Parameters
 
-Our main focus in this section is to develop *Maximum Likelihood Estimation* procedure for the parameter $\boldsymbol{\theta_t}$ of blur kernel for each pixel location $\boldsymbol{t}$. For the first three kernels $\boldsymbol{\theta_t} = (r_t,h_t)$, and for the Gaussian kernel $\boldsymbol{\theta_t} = h_t$. Our objective is to estimate these parameters based on the observed image $\boldsymbol{b}$ or equivalently $\boldsymbol{y}$. For that we need joint distribution of elements of $\boldsymbol{y}$. 
+Our main focus in this section is to develop *Maximum Likelihood Estimation* procedure for the parameter $\boldsymbol{\theta_t}$ of blur kernel for each pixel location $\boldsymbol{t}$. For the first three kernels $\boldsymbol{\theta_t} = (r_t,h_t)$, and for the Gaussian kernel $\boldsymbol{\theta_t} = h_t$. We need to estimate these parameters based on the observed image $\boldsymbol{b}$ or equivalently $\boldsymbol{y}$. For that we need joint distribution of elements of $\boldsymbol{y}$. 
 
-For easier calculations we move to frequency domain. In the case of generalized prior we have $\boldsymbol{X_{\omega}} \sim \mathcal{CN}(0,\sigma^2 g_{\omega}) \ \ \forall \boldsymbol{\omega}$ independently. In addition, if the errors in the original image, given by $\boldsymbol{\epsilon}$, are assumed to be IID Gaussian, then its gradient $\boldsymbol{n}$ will have correlated elements and successive elements in the direction of the gradient will have correlation 0.5, while all other pairs will be uncorrelated. This will induce a non-constant variance for $\boldsymbol{N_{\omega}}$, given by a function $h_{\omega}$ such that $Var(\boldsymbol{N_{\omega}}) = \eta^2 h_{\omega}$. Hence, $\boldsymbol{N_{\omega}} \sim \mathcal{CN}(0,\eta^2 h_{\omega})$ independently. An explicit expression for $h_{\omega}$ can be found similarly to that of $g_{\omega}$.
+As our priors for $\boldsymbol{x}$ are defined in terms of Fourier coefficients, we move to the frequency domain. In the case of generalized prior we have $\boldsymbol{X_{\omega}} \sim \mathcal{CN}(0,\sigma^2 g_{\omega}) \ \ \forall \boldsymbol{\omega}$ independently. In addition, if the errors in the original image, given by $\boldsymbol{\epsilon}$, are assumed to be IID Gaussian, then its gradient $\boldsymbol{n}$ will have correlated elements and successive elements in the direction of the gradient will have correlation 0.5, while all other pairs will be uncorrelated. This will induce a non-constant variance for $\boldsymbol{N_{\omega}}$, given by a function $h_{\omega}$ such that $Var(\boldsymbol{N_{\omega}}) = \eta^2 h_{\omega}$. Hence, $\boldsymbol{N_{\omega}} \sim \mathcal{CN}(0,\eta^2 h_{\omega})$ independently. An explicit expression for $h_{\omega}$ can be found similarly to that of $g_{\omega}$.
 
 From (\ref{eq:3.7}) we have, $\boldsymbol{Y_{\omega}} \sim \mathcal{CN}(0,\sigma^2|K_\omega|^2 g_{\omega} + \eta^2 h_{\omega}) \ \ \boldsymbol{\forall \omega}$. For a given choice of model for blur kernel, we estimate parameters $\boldsymbol{\theta}$ based on $\boldsymbol{Y_{\omega}}$'s using maximum likelihood principle. For ease of calculation we have used likelihood of $|\boldsymbol{Y_{\omega}}|^2$'s.
 
@@ -195,10 +195,10 @@ Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})
 # Results
 
 
-The log likelihood defined in (\ref{eq:5.2}) is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. The parameter is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the *disc kernel*. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.4 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.001$ constant. 
+The log-likelihood, defined in (\ref{eq:5.2}), is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. This parameter is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log-likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the disc kernel. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.4 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.001$ constant.
 
 
-```{r plot6,warning=FALSE,echo=FALSE,out.width='80%',out.height= '30%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 3$, (c) Disc Kernel with $r = 3$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
+```{r plot6,warning=FALSE,echo=FALSE,out.width='93%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 3$, (c) Disc Kernel with $r = 3$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
 
 knitr::include_graphics("images/6.3.png")
 ```
@@ -207,12 +207,12 @@ In Figure \ref{fig:plot6}, (a) shows the original sharp image of size $101 \time
 
 Simply looking for global maxima is not the solution. Choice of the prior parameter $\sigma$ significantly affects the performance of ML Estimation. In the Bayesian Paradigm, this is quite common. If we can choose $\sigma$ such that the maximizer of the log-likelihood for that given $\sigma$ closely matches the true parameter, then we are done. To find a reasonable value of $\sigma$ we use simulation. We consider five sharp images of size $255 \times 255$ and true parameter values $r_{true} = 1, 3, 5$ to simulate defocus blur. For each $r_{true}$ value and fixed patch size, we randomly select five patches from each image and plot the estimated $r$ as a function of $\sigma$ for each random patch. We have considered patch sizes $51 \times 51$, $101 \times 101$, and $201 \times 201$.
 
-```{r plot7,warning=FALSE,echo=FALSE,out.width='80%',out.height= '40%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 2.5$, (c) Disc Kernel with $r = 2.5$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
+```{r plot7,warning=FALSE,echo=FALSE,out.width='93%',out.height= '45%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 2.5$, (c) Disc Kernel with $r = 2.5$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
 
 knitr::include_graphics("images/6.2.png")
 ```
 
-From Figure \ref{fig:plot8},\ref{fig:plot9} and \ref{fig:plot10}. we observe that as patch size increases, the estimated $r$ becomes more stable as a function of $\sigma$. Most importantly for $\sigma = 0.2$, the estimated $r$ closely matches with the true value $r_{true}$ across all cases, indicating that $\sigma = 0.2$ is a suitable choice for the prior parameter. This observation is consistent with Figures \ref{fig:plot6} and \ref{fig:plot7}. It is also clear that the maximum likelihood estimation does not perform well for small patch sizes. It is expected, because we have less number observations for small patch sizes.
+From Figure \ref{fig:plot8}, \ref{fig:plot9} and \ref{fig:plot10}, we observe that as patch size increases, the estimated $r$ becomes more stable as a function of $\sigma$. Most importantly for $\sigma = 0.2$, the estimated $r$ closely matches with the true value $r_{true}$ across all cases, indicating that $\sigma = 0.2$ is a suitable choice for the prior parameter. This observation is consistent with Figures \ref{fig:plot6} and \ref{fig:plot7}. It is also clear that the maximum likelihood estimation does not perform well for small patch sizes as expected. Because we have less number of pixels for small patch sizes.
 
 ```{r plot8,warning=FALSE,echo=FALSE,out.width='100%',out.height= '95%',fig.align='center',echo=FALSE,fig.cap = "$51 \\times 51$ Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
 
