@@ -1,0 +1,32 @@
+---
+title: "Depth Estimation Using"
+subtitle: "Segmentation in Natural Images"
+author: "Shrayan Roy, Roll No: MD2220"
+institute: "Supervisor: Dr. Deepayan Sarkar"
+date: "Indian Statistical Institute, Kolkata"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: [isi.css,fonts.css]
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      ratio: 16:9
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+# Introduction
+
+
+
+
+
+---
+
+
+
+
