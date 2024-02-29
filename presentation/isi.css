@@ -122,7 +122,7 @@ thead, tfoot, tr:nth-child(even) { background: none; }
   width: 200px;
   background-color: #fff;
   padding-left: 100px;
-  border: 0.3rem solid #cc0033;
+  border: 0.15rem solid #cc0033;
 }
 
 
@@ -218,15 +218,12 @@ thead, tfoot, tr:nth-child(even) { background: none; }
 /*~~~~~~~~~~~~~~~~~~~~*/
 
 /* Add padding to all slides for 16:9 aspect ratio */
-.remark-slide-content {
-  padding-left: 100px;  /* delete this for 4:3 aspect ratio */
-}
 
 /* Color adjustments for text */
 
 /* Make bold syntax compile to RU-red */
 strong {
-  color: #cc0033;
+  color: #000000;
 }
 
 .RUred {
