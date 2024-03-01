@@ -174,6 +174,7 @@ thead, tfoot, tr:nth-child(even) { background: none; }
 /* section divider red */
 .title-slide-section-red {
   background-color: #cc0033;
+  text-shadow: none;
   padding-left: 100px;  /* delete this for 4:3 aspect ratio */
 }
 

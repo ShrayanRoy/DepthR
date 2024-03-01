@@ -43,7 +43,7 @@ xaringanExtra::use_panelset()
 
 --
 
-```{r ,warning=FALSE,echo=FALSE,out.width='65%',fig.align='center',echo=FALSE,fig.cap= "Figure: 3D perspective from 2D image"}
+```{r ,warning=FALSE,echo=FALSE,out.width='70%',fig.align='center',echo=FALSE,fig.cap= "Figure: 3D perspective from 2D image"}
 
 knitr::include_graphics("dof.jpg")
 ```
@@ -60,24 +60,32 @@ knitr::include_graphics("dof.jpg")
 
 --
 
-* It provides **spatial information** about the scene, which can be used for applications such as post-capture image refocusing, automatic scene segmentation and object detection.
+* It has applications such as post-capture *image refocusing*, automatic *scene segmentation*, and *object detection*.
 
 --
 
-```{r,warning=FALSE,echo=FALSE,out.width='65%',fig.align='center',echo=FALSE,fig.cap = "Figure: 2D Projection of 3D scene in standard cameras"}
+* Most depth estimation methods use **multiple images** or **hardware solutions** like light emitters and coded apertures.
 
-knitr::include_graphics("persproj.png")
+--
+
+```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE,fig.cap = "Figure: Methods to estimate depth"}
+
+knitr::include_graphics("dest.png")
 ```
 
 ---
 
-# Existing Methods to Estimate Depth
+# Depth: the third dimension
 
-* Most modifications to estimate depth involves **multiple images** of the same scene or some **hardware based solution** such as light emitters, coded aperture.
+* Traditional photographs are two dimensional projections of a three dimensional scene.
 
---
+* The third dimension is *depth*, which represents the distance between camera and objects in the image.
 
-* These methods are **not** applicable in practice, as it requires modifying the camera system before capturing the image, which may not always be feasible.
+* It has applications such as post-capture *image refocusing*, automatic *scene segmentation*, and *object detection*.
+
+* Most depth estimation methods use **multiple images** or **hardware solutions** like light emitters and coded apertures.
+
+* These methods are **not** applicable in practice as they require pre-modifying the camera system, which may not always be feasible.
 
 --
 
@@ -85,13 +93,8 @@ knitr::include_graphics("persproj.png")
 
 --
 
-* Depth estimation from a single image is a more challenging problem because we have only a **single observation** for each pixel of the scene.
+* Depth estimation from a single image is more **challenging** because we have only one observation per pixel.
 
-
-```{r ,warning=FALSE,echo=FALSE,out.width='90%',fig.align='center',echo=FALSE,fig.cap = "Figure: Methods to estimate depth"}
-
-knitr::include_graphics("dest.png")
-```
 
 ---
 
@@ -101,10 +104,9 @@ knitr::include_graphics("dest.png")
 
 --
 
-* Therefore, measuring the amount of blur at a point of an image can provide a way to recover the depth to the respective point in the 3D world.
+* Measuring blur for each image point can help recover its corresponding depth in the 3D world.
 
 --
-
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='45%',fig.align='center',echo=FALSE,fig.cap= "Figure: Bluriness depends on distance of objects from camera"}
 
@@ -115,11 +117,11 @@ knitr::include_graphics("depfoc.png")
 
 # Levin et al. (2007)
 
-* Levin et al. utilized this concept to estimate the level of blur per pixel in a given input image.
+* Levin et al. utilized this concept to estimate level of blur for each pixel.
 
 * They used *sparse gradient prior* on natural images.
 
-* However, this method requires a modified camera with a special coded aperture, rendering it impractical for use with a given input image.
+* But requires a modified camera with a special coded aperture.
 
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='75%',fig.align='center',echo=FALSE,fig.cap= "Figure: Levin et al. 2007 - Image and Depth from a Conventional Camera with a Coded Aperture"}
@@ -131,11 +133,11 @@ knitr::include_graphics("levin.png")
 
 # Zhu et al. (2013)
 
-* Zhu et al. employed the concept of depth from defocus blur to estimate the level of blur per pixel in a given input image.
+* Zhu et al. employed same idea with modification.
 
-* They utilized Gabor filters for local frequency component analysis and used *simple gradient prior* on natural images.
+* They utilized Gabor filters for local frequency component analysis with *simple gradient prior*.
 
-* However, this method does not require a special coded aperture.
+* This method does not require a special coded aperture.
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='85%',fig.align='center',echo=FALSE,fig.cap= "Figure: Zhu et al. 2013 - Estimating Spatially Varying Defocus Blur from A Single Image"}
 
@@ -146,7 +148,7 @@ knitr::include_graphics("zhu.png")
 
 # Point Spread Function
 
-* When light rays spread from a single point source and hit the camera lens, they should ideally get refracted and converge on the pixel corresponding to the original scene.
+* When light rays spread from a point source and hit the camera lens, they should ideally refract and converge on the corresponding pixel of the original scene.
 
 --
 
@@ -154,13 +156,13 @@ knitr::include_graphics("zhu.png")
 
 --
 
-* This spreading pattern, determined by the object’s distance from the lens or camera movement, is called the Point Spread Function (PSF) or Blur Kernel.
+* This spreading pattern is called the Point Spread Function (PSF) or Blur Kernel.
 
 --
 
-```{r ,warning=FALSE,echo=FALSE,out.width='75%',fig.align='center',echo=FALSE,fig.cap= "Figure: Point Spread Function"}
+```{r ,warning=FALSE,echo=FALSE,out.width='85%',fig.align='center',echo=FALSE,fig.cap= "Figure: Point Spread Function"}
 
-knitr::include_graphics("bkernel.png")
+knitr::include_graphics("psf.jpg")
 ```
 
 ---
@@ -181,7 +183,9 @@ Where,
   * $\boldsymbol{\epsilon}$ is an $M \times N$ matrix of noise.
   
   * $\otimes$ denotes the *valid convolution* operator.
-  
+
+--
+
 * Estimating both $\boldsymbol{l}$ and $\boldsymbol{k}$ using above model is called *blind deconvolution problem*.
 
 --
@@ -322,15 +326,15 @@ knitr::include_graphics("prior1.png")
 
 $$f_{\alpha}(z) = \frac{\alpha}{2\Gamma(\frac{1}{\alpha})}\text{exp}{(-|z|^{\alpha})}, z \in \mathbb{R} \ \ \text{and} \ \ \alpha > 0$$
 
-* Levin et al. used $\alpha = 0.8$ and Zhu et al. used $\alpha = 2$ in their work to model the marginal distribution of image gradients with IID assumption.
+* Levin et al. used $\alpha = 0.8$ and Zhu et al. used $\alpha = 2$  with IID assumption of image gradients.
 
 --
 
-* Nandy (2021) showed that assumption of independent gradients is not incorrect and suggested *simple AR process* to model the dependence structure.
+* Nandy (2021) showed that assumption of independent gradients is incorrect and suggested *simple AR process* to model it.
 
 --
 
-* To use these priors we need to express the blur model in-terms of image gradients in frequency domain.
+* To use these priors we express the blur model in-terms of image gradients in frequency domain.
 
 $$\boldsymbol{\delta_h}\otimes\boldsymbol{b} = \boldsymbol{\delta_h} \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_h}\otimes \boldsymbol{\epsilon}) =  k \otimes(\boldsymbol{\delta_h} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_h}\otimes \boldsymbol{\epsilon})$$
 $$\boldsymbol{\delta_v}\otimes\boldsymbol{b} = \boldsymbol{\delta_v} \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon}) =  k \otimes(\boldsymbol{\delta_v} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon})$$
@@ -351,16 +355,17 @@ $\ \ \  \ \ \ \ \ \text{}$ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are 
 
 --
 
-* Then $\forall \ \boldsymbol{\omega} = (\omega_1,\omega_2)$ we have
+* Then, $\forall \ \boldsymbol{\omega} = (\omega_1,\omega_2)$ we have $\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}$
 
-$$\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}$$
 --
 
 * Nandy (2021) defined the prior on DFT coefficients as -
 
-  * $X_{\omega}$'s are independently distributed and follow the complex normal distribution $\mathcal{CN}(0,\sigma^2 g_{\omega})$ exactly or asymptotically, contingent on whether $\alpha = 2$ or not.
+  * $X_{\omega}$'s are independently distributed and follow the complex normal distribution $\mathcal{CN}(0,\sigma^2 g_{\omega})$ exactly or asymptotically, depending on whether $\alpha = 2$ or not.
   
-  * Simple AR process is used to model the dependence structure of latent image gradients, i.e. $\rho(\boldsymbol{x_{ij},x_{kl}}) = {\rho_1}^{|i-k|}{\rho_2}^{|j-l|}$. Under this assumption $g_{\omega}$ can be calculated explicitly.
+  * Simple AR process is used to model the dependence structure of latent image gradients, i.e. $\rho(\boldsymbol{x_{ij},x_{kl}}) = {\rho_1}^{|i-k|}{\rho_2}^{|j-l|}$. 
+  
+  * Under these assumptions $g_{\omega}$ can be calculated explicitly.
 
 --
 
@@ -370,7 +375,7 @@ $$\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}$$
 
 # Maximum Likelihood Estimation
 
-* To estimate blur kernel parameters $\theta = (r,\sigma)$ or $r$, we will use maximum likelihood procedure based on joint distribution of $\boldsymbol{y}$ or equivalently $\boldsymbol{Y_{\omega}}$'s.
+* To estimate blur kernel parameters $\theta = (r,\sigma)$ or $r$, we will use maximum likelihood procedure.
 
 --
 
@@ -391,7 +396,7 @@ $$L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta
 
 --
 
-* Our objective is to find $\hat{\theta} = \underset{\boldsymbol{\theta}}{\text{argmax}} \ \ logL(\boldsymbol{\boldsymbol{\theta}}) = \underset{\theta}{\text{argmax}} \ \ logL_h(\boldsymbol{\theta}) + logL_v(\boldsymbol{\theta})$
+* Our objective is to find, $\hat{\theta} = \underset{\boldsymbol{\theta}}{\text{argmax}} \ \ logL(\boldsymbol{\boldsymbol{\theta}}) = \underset{\theta}{\text{argmax}} \ \ \{logL_h(\boldsymbol{\theta}) + logL_v(\boldsymbol{\theta})\}$
 
 ---
 
@@ -401,7 +406,7 @@ $$L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta
 
 --
 
-* The parameter $\boldsymbol{\theta}$ is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of parameter.
+* Parameter $\boldsymbol{\theta}$ is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of parameter.
 
 --
 
@@ -452,7 +457,33 @@ knitr::include_graphics("exp2.png")
 
 * We aim for nearly accurate estimation of blur kernel parameters.
 
---
+
+---
+
+## Effect of Poor Parameter Estimation
+
+```{r ,warning=FALSE,echo=FALSE,out.width='72%',fig.align='center',echo=FALSE,fig.cap="Figure: Effect of poor estimation of radius r in disc kernel (Using Richardson Lucy Algorithm)"}
+
+knitr::include_graphics("deconv_prob.png")
+```
+
+---
+
+# Challenges in ML Estimation
+
+* The first task is to find maximizer of $L(\boldsymbol{\theta})$. 
+
+* The parameter $\boldsymbol{\theta}$ is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of parameter.
+
+* Before we start using any optimization technique, we should empirically investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$.
+
+* Simulated experiments using disc kernel is conducted for this purpose.
+
+* Sequence of values for $r \in [1,4]$ with $\Delta{r} = 0.05$, and for $\sigma \in [0.01,0.4]$ with $\Delta{\sigma} = 0.01$ are considered, with $\eta = 0.001$ constant.
+
+* Global maxima don't always correspond to the actual parameters of the blur kernel.
+
+* We aim for nearly accurate estimation of blur kernel parameters.
 
 * Proper choice of $\sigma$ is required (A common situation is *Bayesian paradigm* !).
 
@@ -474,39 +505,72 @@ knitr::include_graphics("empstud.png")
 
 ---
 
-# Deblurring
+# Challenges in ML Estimation(Contd.)
+
+* $\sigma = 0.2$ doesn't solve all problems.
+
+--
+
+* We may still encounter issues with multiple local maxima, which can affect the quality of estimation.
+
+--
+
+```{r ,warning=FALSE,echo=FALSE,out.width='90%',fig.align='center',echo=FALSE,fig.cap="Figure: Problem with multiple local maximas"}
+
+knitr::include_graphics("rest.png")
+```
+
+---
+
+# Challenges in Deblurring
 
 * An important application of depth estimation is post-capture refocusing of blurred areas.
 
 --
 
-* For that we need efficient deblurring algorithms.
+* To address this, we require efficient deblurring algorithms. Classical methods such as the *Richardson-Lucy algorithm* may not suffice in some cases.
 
 --
 
-*
+```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE,fig.cap="Figure: Comparison of Different Deblurring Algorithms"}
 
---
+knitr::include_graphics("deblur.png")
+```
+
+---
+
+# An Application of Our Approach
+
+```{r ,warning=FALSE,echo=FALSE,out.width='60%',fig.align='center',echo=FALSE,fig.cap="Figure: Application on real life image"}
+
+knitr::include_graphics("ourap.png")
+```
+
+---
+
+# References
+
+* Brian A. Barsky, Daniel R. Horn, and Klein. “Camera Models and Optical Systems Used in Computer Graphics: Part I, Object-Based Techniques”. In: Lecture Notes in Computer Science. Springer Berlin Heidelberg, 2003. url: http://dx.doi.org/10.1007/3-540-44842X_26.
+
+* P. Grossmann. “Depth from focus”. In: Pattern Recognition Letters (1987). issn: 0167-8655.url: http://dx.doi.org/10.1016/0167-8655(87)90026-2.
+
+* Alexander Kirillov et al. Segment Anything. 2023. url: https://arxiv.org/abs/2304.02643.
+
+* Anat Levin et al. “Image and depth from a conventional camera with a coded aperture”. In: ACM transactions on graphics (TOG) 26.3 (2007), 70–es. url: http://dx.doi.org/10.1145/1276377.1276464
+
+*  Kaustav Nandy. “Locally Dependent Natural Image Priors for Non-blind and Blind Image Deconvolution”. PhD thesis. Indian Statistical Institute, 2021. url: 
+https://digitalcommons.isical.ac.in/doctoral-theses/7/
+
+* Deepayan Sarkar and Kaustav Nandy. rip: Image Processing in R. New Delhi, India, 2021. url: https://github.com/deepayan/rip.
+
+* Xiang Zhu et al. “Estimating Spatially Varying Defocus Blur From A Single Image”. In: (2013). issn: 1941-0042. url: http://dx.doi.org/10.1109/TIP.2013.2279316.
 
 
 ---
 
+class: center, middle
+background-size: cover
 
+# Thank You
 
----
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+All codes, diagrams are available at [ShrayanRoy/DepthR](https://github.com/ShrayanRoy/DepthR)
