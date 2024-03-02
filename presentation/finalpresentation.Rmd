@@ -45,7 +45,7 @@ xaringanExtra::use_panelset()
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='70%',fig.align='center',echo=FALSE,fig.cap= "Figure: 3D perspective from 2D image"}
 
-knitr::include_graphics("dof.jpg")
+knitr::include_graphics("pimg/dof.jpg")
 ```
 
 ---
@@ -70,7 +70,7 @@ knitr::include_graphics("dof.jpg")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE,fig.cap = "Figure: Methods to estimate depth"}
 
-knitr::include_graphics("dest.png")
+knitr::include_graphics("pimg/dest.png")
 ```
 
 ---
@@ -110,7 +110,7 @@ knitr::include_graphics("dest.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='45%',fig.align='center',echo=FALSE,fig.cap= "Figure: Bluriness depends on distance of objects from camera"}
 
-knitr::include_graphics("depfoc.png")
+knitr::include_graphics("pimg/depfoc.png")
 ```
 
 ---
@@ -126,7 +126,7 @@ knitr::include_graphics("depfoc.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='75%',fig.align='center',echo=FALSE,fig.cap= "Figure: Levin et al. 2007 - Image and Depth from a Conventional Camera with a Coded Aperture"}
 
-knitr::include_graphics("levin.png")
+knitr::include_graphics("pimg/levin.png")
 ```
 
 ---
@@ -141,7 +141,7 @@ knitr::include_graphics("levin.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='85%',fig.align='center',echo=FALSE,fig.cap= "Figure: Zhu et al. 2013 - Estimating Spatially Varying Defocus Blur from A Single Image"}
 
-knitr::include_graphics("zhu.png")
+knitr::include_graphics("pimg/zhu.png")
 ```
 
 ---
@@ -162,7 +162,7 @@ knitr::include_graphics("zhu.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='85%',fig.align='center',echo=FALSE,fig.cap= "Figure: Point Spread Function"}
 
-knitr::include_graphics("psf.jpg")
+knitr::include_graphics("pimg/psf.jpg")
 ```
 
 ---
@@ -211,7 +211,7 @@ Where,
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='50%',fig.align='center',echo=FALSE,fig.cap= "Figure: Spatially Varying Blur Kernel"}
 
-knitr::include_graphics("svarying.png")
+knitr::include_graphics("pimg/svarying.png")
 ```
 
 
@@ -272,7 +272,7 @@ $$c_{diam} = a_{diam}f \left|\frac{d - d_{focus}}{d(d_{focus} - f)}\right| \appr
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE}
 
-knitr::include_graphics("d1.png")
+knitr::include_graphics("pimg/d1.png")
 ```
 
 ]
@@ -283,7 +283,7 @@ knitr::include_graphics("d1.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE}
 
-knitr::include_graphics("d2.png")
+knitr::include_graphics("pimg/d2.png")
 ```
 
 ]
@@ -315,7 +315,7 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='75%',out.height='30%',fig.align='center',echo=FALSE,fig.cap="Figure: Eight sharp images and their density plot of horizontal gradients"}
 
-knitr::include_graphics("prior1.png")
+knitr::include_graphics("pimg/prior1.png")
 ```
 
 ---
@@ -424,7 +424,7 @@ $$L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='70%',fig.align='center',echo=FALSE,fig.cap="Figure: (a) 101 x 101 Sharp Image, (b) Blurred Image Using disc kernel with r = 3, (c) Disc Kernel with r = 3, (d) Levelplot of log likelihood as a function of sigma and r"}
 
-knitr::include_graphics("exp1.png")
+knitr::include_graphics("pimg/exp1.png")
 ```
 
 
@@ -434,7 +434,7 @@ knitr::include_graphics("exp1.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='72%',fig.align='center',echo=FALSE,fig.cap="Figure: (a) 101 x 101 Sharp Image, (b) Blurred Image Using disc kernel with r = 2.5, (c) Disc Kernel with r = 2.5, (d) Levelplot of log likelihood as a function of sigma and r"}
 
-knitr::include_graphics("exp2.png")
+knitr::include_graphics("pimg/exp2.png")
 ```
 
 ---
@@ -464,7 +464,7 @@ knitr::include_graphics("exp2.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='72%',fig.align='center',echo=FALSE,fig.cap="Figure: Effect of poor estimation of radius r in disc kernel (Using Richardson Lucy Algorithm)"}
 
-knitr::include_graphics("deconv_prob.png")
+knitr::include_graphics("pimg/deconv_prob.png")
 ```
 
 ---
@@ -500,7 +500,7 @@ knitr::include_graphics("deconv_prob.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='100%',fig.align='center',echo=FALSE,fig.cap="Figure: Empirical study to find sigma"}
 
-knitr::include_graphics("empstud.png")
+knitr::include_graphics("pimg/empstud.png")
 ```
 
 ---
@@ -517,7 +517,7 @@ knitr::include_graphics("empstud.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='90%',fig.align='center',echo=FALSE,fig.cap="Figure: Problem with multiple local maximas"}
 
-knitr::include_graphics("rest.png")
+knitr::include_graphics("pimg/rest.png")
 ```
 
 ---
@@ -534,7 +534,7 @@ knitr::include_graphics("rest.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE,fig.cap="Figure: Comparison of Different Deblurring Algorithms"}
 
-knitr::include_graphics("deblur.png")
+knitr::include_graphics("pimg/deblur.png")
 ```
 
 ---
@@ -543,7 +543,7 @@ knitr::include_graphics("deblur.png")
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='60%',fig.align='center',echo=FALSE,fig.cap="Figure: Application on real life image"}
 
-knitr::include_graphics("ourap.png")
+knitr::include_graphics("pimg/ourap.png")
 ```
 
 ---
