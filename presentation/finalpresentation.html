@@ -156,9 +156,13 @@ class: center, middle, inverse, title-slide
 
 ---
 
-# Our Approach
+# Our Approach: Main Idea
 
-* Need to add flowchart of our approach ?
+* Parametric model to estimate blurring as surrogate for depth
+
+* Use modern segmentation algorithms such as segment-anything
+
+* Estimate blurring (depth) for each segment separately
 
 ---
 
@@ -206,7 +210,7 @@ Where,
 
 --
 
-* Number of observations `\(MN\)` is very large compared number of parameters `\(\implies\)` ill-possed problem 
+* Number of observations `\(MN\)` is very large compared number of parameters `\(\implies\)` ill-posed problem 
 
 --
 
@@ -255,7 +259,7 @@ Where,
 
 --
   
-* We need to estimate `\(\boldsymbol{k_t}\)` for each pixel location `\(\boldsymbol{t}\)` `\(\implies\)` more ill possed !
+* We need to estimate `\(\boldsymbol{k_t}\)` for each pixel location `\(\boldsymbol{t}\)` `\(\implies\)` more ill-posed !
 
 --
 
@@ -406,7 +410,7 @@ Where,
 
 --
 
-* Our objective is to find, `\(\hat{\theta} = \underset{\boldsymbol{\theta}}{\text{argmax}} \ \ logL(\boldsymbol{\boldsymbol{\theta}}) = \underset{\theta}{\text{argmax}} \ \ \{logL_h(\boldsymbol{\theta}) + logL_v(\boldsymbol{\theta})\}\)`
+* Our objective is to find, `\(\hat{\theta} = \underset{\boldsymbol{\theta}}{\text{argmax}} \ \ \log L(\boldsymbol{\boldsymbol{\theta}}) = \underset{\theta}{\text{argmax}} \ \ \{\log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})\}\)`
 
 ---
 
