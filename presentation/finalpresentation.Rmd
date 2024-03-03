@@ -10,7 +10,7 @@ header-includes:
 output:
   xaringan::moon_reader:
     lib_dir: libs
-    css: [isi.css,fonts.css]
+    css: [design.css,fonts.css]
     nature:
       highlightStyle: github
       highlightLines: true
@@ -143,6 +143,12 @@ knitr::include_graphics("pimg/levin.png")
 
 knitr::include_graphics("pimg/zhu.png")
 ```
+
+---
+
+# Our Approach
+
+* Need to flowchart of our approach
 
 ---
 
@@ -573,4 +579,4 @@ background-size: cover
 
 # Thank You
 
-All codes, diagrams are available at [ShrayanRoy/DepthR](https://github.com/ShrayanRoy/DepthR)
+All codes and diagrams are available at [ShrayanRoy/DepthR](https://github.com/ShrayanRoy/DepthR)
