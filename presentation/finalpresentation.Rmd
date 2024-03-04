@@ -37,11 +37,7 @@ xaringanExtra::use_panelset()
 
 * Humans possess a natural ability to perceive *3D structure* from 2D images.
 
---
-
 * Primarily relying on *visual cues* such as perspective, relative object sizes.
-
---
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='70%',fig.align='center',echo=FALSE,fig.cap= "Figure: 3D perspective from 2D image"}
 
@@ -54,11 +50,7 @@ knitr::include_graphics("pimg/dof.jpg")
 
 * Traditional photographs are two dimensional projections of a three dimensional scene.
 
---
-
 * The third dimension is *depth*, which represents the distance between camera and objects in the image.
-
---
 
 * It has applications such as post-capture *image refocusing*, automatic *scene segmentation*, and *object detection*.
 
@@ -68,33 +60,11 @@ knitr::include_graphics("pimg/dof.jpg")
 
 --
 
-```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE,fig.cap = "Figure: Methods to estimate depth"}
-
-knitr::include_graphics("pimg/dest.png")
-```
-
----
-
-# Depth: the third dimension
-
-* Traditional photographs are two dimensional projections of a three dimensional scene.
-
-* The third dimension is *depth*, which represents the distance between camera and objects in the image.
-
-* It has applications such as post-capture *image refocusing*, automatic *scene segmentation*, and *object detection*.
-
-* Most depth estimation methods use **multiple images** or **hardware solutions** like light emitters and coded apertures.
-
-* These methods are **not** applicable in practice as they require pre-modifying the camera system, which may not always be feasible.
-
---
-
-* Ideally, we aim to estimate the depth map given a single image of the scene.
+* In this project we aim to estimate the depth map given a single image of the scene.
 
 --
 
 * Depth estimation from a single image is more **challenging** because we have only one observation per pixel.
-
 
 ---
 
@@ -168,12 +138,15 @@ knitr::include_graphics("pimg/zhu.png")
 
 * This spreading pattern is called the Point Spread Function (PSF) or Blur Kernel.
 
---
+---
 
-```{r ,warning=FALSE,echo=FALSE,out.width='85%',fig.align='center',echo=FALSE,fig.cap= "Figure: Point Spread Function"}
+# Point Spread Function
 
-knitr::include_graphics("pimg/psf.jpg")
+```{r ,warning=FALSE,echo=FALSE,out.width='50%',fig.align='center',echo=FALSE,fig.cap= "Figure: Spatially Varying Blur Kernel"}
+
+knitr::include_graphics("pimg/svarying.png")
 ```
+
 
 ---
 
@@ -219,21 +192,6 @@ Where,
 
 --
 
-```{r ,warning=FALSE,echo=FALSE,out.width='50%',fig.align='center',echo=FALSE,fig.cap= "Figure: Spatially Varying Blur Kernel"}
-
-knitr::include_graphics("pimg/svarying.png")
-```
-
-
----
-
-# Model for Blurred Image (Contd.)
-
-
-* The model defined in last slide assumes that PSF is *shift invariant* i.e. same PSF applies to all pixels. 
-
-* In the context of defocus blur, PSF/ Blur Kernel is *spatially varying*.
-
 * We will assume that $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$.
 
 --
@@ -253,7 +211,7 @@ Where,
 
 --
 
-* What if assume some form of blur kernel ? For example- *Bivariate Normal distribution*.
+* We will use parametric models with a small number of parameters.
 
 ---
 
@@ -350,7 +308,7 @@ $$\boldsymbol{\delta_h}\otimes\boldsymbol{b} = \boldsymbol{\delta_h} \otimes(\bo
 $$\boldsymbol{\delta_v}\otimes\boldsymbol{b} = \boldsymbol{\delta_v} \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon}) =  k \otimes(\boldsymbol{\delta_v} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon})$$
 --
 
-* Combining the last two equations we have
+* We will use a generic form of these equations, given by
 
 $$\boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n}$$
 
@@ -376,10 +334,8 @@ $\ \ \  \ \ \ \ \ \text{}$ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are 
   * Simple AR process is used to model the dependence structure of latent image gradients, i.e. $\rho(\boldsymbol{x_{ij},x_{kl}}) = {\rho_1}^{|i-k|}{\rho_2}^{|j-l|}$. 
   
   * Under these assumptions $g_{\omega}$ can be calculated explicitly.
-
---
-
-* For spatially varying case, we simply apply these priors to the local patches of the image.
+  
+* Note that the above is for uniform blur model.  
 
 ---
 
@@ -400,7 +356,7 @@ $\ \ \  \ \ \ \ \ \text{}$  Where, $f_{\theta,\omega}(.)$ denotes the pdf of $\t
 
 --
 
-* By assuming independence of vertical and horizontal gradients of latent image, the joint likelihood is given by -
+* Assuming independence of vertical and horizontal gradients, the joint likelihood is given by
 
 $$L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta}) = f_{\theta}(|Y_{h,\omega}|^2,\forall \omega) \times f_{\theta}(|Y_{v,\omega'}|^2,\forall \omega')$$
 
@@ -416,11 +372,19 @@ $$L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta
 
 --
 
-* Parameter $\boldsymbol{\theta}$ is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of parameter.
+* Parameter $\boldsymbol{\theta}$ is involved in the expression $\lambda_{\omega}$ through $|\boldsymbol{K_{\omega}}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$.
 
 --
 
-* Before we start using any optimization technique, we should empirically investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$.
+* We use a numerical optimization approach, explicitly calculating $\boldsymbol{K_{\omega}}$ as a function of $\boldsymbol{\theta}$. 
+
+---
+
+# Challenges in ML Estimation
+
+* Before we start using any optimization technique, we empirically investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$.
+
+--
 
 * Simulated experiments using disc kernel is conducted for this purpose.
 
@@ -451,28 +415,15 @@ knitr::include_graphics("pimg/exp2.png")
 
 # Challenges in ML Estimation
 
-* The first task is to find maximizer of $L(\boldsymbol{\theta})$. 
-
-* The parameter $\boldsymbol{\theta}$ is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of parameter.
-
-* Before we start using any optimization technique, we should empirically investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$.
-
-* Simulated experiments using disc kernel is conducted for this purpose.
-
-* Sequence of values for $r \in [1,4]$ with $\Delta{r} = 0.05$, and for $\sigma \in [0.01,0.4]$ with $\Delta{\sigma} = 0.01$ are considered, with $\eta = 0.001$ constant.
-
 * Global maxima don't always correspond to the actual parameters of the blur kernel.
 
 --
 
-* We aim for nearly accurate estimation of blur kernel parameters.
+* Poor estimation of blur kernel can lead to artifacts.
 
+--
 
----
-
-## Effect of Poor Parameter Estimation
-
-```{r ,warning=FALSE,echo=FALSE,out.width='72%',fig.align='center',echo=FALSE,fig.cap="Figure: Effect of poor estimation of radius r in disc kernel (Using Richardson Lucy Algorithm)"}
+```{r ,warning=FALSE,echo=FALSE,out.width='68%',fig.align='center',echo=FALSE,fig.cap="Figure: Effect of poor estimation of radius r in disc kernel (Using Richardson Lucy Algorithm)"}
 
 knitr::include_graphics("pimg/deconv_prob.png")
 ```
@@ -481,26 +432,11 @@ knitr::include_graphics("pimg/deconv_prob.png")
 
 # Challenges in ML Estimation
 
-* The first task is to find maximizer of $L(\boldsymbol{\theta})$. 
-
-* The parameter $\boldsymbol{\theta}$ is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of parameter.
-
-* Before we start using any optimization technique, we should empirically investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$.
-
-* Simulated experiments using disc kernel is conducted for this purpose.
-
-* Sequence of values for $r \in [1,4]$ with $\Delta{r} = 0.05$, and for $\sigma \in [0.01,0.4]$ with $\Delta{\sigma} = 0.01$ are considered, with $\eta = 0.001$ constant.
-
-* Global maxima don't always correspond to the actual parameters of the blur kernel.
-
-* We aim for nearly accurate estimation of blur kernel parameters.
-
-* Proper choice of $\sigma$ is required (A common situation is *Bayesian paradigm* !).
+* One reasonable option is to fix a value of $\sigma$.
 
 --
 
 * Simulations can be used to find a reasonable value of $\sigma$.
-
 
 ---
 
@@ -515,7 +451,7 @@ knitr::include_graphics("pimg/empstud.png")
 
 ---
 
-# Challenges in ML Estimation(Contd.)
+# Challenges in ML Estimation
 
 * $\sigma = 0.2$ doesn't solve all problems.
 
@@ -532,29 +468,22 @@ knitr::include_graphics("pimg/rest.png")
 
 ---
 
-# Challenges in Deblurring
-
-* An important application of depth estimation is post-capture refocusing of blurred areas.
-
---
-
-* To address this, we require efficient deblurring algorithms. Classical methods such as the *Richardson-Lucy algorithm* may not suffice in some cases.
-
---
-
-```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE,fig.cap="Figure: Comparison of Different Deblurring Algorithms"}
-
-knitr::include_graphics("pimg/deblur.png")
-```
-
----
-
 # An Application of Our Approach
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='60%',fig.align='center',echo=FALSE,fig.cap="Figure: Application on real life image"}
 
 knitr::include_graphics("pimg/ourap.png")
 ```
+
+---
+
+# Segment Anything
+
+
+---
+
+# Future Work
+
 
 ---
 
@@ -574,7 +503,6 @@ https://digitalcommons.isical.ac.in/doctoral-theses/7/
 * Deepayan Sarkar and Kaustav Nandy. rip: Image Processing in R. New Delhi, India, 2021. url: https://github.com/deepayan/rip.
 
 * Xiang Zhu et al. “Estimating Spatially Varying Defocus Blur From A Single Image”. In: (2013). issn: 1941-0042. url: http://dx.doi.org/10.1109/TIP.2013.2279316.
-
 
 ---
 
