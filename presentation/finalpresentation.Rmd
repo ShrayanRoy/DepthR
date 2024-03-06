@@ -233,8 +233,6 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
 * The prior family used is motivated from the observation that the distribution of image gradients have a **sharp peak near zero** and and relatively **heavier tails** than the Gaussian distribution and Laplace distribution.
 
---
-
 ```{r ,warning=FALSE,echo=FALSE,out.width='75%',out.height='30%',fig.align='center',echo=FALSE,fig.cap="Figure: Eight sharp images and their density plot of horizontal gradients"}
 
 knitr::include_graphics("pimg/prior1.png")
@@ -337,8 +335,6 @@ $$\hat{\theta} = \underset{\boldsymbol{\theta}}{\text{argmax}} \ \log L(\boldsym
 
 * Simulated experiments using disc kernel are conducted for this purpose.
 
---
-
 * We consider a sequence of values for $r \in [1,4]$ with $\Delta{r} = 0.05$, and for $\sigma \in [0.01,0.4]$ with $\Delta{\sigma} = 0.01$, with $\eta = 0.001$ constant.
 
 --
@@ -374,8 +370,6 @@ knitr::include_graphics("pimg/exp2.png")
 --
 
 * Poor estimation of blur kernel can lead to artifacts.
-
---
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='65%',fig.align='center',echo=FALSE,fig.cap="Figure: Effect of poor estimation of radius r in disc kernel (Using Richardson Lucy Algorithm)"}
 
