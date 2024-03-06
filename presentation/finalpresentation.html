@@ -66,13 +66,11 @@ class: center, middle, inverse, title-slide
 
 --
 
-* Most approaches to estimate depth involve **multiple images** of same scene or **hardware based solutions** like light emitters and coded apertures.
+* Most approaches involve **multiple images** of same scene or **hardware based solutions** like light emitters and coded apertures.
 
 --
 
-* Depth estimation from single image is more **challenging**, as we have only one observation per pixel.
-
---
+* Depth estimation from single image is more challenging, as we have only one observation per pixel.
 
 * In this project we aim to estimate depth given a single image of the scene.
 
@@ -81,8 +79,6 @@ class: center, middle, inverse, title-slide
 # Depth from Defocus
 
 * Depth estimation from defocus blur exploits the phenomenon where objects appear more blurred depending on their distance from the camera lens.
-
---
 
 * Measuring level of blur for each pixel can be used as a *surrogate* for depth.
 
@@ -130,17 +126,16 @@ class: center, middle, inverse, title-slide
 
 * We have used parametric models to estimate level of blur as surrogate for depth.
 
---
-
 * Instead of doing post estimation segmentation, we will start with segmented image.
 
---
-
-* We estimate blurring (depth) for each segment separately.
-
---
+* We estimate blur (depth) for each segment separately.
 
 * Modern segmentation algorithms such as **Segment-Anything** can be used for this.
+
+&lt;div class="figure" style="text-align: center"&gt;
+&lt;img src="pimg/seg1.png" alt="Figure: Segmented Image by SAM" width="35%" /&gt;
+&lt;p class="caption"&gt;Figure: Segmented Image by SAM&lt;/p&gt;
+&lt;/div&gt;
 
 ---
 
@@ -148,16 +143,14 @@ class: center, middle, inverse, title-slide
 
 * When light rays spread from a point source and hit the camera lens, they should ideally refract and converge on the corresponding pixel of the original scene.
 
---
-
 * However, if the source is out of focus, the refracted rays spread out over neighboring pixels as well.
-
---
 
 * This spreading pattern is called the Point Spread Function (PSF) or Blur Kernel.
 
+--
+
 &lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="pimg/psfimg.png" alt="Figure: Point Spread Function" width="60%" /&gt;
+&lt;img src="pimg/psfimg.png" alt="Figure: Point Spread Function" width="65%" /&gt;
 &lt;p class="caption"&gt;Figure: Point Spread Function&lt;/p&gt;
 &lt;/div&gt;
 
@@ -199,28 +192,12 @@ Where,
 
 * The model defined in last slide assumes that PSF is *shift invariant* i.e. same PSF applies to all pixels.
 
---
 
 * In the context of defocus blur, PSF/ Blur Kernel is *spatially varying*.
 
 --
 
-&lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="pimg/svarying.png" alt="Figure: Spatially Varying Blur Kernel" width="50%" /&gt;
-&lt;p class="caption"&gt;Figure: Spatially Varying Blur Kernel&lt;/p&gt;
-&lt;/div&gt;
-
----
-
-# Model for Blurred Image
-
-* Based on this observation we redefine our model for spatially varying case. 
-
---
-
 * We assume that `\(\boldsymbol{k_t}\)` is shift invariant in a neighborhood `\({\boldsymbol{\eta_t}}\)` of size `\(p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})\)` containing `\(\boldsymbol{t}\)`.
-
---
 
 * Based on this assumption, our model for *spatially varying blur* is given by - 
 
@@ -497,7 +474,7 @@ Where,
 
 
 &lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="pimg/couple.png" alt="Figure: Automatic and Manual Segmentation by SAM" width="85%" /&gt;
+&lt;img src="pimg/couple.png" alt="Figure: Automatic and Manual Segmentation by SAM" width="80%" /&gt;
 &lt;p class="caption"&gt;Figure: Automatic and Manual Segmentation by SAM&lt;/p&gt;
 &lt;/div&gt;
 
@@ -516,8 +493,6 @@ Where,
 
 
 * Attempt to use this method for tasks like post-capture image refocusing.
-
-&lt;img src="pimg/seg1.png" width="40%" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -571,7 +546,7 @@ https://digitalcommons.isical.ac.in/doctoral-theses/7/
 
 * For objects farther from the camera than the plane of focus
 
-&lt;img src="pimg/d1.png" width="80%" style="display: block; margin: auto;" /&gt;
+&lt;img src="pimg/d1.png" width="75%" style="display: block; margin: auto;" /&gt;
 
 ]
 ]

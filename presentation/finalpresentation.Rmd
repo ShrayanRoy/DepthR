@@ -56,7 +56,7 @@ knitr::include_graphics("pimg/dof.jpg")
 
 --
 
-* Most approaches to estimate depth involve **multiple images** of same scene or **hardware based solutions** like light emitters and coded apertures.
+* Most approaches involve **multiple images** of same scene or **hardware based solutions** like light emitters and coded apertures.
 
 --
 
@@ -116,17 +116,16 @@ knitr::include_graphics("pimg/zhu.png")
 
 * We have used parametric models to estimate level of blur as surrogate for depth.
 
---
-
 * Instead of doing post estimation segmentation, we will start with segmented image.
 
---
-
-* We estimate blurring (depth) for each segment separately.
-
---
+* We estimate blur (depth) for each segment separately.
 
 * Modern segmentation algorithms such as **Segment-Anything** can be used for this.
+
+```{r ,warning=FALSE,echo=FALSE,out.width='35%',fig.align='center',echo=FALSE,fig.cap="Figure: Segmented Image by SAM"}
+
+knitr::include_graphics("pimg/seg1.png")
+```
 
 ---
 
@@ -140,7 +139,7 @@ knitr::include_graphics("pimg/zhu.png")
 
 --
 
-```{r ,warning=FALSE,echo=FALSE,out.width='60%',fig.align='center',echo=FALSE,fig.cap= "Figure: Point Spread Function"}
+```{r ,warning=FALSE,echo=FALSE,out.width='65%',fig.align='center',echo=FALSE,fig.cap= "Figure: Point Spread Function"}
 
 knitr::include_graphics("pimg/psfimg.png")
 ```
@@ -183,28 +182,12 @@ Where,
 
 * The model defined in last slide assumes that PSF is *shift invariant* i.e. same PSF applies to all pixels.
 
---
 
 * In the context of defocus blur, PSF/ Blur Kernel is *spatially varying*.
 
 --
 
-```{r ,warning=FALSE,echo=FALSE,out.width='50%',fig.align='center',echo=FALSE,fig.cap= "Figure: Spatially Varying Blur Kernel"}
-
-knitr::include_graphics("pimg/svarying.png")
-```
-
----
-
-# Model for Blurred Image
-
-* Based on this observation we redefine our model for spatially varying case. 
-
---
-
 * We assume that $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$.
-
---
 
 * Based on this assumption, our model for *spatially varying blur* is given by - 
 
@@ -491,7 +474,7 @@ knitr::include_url("https://segment-anything.com/",height = "500px")
 * It can take **prompts** such as - box, points, texts as input to perform segmentation.
 
 
-```{r ,warning=FALSE,echo=FALSE,out.width='85%',fig.align='center',echo=FALSE,fig.cap="Figure: Automatic and Manual Segmentation by SAM"}
+```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE,fig.cap="Figure: Automatic and Manual Segmentation by SAM"}
 
 knitr::include_graphics("pimg/couple.png")
 ```
@@ -511,11 +494,6 @@ knitr::include_graphics("pimg/couple.png")
 
 
 * Attempt to use this method for tasks like post-capture image refocusing.
-
-```{r ,warning=FALSE,echo=FALSE,out.width='40%',fig.align='center',echo=FALSE}
-
-knitr::include_graphics("pimg/seg1.png")
-```
 
 ---
 
@@ -572,7 +550,7 @@ knitr::include_graphics("pimg/d2.png")
 
 * For objects farther from the camera than the plane of focus
 
-```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE}
+```{r ,warning=FALSE,echo=FALSE,out.width='75%',fig.align='center',echo=FALSE}
 
 knitr::include_graphics("pimg/d1.png")
 ```
