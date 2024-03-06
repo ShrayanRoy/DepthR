@@ -132,7 +132,7 @@ thead, tfoot, tr:nth-child(even) { background: none; }
   color:  #cc0033;  /*#cc0033*/ /* #0073e1*/
   padding-top: 0px;
   font-weight: normal;
-  font-size: 60px;
+  font-size: 62px;
   line-height: 0.05;
   text-align: left;
   text-shadow: none;
@@ -143,7 +143,7 @@ thead, tfoot, tr:nth-child(even) { background: none; }
 /* H2 fonts */
 .title-slide h2 {
   color: #cc0033;
-  font-size: 58px;
+  font-size: 60px;
   text-align: left;
   text-shadow: none;
   padding-top: 0px;

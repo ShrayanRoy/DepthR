@@ -386,7 +386,7 @@ knitr::include_graphics("pimg/deconv_prob.png")
 
 # Challenges in ML Estimation
 
-* Choice of prior parameter $\sigma$ is playing an important role.
+* The choice of the prior parameter $\sigma$ plays an important role.
 
 --
 
@@ -398,7 +398,7 @@ knitr::include_graphics("pimg/deconv_prob.png")
 
 --
 
-* We have considered five sharp images of same size and random patches of different sizes from that.
+* We considered five sharp images and randomly selected patches of various sizes from them.
 
 * In each case, we have found $\hat{r}$ as a function of $\sigma$ and plotted it.
 
@@ -456,6 +456,7 @@ knitr::include_graphics("pimg/ourap.png")
 
 * But it may yield poor results in certain situations.
 
+* We utilize segments obtained by the segmentation algorithm to estimate blur.
 
 ---
 
@@ -486,12 +487,19 @@ knitr::include_graphics("pimg/couple.png")
 
 * Perform more simulations involving other types of blur kernels.
 
-
-* Evaluate how our method performs for the image segments identified by the segmentation algorithm.
-
+--
 
 * Conduct empirical analysis to understand which blur kernel model is applicable.
 
+--
+
+* Evaluate how our method performs for the image segments identified by the segmentation algorithm.
+
+--
+
+* Use our method to find depth map given a single image.
+
+--
 
 * Attempt to use this method for tasks like post-capture image refocusing.
 
