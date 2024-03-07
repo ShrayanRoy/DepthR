@@ -114,13 +114,13 @@ knitr::include_graphics("pimg/zhu.png")
 
 # Our Approach: Main Idea
 
-* We have used parametric models to estimate level of blur as surrogate for depth.
+* Parametric models to estimate level of blur as surrogate for depth.
 
-* Instead of doing post estimation segmentation, we will start with segmented image.
+* Instead of doing post estimation segmentation, start with pre-segmented image.
 
-* We estimate blur (depth) for each segment separately.
+* Estimate blur (depth) for each segment separately.
 
-* Modern segmentation algorithms such as **Segment-Anything** can be used for this.
+* Use of Modern segmentation algorithms such as **Segment-Anything**.
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='35%',fig.align='center',echo=FALSE,fig.cap="Figure: Segmented Image by SAM"}
 
@@ -132,6 +132,8 @@ knitr::include_graphics("pimg/seg1.png")
 # Point Spread Function
 
 * When light rays spread from a point source and hit the camera lens, they should ideally refract and converge on the corresponding pixel of the original scene.
+
+--
 
 * However, if the source is out of focus, the refracted rays spread out over neighboring pixels as well.
 
@@ -188,17 +190,6 @@ Where,
 
 --
 
-```{r ,warning=FALSE,echo=FALSE,out.width='50%',fig.align='center',echo=FALSE,fig.cap= "Figure: Spatially Varying Blur Kernel"}
-
-knitr::include_graphics("pimg/svarying.png")
-```
-
----
-
-# Model for Blurred Image
-
-* Based on this observation we redefine our model for spatially varying case. 
-
 * We assume that $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$.
 
 * Based on this assumption, our model for *spatially varying blur* is given by - 
@@ -221,6 +212,10 @@ Where,
 ---
 
 # Proposed Parametric Models for Blur Kernel
+
+* In the case of blurring due to defocus, shape of the blur kernel is **circular** and controls the level of blur.
+
+--
 
 * **Uniform distribution** across a circular are defined by the radius of the circle, denoted by $r$.
 
