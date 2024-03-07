@@ -122,9 +122,13 @@ class: center, middle, inverse, title-slide
 
 # Our Approach: Main Idea
 
-* Use of more general prior for image proposed by Nandy (2021).
+* Use of more **general prior** for image proposed by Nandy (2021).
+
+--
 
 * Parametric models to estimate level of blur as surrogate for depth.
+
+--
 
 * Instead of doing post estimation segmentation, start with pre-segmented image.
 
@@ -132,20 +136,15 @@ class: center, middle, inverse, title-slide
 
 * Use of Modern segmentation algorithms such as **Segment-Anything**.
 
-&lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="pimg/seg1.png" alt="Figure: Segmented Image by SAM" width="33%" /&gt;
-&lt;p class="caption"&gt;Figure: Segmented Image by SAM&lt;/p&gt;
-&lt;/div&gt;
-
 ---
 
 # Point Spread Function
 
 * When light rays spread from a point source and hit the camera lens, they should ideally refract and converge on the corresponding pixel of the original scene.
 
---
-
 * However, if the source is out of focus, the refracted rays spread out over neighboring pixels as well.
+
+--
 
 * This spreading pattern is called the Point Spread Function (PSF) or Blur Kernel.
 
@@ -382,7 +381,7 @@ Where,
 
 ---
 
-# Challenges in ML Estimation(Contd.)
+# Challenges in ML Estimation
 
 * Global maxima don't always correspond to the actual parameters of the blur kernel.
 
@@ -411,9 +410,11 @@ Where,
 
 --
 
-* We considered five sharp images and randomly selected patches of various sizes from them.
+* We consider five sharp images and true parameter values `\(r_{true} = 1, 3, 5\)`.
+  
+* For each value of `\(r_{true}\)`, patches of fixed size are randomly selected, and defocus blur is simulated.
 
-* In each case, we have found `\(\hat{r}\)` as a function of `\(\sigma\)` and plotted it.
+* `\(\hat{r}\)` is determined as a function of `\(\sigma\)` in each case and plotted.
 
 --
 
@@ -452,15 +453,15 @@ Where,
 
 * Instead of manually selecting patches, we require a more general method.
 
---
-
 * Selecting overlapping local patches for each pixel can be useful.
 
 --
 
 * But it may yield poor results in certain situations.
 
-* We will use segments obtained by the segmentation algorithm to estimate blur.
+--
+
+* We will use segments obtained by the segmentation algorithm.
 
 ---
 
@@ -476,6 +477,7 @@ Where,
 
 * It can take **prompts** such as - box, points, texts as input to perform segmentation.
 
+--
 
 &lt;div class="figure" style="text-align: center"&gt;
 &lt;img src="pimg/couple.png" alt="Figure: Automatic and Manual Segmentation by SAM" width="80%" /&gt;
