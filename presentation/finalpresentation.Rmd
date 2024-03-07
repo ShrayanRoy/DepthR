@@ -182,10 +182,22 @@ Where,
 
 * The model defined in last slide assumes that PSF is *shift invariant* i.e. same PSF applies to all pixels.
 
+--
 
 * In the context of defocus blur, PSF/ Blur Kernel is *spatially varying*.
 
 --
+
+```{r ,warning=FALSE,echo=FALSE,out.width='50%',fig.align='center',echo=FALSE,fig.cap= "Figure: Spatially Varying Blur Kernel"}
+
+knitr::include_graphics("pimg/svarying.png")
+```
+
+---
+
+# Model for Blurred Image
+
+* Based on this observation we redefine our model for spatially varying case. 
 
 * We assume that $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$.
 
@@ -213,10 +225,12 @@ Where,
 * **Uniform distribution** across a circular are defined by the radius of the circle, denoted by $r$.
 
 $$k(x,y) = \frac{1}{\pi r^2} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
+--
 
 * **Gaussian distribution** across a circular area defined by the radius of the circle, denoted as $r$, and the scale parameter, represented as $h$.
 
 $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
+--
 
 * **Cauchy distribution** across a circular area defined by the radius of the circle, denoted as $r$, and the scale parameter $h$.
 
@@ -380,7 +394,7 @@ knitr::include_graphics("pimg/deconv_prob.png")
 
 # Challenges in ML Estimation
 
-* The choice of the prior parameter $\sigma$ plays an important role.
+* The choice of the prior parameter $\sigma$ is playing an important role.
 
 --
 
@@ -429,7 +443,7 @@ knitr::include_graphics("pimg/p201.png")
 
 ---
 
-# An Application Using Local Patches
+# An Application using Local Patches
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='60%',fig.align='center',echo=FALSE,fig.cap="Figure: Application on real life image"}
 
@@ -450,7 +464,7 @@ knitr::include_graphics("pimg/ourap.png")
 
 * But it may yield poor results in certain situations.
 
-* We utilize segments obtained by the segmentation algorithm to estimate blur.
+* We will use segments obtained by the segmentation algorithm to estimate blur.
 
 ---
 
