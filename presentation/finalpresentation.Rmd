@@ -72,8 +72,6 @@ knitr::include_graphics("pimg/dof.jpg")
 
 * Measuring level of blur for each pixel can be used as a *surrogate* for depth.
 
---
-
 ```{r ,warning=FALSE,echo=FALSE,out.width='44%',fig.align='center',echo=FALSE,fig.cap= "Figure: Bluriness depending on distance from camera"}
 
 knitr::include_graphics("pimg/depfoc.png")
@@ -114,6 +112,8 @@ knitr::include_graphics("pimg/zhu.png")
 
 # Our Approach: Main Idea
 
+* Use of more general prior for image proposed by Nandy (2021).
+
 * Parametric models to estimate level of blur as surrogate for depth.
 
 * Instead of doing post estimation segmentation, start with pre-segmented image.
@@ -122,7 +122,7 @@ knitr::include_graphics("pimg/zhu.png")
 
 * Use of Modern segmentation algorithms such as **Segment-Anything**.
 
-```{r ,warning=FALSE,echo=FALSE,out.width='35%',fig.align='center',echo=FALSE,fig.cap="Figure: Segmented Image by SAM"}
+```{r ,warning=FALSE,echo=FALSE,out.width='33%',fig.align='center',echo=FALSE,fig.cap="Figure: Segmented Image by SAM"}
 
 knitr::include_graphics("pimg/seg1.png")
 ```
