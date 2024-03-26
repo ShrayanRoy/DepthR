@@ -1,6 +1,6 @@
 
 
-# Function to find Cropped Image Segment of Segment Anything Model (SAM) output
+# Function to find Cropped Image Segment based on Segment Anything Model (SAM) output
 # y: original grayscale image in matrix/rip format
 # box: same as `bbox` in SAM output
 # mask: same as `segmentation` in SAM output
