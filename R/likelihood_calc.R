@@ -1,7 +1,13 @@
 
 
 # Function to calculate log likelihood value given fourier transform and kernel
-lkd_gen <- function(X,kk,G = 1,H = 1,sigma = 0.05,eta = 0.001){
+# X : Discrete Fourier Transform of image gradient
+# kk : Input kernel
+# sigma : prior parameter
+# eta : noise parameter
+# thres: for numerical stability
+
+lkd_gen <- function(X,kk,G = 1,H = 1,sigma = 0.05,eta = 0.001,thres = 0){
 
   if(nrow(X)%%2 == 0){
     X <- X[-1,]
@@ -19,12 +25,17 @@ lkd_gen <- function(X,kk,G = 1,H = 1,sigma = 0.05,eta = 0.001){
   K <- Mod(rip.dft(kkpad))
 
   varX <- as.vector(((sigma^2)*(K^2)*G) + ((eta^2)*H))
+
+  # adjustment for dividing by very small number
+  varX[varX < thres] <- thres
   l <- dexp(as.vector(X^2),rate = 1/varX,log = TRUE)
 
   return(sum(l))
 }
 
-# Function to calculate h_{\omega}
+# Functions to calculate h_{\omega}
+# Imported from https://github.com/deepayan/rip/blob/main/rip.recover/R/freqvar.R
+
 h.1d <- function(N, omega = seq_len(N) - 1)
 {
   Mod(complex(modulus = 1, argument= -2 * pi * omega / N) - 1)

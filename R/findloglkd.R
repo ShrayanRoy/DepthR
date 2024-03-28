@@ -9,8 +9,8 @@
 # h: sequence of scale for blur kernel
 # ar: If TRUE uses AR Prior
 
-findloglkd <- function(y, kern = c("norm","circnorm","cauchy","disc"),rad = seq(1,5.5,by = 0.05),
-                         h = rad, sigma = seq(0.01,0.2,by = 0.01), kap = 1, ar = FALSE, eta = 0.001) {
+findloglkd <- function(y, kern = c("norm","circnorm","cauchy","disc"),rad = seq(1,5.5,by = 0.05),h = NULL,
+                       sigma = seq(0.01,0.2,by = 0.01), kap = 1, ar = FALSE, eta = 0.001,thres = 0) {
 
   dx.h <- rip.conv(y, rip.grad$x,"valid")
   dx.v <- rip.conv(y, rip.grad$y,"valid")
@@ -23,7 +23,7 @@ findloglkd <- function(y, kern = c("norm","circnorm","cauchy","disc"),rad = seq(
     Hh <- h.theoretical(dim(Xh))$h
     Hv <- h.theoretical(dim(Xv))$v
 
-    if(!kern == "norm"){  #If Circular support type Kernel
+    if(kern != "norm"){  #If Circular support type Kernel
 
       param <- expand.grid(rad = rad,sigma = sigma)
 
@@ -42,7 +42,7 @@ findloglkd <- function(y, kern = c("norm","circnorm","cauchy","disc"),rad = seq(
 
    }else {
 
-     if(!kern == "norm"){  #If Circular support type Kernel
+     if(kern != "norm"){  #If Circular support type Kernel
 
        param <- expand.grid(rad = rad,sigma = sigma)
 

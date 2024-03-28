@@ -25,9 +25,9 @@ findSeg <- function(y,box,mask = NULL,seg = T){
   return(as.rip(ycrop))
 }
 
-# Function to Spatially Deblur an Image based on blur map
+# Function to Spatially Deblur RGB Image based on blur map
 # img: Original RGB channel image
-# blurMap: A matrix of blurkernel of parameters similar in size to `img` dimension
+# blurMap: A matrix of blur kernel of parameters similar in size to `img` dimension
 # lamb: Similar to rip.deconv `lambda` argument
 
 # For more details see https://github.com/deepayan/rip/blob/main/rip.recover/R/nonblind.R
