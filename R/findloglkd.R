@@ -28,16 +28,16 @@ findloglkd <- function(y, kern = c("norm","circnorm","cauchy","disc"),rad = seq(
       param <- expand.grid(rad = rad,sigma = sigma)
 
       likval <- apply(param,1,FUN = function(param){
-        c(lkd_gen(Xh,blurkernel(kern,rad = param[1],kap = kap),G = G$h,H = Hh,sigma = param[2],eta = eta),
-          lkd_gen(Xv,blurkernel(kern,rad = param[1],kap = kap),G = G$v,H = Hv,sigma = param[2],eta = eta))})
+        c(lkd_gen(Xh,blurkernel(kern,rad = param[1],kap = kap),G = G$h,H = Hh,sigma = param[2],eta = eta,thres = thres),
+          lkd_gen(Xv,blurkernel(kern,rad = param[1],kap = kap),G = G$v,H = Hv,sigma = param[2],eta = eta,thres = thres))})
 
     }else{   #If rectangular support type Kernel
 
       param <- expand.grid(h = h,sigma = sigma)
 
       likval <- apply(param,1,FUN = function(param){
-        c(lkd_gen(Xh,blurkernel(kern,h = param[1]),G = G$h,H = Hh,sigma = param[2],eta = eta),
-          lkd_gen(Xv,blurkernel(kern,h = param[1]),G = G$v,H = Hv,sigma = param[2],eta = eta))})
+        c(lkd_gen(Xh,blurkernel(kern,h = param[1]),G = G$h,H = Hh,sigma = param[2],eta = eta,thres = thres),
+          lkd_gen(Xv,blurkernel(kern,h = param[1]),G = G$v,H = Hv,sigma = param[2],eta = eta,thres = thres))})
     }
 
    }else {
@@ -47,16 +47,16 @@ findloglkd <- function(y, kern = c("norm","circnorm","cauchy","disc"),rad = seq(
        param <- expand.grid(rad = rad,sigma = sigma)
 
        likval <- apply(param,1,FUN = function(param){
-         c(lkd_gen(Xh,blurkernel(kern,rad = param[1],kap = kap),sigma = param[2],eta = eta),
-           lkd_gen(Xv,blurkernel(kern,rad = param[1],kap = kap),sigma = param[2],eta = eta))})
+         c(lkd_gen(Xh,blurkernel(kern,rad = param[1],kap = kap),sigma = param[2],eta = eta,thres = thres),
+           lkd_gen(Xv,blurkernel(kern,rad = param[1],kap = kap),sigma = param[2],eta = eta,thres = thres))})
 
      }else{   #If rectangular support type Kernel
 
        param <- expand.grid(h = h,sigma = sigma)
 
        likval <- apply(param,1,FUN = function(param){
-         c(lkd_gen(Xh,blurkernel(kern,h = param[1]),sigma = param[2],eta = eta),
-           lkd_gen(Xv,blurkernel(kern,h = param[1]),sigma = param[2],eta = eta))})
+         c(lkd_gen(Xh,blurkernel(kern,h = param[1]),sigma = param[2],eta = eta,thres = thres),
+           lkd_gen(Xv,blurkernel(kern,h = param[1]),sigma = param[2],eta = eta,thres = thres))})
      }
 
   }
