@@ -7,7 +7,7 @@
 # eta : noise parameter
 # thres: for numerical stability
 
-lkd_gen <- function(X,kk,G = 1,H = 1,sigma = 0.05,eta = 0.001,thres = 0){
+lkd_gen <- function(X,kk,G = 1,H = 1,sigma = 0.10,eta = 0.010,thres = 0){
 
   if(nrow(X)%%2 == 0){
     X <- X[-1,]
