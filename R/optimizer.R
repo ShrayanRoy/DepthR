@@ -15,12 +15,12 @@ find_max_indices <- function(vec,k = 3) {
   return(max_indices)
 }
 
-find_neighboring_grid <- function(vec, step_size){
+find_neighboring_grid <- function(vec, step_size,lower = 1,upper = 9){
 
   neighboring_points <- list()
 
   for (elem in vec){
-    neighbors <- seq(max(1,elem - 2^(step_size)*step_size), min(elem + 2^(step_size)*step_size,10), by = step_size)
+    neighbors <- seq(max(lower,elem - 2^(step_size)*step_size), min(elem + 2^(step_size)*step_size,upper), by = step_size)
     neighboring_points[[as.character(elem)]] <- neighbors
   }
 
@@ -47,7 +47,8 @@ gridStepSearch <- function(f,lower_bound = 1, upper_bound = 10,show.prog = FALSE
 
     x_best <- x_val[which.max(f_val)]
     step_size <- max(step_size*0.5, min_step_size)
-    grid_points <- find_neighboring_grid(x_val,step_size = step_size)
+    grid_points <- find_neighboring_grid(x_val,step_size = step_size,
+                              lower = lower_bound,upper = upper_bound)
 
   }
 
