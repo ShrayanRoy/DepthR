@@ -10,7 +10,7 @@
 find_max_indices <- function(vec,k = 3) {
 
   sorted_indices <- order(vec, decreasing = TRUE)
-  max_indices <- sorted_indices[1:k]
+  max_indices <- sorted_indices[1:min(length(vec),k)]
 
   return(max_indices)
 }
@@ -61,7 +61,7 @@ f <- function(x) {
   return(-(sin(x) + sin(2*x) + cos(3*x) + log(x + 1) + sqrt(x)))
 }
 
-result <- gridStepSearch(f, lower_bound = 1, upper_bound = 10,
+result <- gridStepSearch(f,lower_bound = 7, upper_bound = 8.2,show.prog = TRUE,
                           initial_step_size = 1, min_step_size = 0.001, max_iter = 20)
 print(result)
 curve(f(x),from = 1,to = 10)
