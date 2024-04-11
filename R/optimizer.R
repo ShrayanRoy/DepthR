@@ -65,7 +65,7 @@ result <- gridStepSearch(f,lower_bound = 7, upper_bound = 8.2,show.prog = TRUE,
                           initial_step_size = 1, min_step_size = 0.001, max_iter = 20)
 print(result)
 curve(f(x),from = 1,to = 10)
-abline(v = result$x,col = "red",main = "Plot of f",lty = 2,lwd = 2)
+abline(v = result$x,col = "red",main = "Plot of function f",lty = 2,lwd = 2)
 
 
 
