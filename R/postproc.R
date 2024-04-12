@@ -25,39 +25,52 @@ findSeg <- function(y,box,mask = NULL,seg = T){
   return(as.rip(ycrop))
 }
 
-# Function to Spatially Deblur RGB Image based on blur map
-# img: Original RGB channel image
+# Function to Spatially Deblur RGB Image or Gray Scale Image based on blur map
+# img: Original RGB channel Image or Gray Scale Image as rip object
 # blurMap: A matrix of blur kernel of parameters similar in size to `img` dimension
 # lamb: Similar to rip.deconv `lambda` argument
 
 # For more details see https://github.com/deepayan/rip/blob/main/rip.recover/R/nonblind.R
 
 spatDeblur <- function(img, blurMap, kern = c("norm","circnorm","cauchy","disc"),
-                       kap = 1, lamb = 0.01) {
+                        kap = 1, lamb = 0.01) {
 
   radMap <- unique(as.vector(blurMap))
-  ydeblur <- img
+  ydeblur <- as.array(img)
 
   for(i in 1:length(radMap)) {
     kk <- blurkernel(kern = kern, rad = radMap[i],kap = kap)
-    temp1 <- rip.deconv(as.rip(img[,,1]),k = kk, method = "direct", lambda = lamb,
-                        rho = list(along = 0, across = 0), patch = 150, verbose = TRUE)
-    temp1[temp1 > 1] <- 1
-
-    temp2 <- rip.deconv(as.rip(img[,,2]),k = kk, method = "direct", lambda = lamb,
-                        rho = list(along = 0, across = 0), patch = 150, verbose = TRUE)
-    temp2[temp2 > 1] <- 1
-
-    temp3 <- rip.deconv(as.rip(img[,,3]),k = kk, method = "direct", lambda = lamb,
-                        rho = list(along = 0, across = 0), patch = 150, verbose = TRUE)
-    temp3[temp3 > 1] <- 1
+    temp <- rip.deconv(as.rip(img),k = kk, method = "direct", lambda = lamb, patch = 150,
+                       rho = list(along = 0, across = 0), verbose = TRUE)
 
     mask <- (blurMap == radMap[i])
-    ydeblur[,,1][mask] <- temp1[mask]
-    ydeblur[,,2][mask] <- temp2[mask]
-    ydeblur[,,3][mask] <- temp3[mask]
+    ydeblur[mask] <- as.array(temp)[mask]
   }
-  return(ydeblur)
+  return(as.rip(ydeblur))
+}
+
+# Function to Spatially Deblur RGB Image or Gray Scale Image based on blur map
+# Using Richardson-Lucy Algorithm
+# img: Original RGB channel Image or Gray Scale Image as rip object
+# blurMap: A matrix of blur kernel of parameters similar in size to `img` dimension
+# lamb: Similar to rip.deconvlucy `niter` argument
+
+# For more details see https://github.com/deepayan/rip/blob/main/rip.recover/R/nonblind.R
+
+spatDeblurLucy <- function(img, blurMap, kern = c("norm","circnorm","cauchy","disc"),
+                        kap = 1, niter = 25) {
+
+  radMap <- unique(as.vector(blurMap))
+  ydeblur <- as.array(img)
+
+  for(i in 1:length(radMap)) {
+    kk <- blurkernel(kern = kern, rad = radMap[i],kap = kap)
+    temp <- rip.deconvlucy(as.rip(img),k = kk,niter = niter)
+
+    mask <- (blurMap == radMap[i])
+    ydeblur[mask] <- as.array(temp)[mask]
+  }
+  return(as.rip(ydeblur))
 }
 
 
