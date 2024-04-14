@@ -29,11 +29,14 @@ findSeg <- function(y,box,mask = NULL,seg = T){
 # img: Original RGB channel Image or Gray Scale Image as rip object
 # blurMap: A matrix of blur kernel of parameters similar in size to `img` dimension
 # lamb: Similar to rip.deconv `lambda` argument
+# alpha: The hyper-Laplacian parameter. alpha = 2 corresponds to Gaussian, and alpha = 1 to double
+#  exponential or Laplacian. alpha = 0.8 is commonly used to model natural images, and often
+#  referred to as a "sparse" prior because it puts relatively more weight to 0 gradients.
 
 # For more details see https://github.com/deepayan/rip/blob/main/rip.recover/R/nonblind.R
 
 spatDeblur <- function(img, blurMap, kern = c("norm","circnorm","cauchy","disc"),
-                        kap = 1, lamb = 0.01) {
+                        kap = 1, lamb = 0.01,alpha = 2) {
 
   radMap <- unique(as.vector(blurMap))
   ydeblur <- as.array(img)
@@ -41,7 +44,7 @@ spatDeblur <- function(img, blurMap, kern = c("norm","circnorm","cauchy","disc")
   for(i in 1:length(radMap)) {
     kk <- blurkernel(kern = kern, rad = radMap[i],kap = kap)
     temp <- rip.deconv(as.rip(img),k = kk, method = "direct", lambda = lamb, patch = 150,
-                       rho = list(along = 0, across = 0), verbose = TRUE)
+                       rho = list(along = 0, across = 0), verbose = TRUE,alpha = alpha)
 
     mask <- (blurMap == radMap[i])
     ydeblur[mask] <- as.array(temp)[mask]
