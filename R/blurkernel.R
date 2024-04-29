@@ -10,7 +10,7 @@
 # gridsize: Controls discrete approximation of continuous kernel
 
 blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
-                       rad = 5,h = kap*rad,kap = 1,gridsize = 10){
+                       rad = 5,h = kap*rad,kap = 1,gridsize = 15){
 
   #if(!(kap > 0 & kap <= 1)){ stop("kap must be postive number less than equal to 1") }
 
