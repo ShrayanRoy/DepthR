@@ -9,13 +9,15 @@
 # kap: controls the relation between h & rad. h = kap x rad
 # gridsize: Controls discrete approximation of continuous kernel
 
-blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
-                       rad = 5,h = kap*rad,kap = 1,gridsize = 15){
+blurkernel <- function(kern = c("norm", "circnorm", "cauchy", "disc", "tcauchy"),
+                       rad = 5, h = kap * rad, kap = 1, gridsize = 15)
+{
 
+  kern <- match.arg(kern)
   #if(!(kap > 0 & kap <= 1)){ stop("kap must be postive number less than equal to 1") }
 
-  kdim <- max(floor(h - 0.5) + 1.5,0.5)
-  if(kern != "norm") kdim <- max(floor(rad - 0.5) + 1.5,0.5)
+  kdim <- if (kern == "norm") max(floor(h - 0.5) + 1.5,0.5)
+          else max(floor(rad - 0.5) + 1.5,0.5)
 
   x <- seq(-kdim,kdim,length.out = 2*kdim*gridsize)
   f <- cut(x,seq(-kdim,kdim,by = 1),include.lowest = TRUE)
@@ -30,6 +32,9 @@ blurkernel <- function(kern = c("norm","circnorm","cauchy","disc"),
     g$kval <- as.vector(outer(dnorm(x,sd = h),dnorm(x,sd = h)) * (outer(x^2,x^2,"+") <= rad^2))
   }else if(kern == "cauchy"){
     g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (h)^2)^1.5) * (outer(x^2,x^2,"+") <= rad^2))
+  }else if(kern == "tcauchy"){
+    g$kval <- as.vector(outer(dcauchy(x, scale = h), dcauchy(x, scale = h)) *
+                        (outer(x^2, x^2, "+") <= rad^2))
   }else if(kern == "disc"){
     g$kval <- as.vector(outer(x^2,x^2,"+") <= rad^2)
   }else{
