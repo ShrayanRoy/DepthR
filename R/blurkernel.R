@@ -9,6 +9,15 @@
 # kap: controls the relation between h & rad. h = kap x rad
 # gridsize: Controls discrete approximation of continuous kernel
 
+
+dtcauchy2 <- function(x, y, ..., radius = Inf) {
+    ## spherically symmetric, so function of distance
+    d <- sqrt(x^2 + y^2)
+    dcauchy(d, ...) * (d <= radius)
+}
+
+
+
 blurkernel <- function(kern = c("norm", "circnorm", "cauchy", "disc", "tcauchy"),
                        rad = 5, h = kap * rad, kap = 1, gridsize = 15)
 {
@@ -33,8 +42,7 @@ blurkernel <- function(kern = c("norm", "circnorm", "cauchy", "disc", "tcauchy")
   }else if(kern == "cauchy"){
     g$kval <- as.vector((1/(outer(x^2,x^2,"+") + (h)^2)^1.5) * (outer(x^2,x^2,"+") <= rad^2))
   }else if(kern == "tcauchy"){
-    g$kval <- as.vector(outer(dcauchy(x, scale = h), dcauchy(x, scale = h)) *
-                        (outer(x^2, x^2, "+") <= rad^2))
+    g$kval <- as.vector(outer(x, x, dtcauchy2, scale = h, radius = rad))
   }else if(kern == "disc"){
     g$kval <- as.vector(outer(x^2,x^2,"+") <= rad^2)
   }else{
