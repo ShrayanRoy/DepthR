@@ -12,8 +12,8 @@ randPatch <- function(y,psize = 51){
 }
 
 # Function to plot radhat vs. sigma
-plotExp <- function(ypatch,kern = c("circnorm","cauchy","disc"),rad = 3,kap = 1,
-                    radseq = seq(0.5,6,by = 0.05),sigmaseq = seq(0.01,0.4,by = 0.02)){
+plotExp <- function(ypatch,kern = c("norm", "circnorm", "cauchy", "disc", "tcauchy"),rad = 3,
+                    kap = 1, radseq = seq(0.5,6,by = 0.05),sigmaseq = seq(0.01,0.4,by = 0.02)){
 
   # Currently kern = "norm" not supported
 

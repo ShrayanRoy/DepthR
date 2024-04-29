@@ -35,7 +35,7 @@ findSeg <- function(y,box,mask = NULL,seg = T){
 
 # For more details see https://github.com/deepayan/rip/blob/main/rip.recover/R/nonblind.R
 
-spatDeblur <- function(img, blurMap, kern = c("norm","circnorm","cauchy","disc"),
+spatDeblur <- function(img, blurMap, kern = c("norm", "circnorm", "cauchy", "disc", "tcauchy"),
                         kap = 1, lamb = 0.01,alpha = 2) {
 
   radMap <- unique(as.vector(blurMap))
@@ -60,7 +60,7 @@ spatDeblur <- function(img, blurMap, kern = c("norm","circnorm","cauchy","disc")
 
 # For more details see https://github.com/deepayan/rip/blob/main/rip.recover/R/nonblind.R
 
-spatDeblurLucy <- function(img, blurMap, kern = c("norm","circnorm","cauchy","disc"),
+spatDeblurLucy <- function(img, blurMap, kern = c("norm", "circnorm", "cauchy", "disc", "tcauchy"),
                         kap = 1, niter = 25) {
 
   radMap <- unique(as.vector(blurMap))

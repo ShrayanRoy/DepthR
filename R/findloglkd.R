@@ -9,7 +9,7 @@
 # h: sequence of scale for blur kernel
 # ar: If TRUE uses AR Prior
 
-findloglkd <- function(y, kern = c("norm","circnorm","cauchy","disc"),rad = seq(1,5.5,by = 0.05),h = NULL,
+findloglkd <- function(y, kern = c("norm", "circnorm", "cauchy", "disc", "tcauchy"),rad = seq(1,5.5,by = 0.05),h = NULL,
                        sigma = seq(0.01,0.2,by = 0.01), kap = 1, ar = FALSE, eta = 0.010,thres = 0) {
 
   dx.h <- rip.conv(y, rip.grad$x,"valid")
