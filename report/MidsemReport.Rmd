@@ -192,7 +192,7 @@ The above considerations are only for gradients in a particular direction, i.e.,
 
 Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})$, or equivalently $\log L(\boldsymbol{\theta}) = \log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})$. We do this by numerically optimizing the objective (log-likelhood) function. For the spatially varying case, we can simply apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain, or to segments identified by segmentation algorithms.
 
-# Challenges in ML Estimation
+# Results
 
 
 The log-likelihood, defined in (\ref{eq:5.2}), is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. This parameter is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log-likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the disc kernel. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.4 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.001$ constant.
@@ -229,35 +229,9 @@ knitr::include_graphics("images/6.5.png")
 knitr::include_graphics("images/6.6.png")
 ```
 
-# Segment Anything
-
-Discussion on Segment Anything
-
-# Applying on Segments
-
-Problem with black regions and possible alternatives
-
-# Decorrelation Loss Function
-
-Motivation and theory
-
-# Simulated Experiments
-
-Simulated experiment
-
-patch by patch
-
-# Application on Real Images
-
-Images and Depth map
-
-# Discussion
-
-Advantages, Limitations
-
 # Future Work
 
-# Acknowledgment
+So far, we have conducted preliminary simulation studies to understand the behavior of the maximum likelihood procedure in local patches of images. Next, we will evaluate how this method performs for the image segments identified by segmentation algorithms. We need to formulate mathematical expressions to determine the depth from the level of blur for each segment. Additionally, we will conduct empirical analysis to ascertain which blur kernel model is applicable in real-life blurred images.
 
 # References
 
