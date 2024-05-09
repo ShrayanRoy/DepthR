@@ -17,8 +17,8 @@ findSeg <- function(y,box,mask = NULL,seg = T){
              (box[[1]] + 1):(box[[1]] + box[[3]] + 1)]
 
   if(seg){
-    maskcrop <- mask[box[[2]]:(box[[2]] + box[[4]]),
-                     box[[1]]:(box[[1]] + box[[3]])]
+    maskcrop <- mask[box[[2]]:(box[[2]] + box[[4]] + 1),
+                     box[[1]]:(box[[1]] + box[[3]] + 1)]
     ycrop[!maskcrop] <- 0
   }
 
