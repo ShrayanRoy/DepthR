@@ -34,7 +34,7 @@ deconv1_step <- function(x,k,G = 1,H = 1,sigma = 0.10,
 # Function to estimate blur kernel based on observed blurred image
 
 find_decorr <- function(yblur,kern = c("norm","circnorm","cauchy","tcauchy","disc"),radseq = seq(1,7,by = 0.10),
-                   kap = 1,lag.max = 20,rho = c(0.3,0.3),sigma = 0.10,eta = 0.010,thresh = 1e-05){
+                   kap = 1,lag.max = 20,rho = c(0.3,0.3),sigma = 0.10,eta = 0.010,thres = 1e-05){
 
   xh <- rip.conv(yblur,k = rip.grad$x,"valid")
   xv <- rip.conv(yblur,k = rip.grad$y,"valid")
