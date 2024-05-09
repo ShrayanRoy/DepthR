@@ -1,5 +1,10 @@
 
 
+
+# Utilities for finding blur kernel based on idea of decorrelation penalty
+# The idea is adhoc, more theoretical development is needed
+
+
 # Function for calculation of deconvolution step of the algorithm
 
 deconv1_step <- function(x,k,G = 1,H = 1,sigma = 0.10,
