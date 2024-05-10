@@ -251,26 +251,42 @@ Segment Anything
 
 # Challenges in ML Estimation
 
-Estimating the blur map requires applying the maximum likelihood procedure to image segments identified by SAM. But it is not that straight forward. Because the maximum likelihood procedure is defined for rectangular matrices. But the image segments are of irregular shape. As a result we need to fill/pad the segments with zeros to make it a rectangular matrix. Although it seems very obvious to do, but it actually deteriorates the estimation quality of blur kernel parameters. The issue arises because the discrete Fourier transform (DFT) distributes frequency content across all spatial locations. Consequently, even though zeros are introduced in the spatial domain through padding, they do not equate to zeros in the frequency domain. Thus, the zero padded/filled regions contribute to the likelihood calculation, often biasing the estimation towards selecting smaller values of the radius i.e. $r$. To address the issue of zero padding, we have attempted several approaches. Below, we have listed them:
+Estimating the blur map requires applying the maximum likelihood procedure to image segments identified by SAM. But it is not that straight forward. Because the maximum likelihood procedure is defined for rectangular arrays. But the image segments are of irregular shape. As a result we need to fill/pad the segments with zeros to make it a rectangular array. Although it seems very obvious to do, but it actually deteriorates the estimation quality of blur kernel parameters. The issue arises because the discrete Fourier transform (DFT) distributes frequency content across all spatial locations. Consequently, even though zeros are introduced in the spatial domain through padding, they do not equate to zeros in the frequency domain. Thus, the zero padded/filled regions contribute to the likelihood calculation, often biasing the estimation towards selecting smaller values of the radius i.e. $r$. To address the issue of zero padding, we have attempted several approaches. Below, we have listed them:
 
-1. Instead of utilizing segments identified by SAM, an alternative approach involves using bounding boxes corresponding to these segments for blur estimation. However, bounding boxes may encompass objects with vastly different depths, leading to significantly varied blur levels within the same box. In such scenarios, we've observed that the sub-area of the box with the least level of blur tends to dominate the Fourier spectrum. Consequently, if a blurred object's bounding box includes a sharp object, the estimated radius ($r$) will likely be small.
+1. Instead of utilizing segments identified by SAM, an alternative approach involves using bounding boxes corresponding to these segments for blur estimation. However, bounding boxes may encompass objects with vastly different depths, leading to significantly varied blur levels within the same box. In such scenarios, we've observed that the sub-area of the box with the least level of blur tends to dominate the Fourier spectrum. 
 
-2. Another strategy is to decompose irregularly shaped segments into smaller, regular shapes and apply the estimation procedure to these subregions. However, this approach is challenging to implement due to the highly irregular nature of segments.
+2. Another strategy is to decompose irregularly shaped segments into smaller, regular shapes and apply the estimation procedure to these sub regions. However, this approach is challenging to implement due to the highly irregular nature of segments.
 
-3. To mitigate the contribution of zero-padded regions in the estimation procedure, one approach could involve downweighting their influence. Treating the zero-padded/filled parts as outliers with respect to other regions and employing robust estimation procedures might seem intuitive. However, this approach is not viable because, in terms of the distribution of image gradients, zero values are more prevalent.
+3. Instead of working in frequency domain we can work in spatial domain. By expressing (\ref{eq:3.5}) as $\text{Vec}(\boldsymbol{y}) = \boldsymbol{A_k} \text{Vec}(\boldsymbol{x}) + \text{Vec}(\boldsymbol{n})$, we can formulate the maximum likelihood procedure as previously done in the frequency domain. However, this approach necessitates the calculation of the inverse of an $MN \times MN$ matrix multiple times, making it computationally in-feasible.
 
-4. Instead of working in frequency domain we can work in spatial domain. By expressing (\ref{eq:3.5}) as $\text{Vec}(\boldsymbol{y}) = \boldsymbol{A_k} \text{Vec}(\boldsymbol{x}) + \text{Vec}(\boldsymbol{n})$, we can formulate the maximum likelihood procedure as previously done in the frequency domain. However, this approach necessitates the calculation of the inverse of an $MN \times MN$ matrix multiple times, making it computationally infeasible.
-
-
+Thus we need to proceed with a different loss function, which can by pass the problem of zero padded regions.
 
 # Decorrelation Loss Function
 
+It is evident from the preceding section that relying on methods involving padding or filling zeros to transform irregularly shaped segments into rectangular arrays is unreliable. Instead, our method should solely depend on the pixel values within the identified image segments. An obvious choice is to collect those pixel values in matrix and use that for analysis. However this is not theoretically valid thing to do. Because the spatial dependency of the pixels in image carries information about the blur kernel parameters. Arranging them without maintaining their spatial order would destroy their dependency structure. This leads to the idea of *Decorrelation Loss Function*.
+
+For an observed blurred image $\boldsymbol{y}$, if the true blur kernel is $\boldsymbol{k_{r_0}}$, it is evident from Equation (\ref{eq:3.5}) that deconvolving $\boldsymbol{y}$ using $\boldsymbol{k_{r_0}}$ would yield a quantity $\boldsymbol{x_{r_0}}$ closely resembling the original sharp image $\boldsymbol{x}$. Consequently, the autocorrelation function (ACF) of the horizontal and vertical gradients of $\boldsymbol{x_{r_0}}$ would exhibit small values. To empirically validate this, we simulated defocus blur on a $255 \times 255$ image using a disc kernel of radius $r_{\text{true}} = 3$ as shown in **Figure**. We have used a deconvolution procedure similar to wiener filtering to obtain $\boldsymbol{x_r}$.
+
+For $r = 2$, we can see that ACF values are smaller compared to the blurred image, and for $r = 4$, at some lags, the ACF takes a large value. But for the true value of $r$, we observe a substantial decrease in ACF values as expected. It is to be noted that the ACF in the across direction has not decreased much. 
+
+Based on the observation, we consider sum of squared acfs as loss function. It captures the amount of correlation present in image gradients after deconvoluting using $\boldsymbol{k_r}$. For true value of $r$, we expect this to be small. We have used the following theorem for deconvolution step.
+
+\textbf{Theorem:} \textit{If $\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}$ with $\boldsymbol{X_{\omega}} \sim \mathcal{CN}(0,\sigma^2g_{\omega})$ and $\boldsymbol{N_{\omega}} \sim \mathcal{CN}(0,\eta^2h_{\omega})$ independently. Then, the conditional expectation of $\boldsymbol{X_{\omega}}$ given $\boldsymbol{Y_{\omega}},\boldsymbol{K_{\omega}}$ is given by}
+
+\begin{equation}
+ \label{eq:10.1}
+ \mathbb{E}[\boldsymbol{X_{\omega}}|\boldsymbol{Y_{\omega}},\boldsymbol{K_{\omega}}] = \frac{\sigma^2g_{\omega}\boldsymbol{K_{\omega}Y_{\omega}}}{\eta^2h_{\omega} + \sigma^2g_{\omega}|\boldsymbol{K_{\omega}}|^2}
+\end{equation}
+
+Using Equation (\ref{eq:10.1}), we obtained the deconvoluted versions of both the horizontal and vertical gradients, denoted by $\boldsymbol{x_{h,r}}$ and $\boldsymbol{x_{v,r}}$ respectively. This step is referred to as the **Deconvolution Step**. Subsequently, we calculate the autocorrelation function (ACF) along and across the gradient directions for both the horizontal and vertical deconvoluted gradients. Typically, considering only the ACFs along the direction is sufficient. However, we have observed that including both along and across direction ACFs results in more stable outcomes. We select the value of $r$ that minimizes the decorrelation loss.
+
+For image segments, we slightly modify the procedure. We apply the deconvolution step to the bounding boxes corresponding to the image segments. Next, instead of calculating the autocorrelation function (ACF) for all pixels within that bounding box, we only consider the pixels that belong to the image segment corresponding to that bounding box. 
+
+[TODO: Choice of parameters and flowchart]
 
 # Simulated Experiments
 
 Simulated experiment
-
-patch by patch
 
 # Application on Real Images
 
