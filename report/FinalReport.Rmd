@@ -214,6 +214,8 @@ knitr::include_graphics("images/6.2.png")
 
 From Figure \ref{fig:plot8}, \ref{fig:plot9} and \ref{fig:plot10}, we observe that as patch size increases, the estimated $r$ becomes more stable as a function of $\sigma$. Most importantly for $\sigma = 0.2$, the estimated $r$ closely matches with the true value $r_{true}$ across all cases, indicating that $\sigma = 0.2$ is a suitable choice for the prior parameter. This observation is consistent with Figures \ref{fig:plot6} and \ref{fig:plot7}. It is also clear that the maximum likelihood estimation does not perform well for small patch sizes as expected. Because we have less number of pixels for small patch sizes.
 
+[TODO: Mention Noise Case, Change Images, eta = 0.005 etc.]
+
 ```{r plot8,warning=FALSE,echo=FALSE,out.width='100%',out.height= '95%',fig.align='center',echo=FALSE,fig.cap = "$51 \\times 51$ Patch and Disc Kernel: Top row indicates the sharp images used for simulation and  second, third and bottom row corresponds to $r_{true}$ = 1,3,5 respectively."}
 
 knitr::include_graphics("images/6.4.png")
@@ -237,11 +239,15 @@ The estimated blur map is clearly not smooth, particularly for transition region
 
 The assumption of locally constant level of blur is not always valid. In real images, level of blur tends to remain constant for different objects within the image, as it is the objects themselves that vary in distance from the camera, not the individual pixels. **Figure** provides an example illustrating this phenomenon, where different birds in the image exhibit varying levels of blur.
 
-Therefore, instead of attempting to estimate the blur level for each pixel, a more effective approach would be to estimate the blur level for each distinct object in the image. By segmenting the image into meaningful objects, such as birds in this example, and estimating the blur level for each segment, we can generate a more accurate blur map easily. This leads to the idea of *Segment Anything*.
+Therefore, instead of attempting to estimate the blur level for each pixel, a more effective approach would be to estimate the blur level for each distinct object in the image. By segmenting the image into meaningful objects, such as birds in this example, and estimating the blur level for each segment, we can generate a more accurate blur map easily.
 
 # Segment Anything
 
-Segment Anything
+The Segment Anything Model (SAM) developed by Meta AI in 2023 revolutionizes image segmentation by offering versatile modes of use, such as - automatic segmentation, guided segmentation (**Figure**). SAM employs a unique network architecture similar to language models such as *ChatGPT* and *Google Bard*. It utilizes an *image encoder* for embedding computation, a *prompt encoder* for prompt embedding, and a *lightweight decoder* for mask prediction. SAM's data engine collected over 1.1 billion high-quality masks through three stages: Assisted-Manual, Semi-Automatic, and Fully-Automatic, resulting in the *SA-1B dataset*, a significant contribution to the image processing field. SAM's promptable architecture enables zero-shot learning, resolving ambiguity in prompts, and tackling various downstream tasks effectively. With its potential for adaptation to diverse image-processing tasks, several application specific modifications of SAM are available, such as **Ref**. 
+
+For our use, we have used SAM for automatic segmentation. In this mode SAM considers first uniform grid of points over the image. Then based on that it selects some bounding boxes, which represents  
+
+
 
 * What is SAM
 * Guided SAM and Automatic SAM
@@ -253,17 +259,15 @@ Segment Anything
 
 Estimating the blur map requires applying the maximum likelihood procedure to image segments identified by SAM. But it is not that straight forward. Because the maximum likelihood procedure is defined for rectangular arrays. But the image segments are of irregular shape. As a result we need to fill/pad the segments with zeros to make it a rectangular array. Although it seems very obvious to do, but it actually deteriorates the estimation quality of blur kernel parameters. The issue arises because the discrete Fourier transform (DFT) distributes frequency content across all spatial locations. Consequently, even though zeros are introduced in the spatial domain through padding, they do not equate to zeros in the frequency domain. Thus, the zero padded/filled regions contribute to the likelihood calculation, often biasing the estimation towards selecting smaller values of the radius i.e. $r$. To address the issue of zero padding, we have attempted several approaches. Below, we have listed them:
 
-1. Instead of utilizing segments identified by SAM, an alternative approach involves using bounding boxes corresponding to these segments for blur estimation. However, bounding boxes may encompass objects with vastly different depths, leading to significantly varied blur levels within the same box. In such scenarios, we've observed that the sub-area of the box with the least level of blur tends to dominate the Fourier spectrum. 
+* Instead of utilizing segments identified by SAM, an alternative approach involves using bounding boxes corresponding to these segments for blur estimation. However, bounding boxes may encompass objects with vastly different depths, leading to significantly varied blur levels within the same box. In such scenarios, we've observed that the sub-area of the box with the least level of blur tends to dominate the Fourier spectrum. 
 
-2. Another strategy is to decompose irregularly shaped segments into smaller, regular shapes and apply the estimation procedure to these sub regions. However, this approach is challenging to implement due to the highly irregular nature of segments.
+* Another strategy is to decompose irregularly shaped segments into smaller, regular shapes and apply the estimation procedure to these sub regions. However, this approach is challenging to implement due to the highly irregular nature of segments.
 
-3. Instead of working in frequency domain we can work in spatial domain. By expressing (\ref{eq:3.5}) as $\text{Vec}(\boldsymbol{y}) = \boldsymbol{A_k} \text{Vec}(\boldsymbol{x}) + \text{Vec}(\boldsymbol{n})$, we can formulate the maximum likelihood procedure as previously done in the frequency domain. However, this approach necessitates the calculation of the inverse of an $MN \times MN$ matrix multiple times, making it computationally in-feasible.
-
-Thus we need to proceed with a different loss function, which can by pass the problem of zero padded regions.
+* Instead of working in frequency domain we can work in spatial domain. By expressing (\ref{eq:3.5}) as $\text{Vec}(\boldsymbol{y}) = \boldsymbol{A_k} \text{Vec}(\boldsymbol{x}) + \text{Vec}(\boldsymbol{n})$, we can formulate the maximum likelihood procedure as previously done in the frequency domain. However, this approach necessitates the calculation of the inverse of $MN \times MN$ matrix multiple times, making it computationally in-feasible.
 
 # Decorrelation Loss Function
 
-It is evident from the preceding section that relying on methods involving padding or filling zeros to transform irregularly shaped segments into rectangular arrays is unreliable. Instead, our method should solely depend on the pixel values within the identified image segments. An obvious choice is to collect those pixel values in matrix and use that for analysis. However this is not theoretically valid thing to do. Because the spatial dependency of the pixels in image carries information about the blur kernel parameters. Arranging them without maintaining their spatial order would destroy their dependency structure. This leads to the idea of *Decorrelation Loss Function*.
+It is evident from the preceding section that relying on methods involving padding or filling zeros to transform irregularly shaped segments into rectangular arrays is unreliable. Instead, our method should solely depend on the pixel values within the identified image segments. An obvious choice is to collect those pixel values in matrix and use that for analysis. However this is not theoretically valid. Because the spatial dependency of the pixels in image carries information about the blur kernel parameters. Arranging them without maintaining their spatial order would destroy their dependency structure. This leads to the idea of *Decorrelation Loss Function*.
 
 For an observed blurred image $\boldsymbol{y}$, if the true blur kernel is $\boldsymbol{k_{r_0}}$, it is evident from Equation (\ref{eq:3.5}) that deconvolving $\boldsymbol{y}$ using $\boldsymbol{k_{r_0}}$ would yield a quantity $\boldsymbol{x_{r_0}}$ closely resembling the original sharp image $\boldsymbol{x}$. Consequently, the autocorrelation function (ACF) of the horizontal and vertical gradients of $\boldsymbol{x_{r_0}}$ would exhibit small values. To empirically validate this, we simulated defocus blur on a $255 \times 255$ image using a disc kernel of radius $r_{\text{true}} = 3$ as shown in **Figure**. We have used a deconvolution procedure similar to wiener filtering to obtain $\boldsymbol{x_r}$.
 
@@ -278,19 +282,22 @@ Based on the observation, we consider sum of squared acfs as loss function. It c
  \mathbb{E}[\boldsymbol{X_{\omega}}|\boldsymbol{Y_{\omega}},\boldsymbol{K_{\omega}}] = \frac{\sigma^2g_{\omega}\boldsymbol{K_{\omega}Y_{\omega}}}{\eta^2h_{\omega} + \sigma^2g_{\omega}|\boldsymbol{K_{\omega}}|^2}
 \end{equation}
 
-Using Equation (\ref{eq:10.1}), we obtained the deconvoluted versions of both the horizontal and vertical gradients, denoted by $\boldsymbol{x_{h,r}}$ and $\boldsymbol{x_{v,r}}$ respectively. This step is referred to as the **Deconvolution Step**. Subsequently, we calculate the autocorrelation function (ACF) along and across the gradient directions for both the horizontal and vertical deconvoluted gradients. Typically, considering only the ACFs along the direction is sufficient. However, we have observed that including both along and across direction ACFs results in more stable outcomes. We select the value of $r$ that minimizes the decorrelation loss.
+Using Equation (\ref{eq:10.1}), we obtained the deconvoluted versions of both the horizontal and vertical gradients, denoted by $\boldsymbol{x_{h,r}}$ and $\boldsymbol{x_{v,r}}$ respectively. Subsequently, we calculate the autocorrelation function (ACF) along and across the gradient directions for both the horizontal and vertical deconvoluted gradients. Typically, considering only the ACFs along the direction is sufficient. However, we have observed that including both along and across direction ACFs results in more stable outcomes. We select the value of $r$ that minimizes the decorrelation loss.
 
-For image segments, we slightly modify the procedure. We apply the deconvolution step to the bounding boxes corresponding to the image segments. Next, instead of calculating the autocorrelation function (ACF) for all pixels within that bounding box, we only consider the pixels that belong to the image segment corresponding to that bounding box. 
+For image segments, we slightly modify the procedure. We perform deconvolution of bounding boxes corresponding to the image segments and instead of calculating acf for all pixels within that bounding box, we only consider the pixels that belong to the image segment corresponding to that bounding box. 
 
-[TODO: Choice of parameters and flowchart]
+Choice of the parameters $\sigma$ and $\eta$ are also important. We have conducted an experiment similar to maximum likelihood case to obtain optimal choice of parameters and the results are similar. Choice of $\rho_1$ and $\rho_2$ are also important. The default choices are $\rho_1 = 0.5$ and $\rho_2 = 0.5$.
+
+[TODO: flowchart]
 
 # Simulated Experiments
 
-Simulated experiment
+A simulated experiment is illustrated in **Figure**, which allows us to quantitatively test the performance of the proposed method. We start with a sharp original RGB image and apply SAM to identify the image segments. SAM considers different bounding boxes and produces three possible masks for each such bounding box along with their confidence scores. We discard small segments based on the size of the bounding box and the confidence score of the corresponding mask. After that, we simulate defocus blur based on these masks using a disc kernel using the model in (\ref{eq:3.9}). The latent blur map and generated blurred image are shown in **Figure**. We apply the above-discussed method to the grayscale version of the blurred image with $\sigma = 0.05$, $\eta = 0.010$, and $\rho = (0.5,0.5)$ as the choice of tuning parameters. The estimated blur map is shown in **Figure**. The mean squared error of the estimated blur map with respect to the latent map is **Value**.
+
+Notice that except for some regions, the estimated blur map closely resembles the latent blur map. The discrepancy is mainly for small segments. Using the estimated blur map and blur kernels generated by the disc function, we performed spatially varying deconvolution using the procedure described in @levin2007image. The deblurred image is shown in **Figure**. We can see that the spatially varying blur is successfully removed from the image. The PSNR of the estimate $\boldsymbol{\hat{x}}$ of the sharp image $\boldsymbol{x}$ is **Value**, which is quite high.
 
 # Application on Real Images
 
-Images and Depth map
 
 # Discussion
 
