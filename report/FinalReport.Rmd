@@ -230,10 +230,15 @@ knitr::include_graphics("images/6.6_new.png")
 ```
 
 
-# Considerations in Estimation of Sptially Varying Blur
+# Considerations in Sptially Varying Blur Estimation
 
 
-We have developed a procedure for estimating blur kernel parameters for images with uniform blur. However, real-world images often exhibit spatially varying blur, where the level of blur varies from pixel to pixel. To address this, one reasonable assumption is that the level of blur remains locally constant within a small patch around each pixel. By applying our estimation procedure to each local patch, we can obtain the blur level for each pixel, as described in Equation (\ref{eq:3.9}). This results in an estimated blur map for the image. However, the generated blur map will not be smooth, as illustrated in **Figure**. We conducted a simple experiment using spatially varying blur with a disc kernel on a $255\times255$ image. Both the original and estimated blur maps are shown. We used local patches of size $51\times 51$ for estimation. It is evident that the estimated blur map closely resembles the original blur map, with a mean sqaured error **PSNR value**.
+We have developed a procedure for estimating blur kernel parameters for images with uniform blur. However, real-world images often exhibit spatially varying blur, where the level of blur varies from pixel to pixel. To address this, one reasonable assumption is that the level of blur remains locally constant within a small patch around each pixel. By applying our estimation procedure to each local patch, we can obtain the blur level for each pixel, as described in Equation (\ref{eq:3.9}). This results in an estimated blur map for the image. However, the generated blur map will not be smooth, as illustrated in Figure \ref{fig:plot11}. We conducted a simple experiment using spatially varying blur with a disc kernel on a $255\times255$ image. Both the original and estimated blur maps are shown. We used local patches of size $51\times 51$ for estimation. It is evident that the estimated blur map closely resembles the original blur map except for the transition regions, with a mean squared error 0.492.
+
+```{r plot11,warning=FALSE,echo=FALSE,out.width='85%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation Under Locally Constant Assumption: (a) Spatially Vatying Blurred Image, (b) Latent Blurmap, (c) Estimated Blurmap"}
+
+knitr::include_graphics("images/7.1.png")
+```
 
 The estimated blur map is clearly not smooth, particularly for transition regions between two blur levels. To obtain a smoother blur map, we need to employ *Markov Random Field Smoothing*. The idea is to solve a penalized problem, penalizing the difference between blur levels on neighboring pixels. An adaptive weighting, primarily based on RGB distance between pixels, is used in literature to obtain a smoothed blur map. But, this entire procedure is time-consuming and fails in situations where a local patch contains pixels with very different depth values.
 
@@ -244,7 +249,12 @@ Therefore, instead of attempting to estimate the blur level for each pixel, a mo
 # Segment Anything
 
 
-We used Segment Anything (SAM), developed by Meta AI in 2023, for image segmentation. SAM offers versatile modes of use, including automatic and guided segmentation (see **Figure**). It employs a unique network architecture akin to language models like *ChatGPT* and *Google Bard*, utilizing an *image encoder* for embedding computation, a *prompt encoder* for prompt embedding, and a *lightweight decoder* for mask prediction. SAM's data engine collected over 1.1 billion high-quality masks resulting in the *SA-1B dataset*, a significant contribution to image processing field. SAM's promptable architecture enables zero-shot learning and effectively handles various downstream tasks. It offers potential for adaptation to diverse image-processing tasks, with several application-specific modifications available, such as **Ref**.
+We used Segment Anything (SAM), developed by Meta AI in 2023, for image segmentation. SAM offers versatile modes of use, including automatic and guided segmentation (Figure \ref{fig:plot12}). It employs a unique network architecture akin to language models like *ChatGPT* and *Google Bard*, utilizing an image encoder for embedding computation, a prompt encoder for prompt embedding, and a lightweight decoder for mask prediction. SAM's data engine collected over 1.1 billion high-quality masks resulting in the *SA-1B dataset*, a significant contribution to image processing field. SAM's promptable architecture enables zero-shot learning and effectively handles various downstream tasks. Several domain specific modifications of SAM are available such as @sammodi1 and @sammodi2.
+
+```{r plot12,warning=FALSE,echo=FALSE,out.width='90%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "Automatic and Guided Segmentation Using Segment Anything Model"}
+
+knitr::include_graphics("images/8.1.png")
+```
 
 We used SAM for automatic segmentation. In this mode, SAM considers bounding boxes aimed at identifying and segmenting objects within an image efficiently. After identifying the bounding boxes, SAM produces three possible masks for each bounding box along with a confidence score. We require both the bounding boxes and masks for our purpose. However, in the presence of a small number of observations (i.e., pixels), our ML estimation procedure may produce poor results. Therefore, we filtered out the small segments based on the size of the bounding box and the confidence score. 
 
@@ -264,11 +274,16 @@ To estimate the blur map we need to apply the maximum likelihood procedure to im
 
 It is evident from the preceding section that relying on methods involving padding or filling zeros to transform irregularly shaped segments into rectangular arrays is unreliable. Instead, our method should solely depend on the pixel values within the identified image segments. An obvious choice is to collect those pixel values in matrix and use that for analysis. However this is not theoretically valid. Because the spatial dependency of the pixels in image carries information about the blur kernel parameters. Arranging them without maintaining their spatial order would destroy their dependency structure. This leads to the idea of *Decorrelation Loss Function*.
 
-For an observed blurred image $\boldsymbol{y}$, if the true blur kernel is $\boldsymbol{k_{r_0}}$, it is evident from Equation (\ref{eq:3.5}) that deconvolving $\boldsymbol{y}$ using $\boldsymbol{k_{r_0}}$ would yield a quantity $\boldsymbol{x_{r_0}}$ closely resembling the original sharp image $\boldsymbol{x}$. Consequently, the autocorrelation function (ACF) of the horizontal and vertical gradients of $\boldsymbol{x_{r_0}}$ would exhibit small values. To empirically validate this, we simulated defocus blur on a $255 \times 255$ image using a disc kernel of radius $r_{\text{true}} = 3$ as shown in **Figure**. We have used a deconvolution procedure similar to wiener filtering to obtain $\boldsymbol{x_r}$.
+For an observed blurred image $\boldsymbol{y}$, if the true blur kernel is $\boldsymbol{k_{r_0}}$, it is evident from Equation (\ref{eq:3.5}) that deconvolving $\boldsymbol{y}$ using $\boldsymbol{k_{r_0}}$ would yield a quantity $\boldsymbol{x_{r_0}}$ closely resembling the original sharp image $\boldsymbol{x}$. Consequently, the autocorrelation function of the horizontal and vertical gradients of $\boldsymbol{x_{r_0}}$ would exhibit small values. To empirically validate this, we simulated defocus blur on a $255 \times 255$ image using a disc kernel of radius $r_{\text{true}} = 3$. We have used a deconvolution procedure similar to wiener filtering to obtain $\boldsymbol{x_r}$. For comparison, we have plotted ACF for blurred image gradients, deconvoluted gradients using $r = 2,3,4$ and also of sharp images in Figure \ref{fig:plot13}.
 
-For $r = 2$, we can see that ACF values are smaller compared to the blurred image, and for $r = 4$, at some lags, the ACF takes a large value. But for the true value of $r$, we observe a substantial decrease in ACF values as expected. It is to be noted that the ACF in the across direction has not decreased much. 
+```{r plot13,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "Motivation for Decorrelation loss: Top row indicates acf for sharp image gradients, second row for blurred image gradients and last three rows for deconvoluted gradients"}
 
-Based on the observation, we consider sum of squared acfs as loss function. It captures the amount of correlation present in image gradients after deconvoluting using $\boldsymbol{k_r}$. We call it *Decorrelation Loss*. For true value of $r$, we expect this to be small. We have used the following theorem for deconvolution step.
+knitr::include_graphics("images/10.1.png")
+```
+
+For $r = 2$, we can see that ACF values are much smaller compared to the blurred image, and for $r = 4$, at some lags, the ACF takes on large values. But for the true value of $r$, we observe a substantial decrease in ACF values in all directions as expected. It is to be noted that for small values of radius, we have a similar type of decrease in along direction ACF values.
+
+Based on these observations, we consider sum of squared acfs in all directions as loss function. It captures the amount of correlation present in image gradients after deconvoluting using $\boldsymbol{k_r}$. We call it *Decorrelation Loss*. For true value of $r$, we expect this to be small. We have used the following theorem for deconvolution step.
 
 \textbf{Theorem:} \textit{If $\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}$ with $\boldsymbol{X_{\omega}} \sim \mathcal{CN}(0,\sigma^2g_{\omega})$ and $\boldsymbol{N_{\omega}} \sim \mathcal{CN}(0,\eta^2h_{\omega})$ independently. Then, the conditional expectation of $\boldsymbol{X_{\omega}}$ given $\boldsymbol{Y_{\omega}},\boldsymbol{K_{\omega}}$ is given by}
 
@@ -287,9 +302,14 @@ Choice of the parameters $\sigma$ and $\eta$ are also important. We have conduct
 
 # Simulated Experiments
 
-A simulated experiment is illustrated in **Figure**, which allows us to quantitatively test the performance of the proposed method. We start with a sharp original RGB image and apply SAM to identify the image segments. SAM considers different bounding boxes and produces three possible masks for each such bounding box along with their confidence scores. We discard small segments based on the size of the bounding box and the confidence score of the corresponding mask. After that, we simulate defocus blur based on these masks using a disc kernel using the model in (\ref{eq:3.9}). The latent blur map and generated blurred image are shown in **Figure**. We apply the above-discussed method to the grayscale version of the blurred image with $\sigma = 0.10$, $\eta = 0.005$, and $\rho = (0.5,0.5)$ as the choice of tuning parameters. The estimated blur map is shown in **Figure**. The mean squared error of the estimated blur map with respect to the latent map is **Value**.
+A simulated experiment is illustrated in Figure \ref{fig:plot14}, which allows us to quantitatively test the performance of the proposed method. We start with a sharp original RGB image and apply SAM to identify the image segments. SAM considers different bounding boxes and produces three possible masks for each such bounding box along with their confidence scores. We discard small segments based on the size of the bounding box and the confidence score of the corresponding mask. After that, we simulate defocus blur based on these masks using a disc kernel using the model in (\ref{eq:3.9}). The latent blur map and generated blurred image are shown in Figure \ref{fig:plot14} (a) and (c). We apply the above-discussed method to the gray scale version of the blurred image with $\sigma = 0.10$, $\eta = 0.005$, and $\rho = (0.5,0.5)$ as the choice of tuning parameters. The estimated blur map is shown in Figure \ref{fig:plot14} (d). The mean squared error of the estimated blur map with respect to the latent map is 0.421.
 
-Notice that except for some regions, the estimated blur map closely resembles the latent blur map. The discrepancy is mainly for small segments. Using the estimated blur map and blur kernels generated by the disc function, we performed spatially varying deconvolution using the procedure described in @levin2007image. The deblurred image is shown in **Figure**. We can see that the spatially varying blur is successfully removed from the image. The PSNR of the estimate $\boldsymbol{\hat{x}}$ of the sharp image $\boldsymbol{x}$ is **Value**, which is quite high.
+```{r plot14,warning=FALSE,echo=FALSE,out.width='76%',out.height= '51%',fig.align='center',echo=FALSE,fig.cap = "Simulated Experiment: (a) Simulated input image with spatially varying blur, (b) Deblurred image based on estimate in (d), (c) Latent blur map, (d) Estimated blur map"}
+
+knitr::include_graphics("images/11.1.png")
+```
+
+Notice that except for some regions, the estimated blur map closely resembles the latent blur map. The discrepancy is mainly for small segments. Using the estimated blur map and blur kernels generated by the disc function, we performed spatially varying deconvolution using Richardson Lucy algorithm with number of iterations 50. The deblurred image is shown in Figure \ref{fig:plot14} (b). We can see that the spatially varying blur is successfully removed from the image. The PSNR of the estimate $\boldsymbol{\hat{x}}$ of the sharp image $\boldsymbol{x}$ is 54.47 dB, which is quite high.
 
 # Application on Real Images
 
