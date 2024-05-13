@@ -313,9 +313,20 @@ Notice that except for some regions, the estimated blur map closely resembles th
 
 # Application on Real Images
 
-We applied the procedure described above to real images, and the results are shown in **Figure**. Since these images are sourced externally, calibrated blur kernels corresponding to them are unavailable. While blur from an ideal lens with a circular aperture can be modeled by a disc kernel in the absence of diffraction effects, real-world scenarios involve diffraction. In our experience, disc kernels can produce sufficiently accurate blur maps for real images, but the loss curves may not be stable. Alternatively, circular kernels perform well in producing stable blur maps suitable for deconvolution. For the results presented here, we used a circular Cauchy kernel with $\kappa = 0.5$ to estimate the radius map (i.e., $r$). We used $\sigma = 0.10$, $\eta = 0.010$, with $\rho = (0.5,0.5)$ for all cases, unless otherwise specified.
+We applied the procedure described above to real images, and the results are shown in **Figure**. Since these images are sourced externally, calibrated blur kernels corresponding to them are unavailable. While blur from an ideal lens with a circular aperture can be modeled by a disc kernel in the absence of diffraction effects, real-world scenarios involve diffraction. In our experience, disc kernels can produce sufficiently accurate blur maps for real images, but the loss curves may not be stable. Alternatively, circular kernels perform well in producing stable blur maps suitable for deconvolution. For the results presented here, we used a circular Cauchy kernel with $\kappa = 0.5$ to estimate the radius map (i.e., $r$). We used $\sigma = 0.10$, $\eta = 0.010$, with $\rho = (0.5,0.5)$ for all cases.
 
 [TODO: Figure Specific Comments, How to convolution, refocusing]
+
+```{r plot15,warning=FALSE,echo=FALSE,out.width='100%',out.height= '160%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation: First Column for input blurry image, second column for estimated blur radius map and third column for deblurred image using estimated map in second column"}
+
+knitr::include_graphics("images/12.1.png")
+```
+
+```{r plot16,warning=FALSE,echo=FALSE,out.width='100%',out.height= '160%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation: First Column for input blurry image, second column for estimated blur radius map and third column for deblurred image using estimated map in second column"}
+
+knitr::include_graphics("images/12.2.png")
+```
+
 
 # Discussion
 
