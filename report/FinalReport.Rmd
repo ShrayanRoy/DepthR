@@ -302,7 +302,7 @@ Choice of the parameters $\sigma$ and $\eta$ are also important. We have conduct
 
 # Simulated Experiments
 
-A simulated experiment is illustrated in Figure \ref{fig:plot14}, which allows us to quantitatively test the performance of the proposed method. We start with a sharp original RGB image and apply SAM to identify the image segments. SAM considers different bounding boxes and produces three possible masks for each such bounding box along with their confidence scores. We discard small segments based on the size of the bounding box and the confidence score of the corresponding mask. After that, we simulate defocus blur based on these masks using a disc kernel using the model in (\ref{eq:3.9}). The latent blur map and generated blurred image are shown in Figure \ref{fig:plot14} (a) and (c). We apply the above-discussed method to the gray scale version of the blurred image with $\sigma = 0.10$, $\eta = 0.005$, and $\rho = (0.5,0.5)$ as the choice of tuning parameters. The estimated blur map is shown in Figure \ref{fig:plot14} (d). The mean squared error of the estimated blur map with respect to the latent map is 0.421.
+A simulated experiment is illustrated in Figure \ref{fig:plot14}, which allows us to quantitatively test the performance of the proposed method. We start with a sharp original RGB image and apply SAM to identify the image segments. SAM considers different bounding boxes and produces three possible masks for each such bounding box along with their confidence scores. We discard small segments based on the size of the bounding box and the confidence score of the corresponding mask. After that, we simulate defocus blur based on these masks using a disc kernel using the model in (\ref{eq:3.9}). The latent blur map and generated blurred image are shown in Figure \ref{fig:plot14} (a) and (c). We apply the above-discussed method to the gray scale version of the blurred image with $\sigma = 0.10$, $\eta = 0.005$, and $\rho = (0.5,0.5)$ as the choice of tuning parameters. The estimated blur map is shown in Figure \ref{fig:plot14} (d). We have used a grid-search procedure with step size $\Delta{r} = 0.1$ for estimation. The mean squared error of the estimated blur map with respect to the latent map is 0.421.
 
 ```{r plot14,warning=FALSE,echo=FALSE,out.width='76%',out.height= '51%',fig.align='center',echo=FALSE,fig.cap = "Simulated Experiment: (a) Simulated input image with spatially varying blur, (b) Deblurred image based on estimate in (d), (c) Latent blur map, (d) Estimated blur map"}
 
@@ -313,41 +313,53 @@ Notice that except for some regions, the estimated blur map closely resembles th
 
 # Application on Real Images
 
-We applied the procedure described above to real images, and the results are shown in Figure \ref{fig:plot15},\ref{fig:plot16} and **Figure**. We have also included the deblurred images obtained using *Richardson-Lucy Algorithm*. Since these images are sourced externally, calibrated blur kernels corresponding to them are unavailable. While blur from an ideal lens with a circular aperture can be modeled by a disc kernel in the absence of diffraction effects, real-world scenarios involve diffraction. In our experience, disc kernels can produce sufficiently accurate blur maps for real images, but the loss curves may not be stable. Alternatively, circular kernels perform well in producing stable blur maps suitable for deconvolution. For the results presented here, we used a circular Cauchy kernel with $\kappa = 0.5$ to estimate the radius map (i.e., $r$). We have used $\sigma = 0.10$, $\eta = 0.010$, and $\rho = (0.5, 0.5)$ for blur radius estimation in all cases, along with 30 iterations for deblurring using Richardson-Lucy algorithm.
+We applied the procedure described above to real images, and the results are shown in Figure \ref{fig:plot15},\ref{fig:plot16} and \ref{fig:plot17}. We have also included the deblurred images obtained using *Richardson-Lucy Algorithm*. Since these images are sourced externally, calibrated blur kernels corresponding to them are unavailable. While blur from an ideal lens with a circular aperture can be modeled by a disc kernel in the absence of diffraction effects, real-world scenarios involve diffraction. In our experience, disc kernels can produce sufficiently accurate blur maps for real images, but the loss curves may not be stable. Alternatively, circular kernels perform well in producing stable blur maps suitable for deconvolution. For the results presented here, we used a circular Cauchy kernel with $\kappa = 0.5$ to estimate the radius map (i.e., $r$). We have used $\sigma = 0.10$, $\eta = 0.010$, and $\rho = (0.5, 0.5)$ for blur radius estimation in all cases, along with 30 iterations for deblurring using Richardson-Lucy algorithm.
 
+Figure \ref{fig:plot15} (a) illustrates an example demonstrating varying levels of blur. The two persons appear blurred because they are closer to the camera. Moving away from the persons towards the merry-go-round, the level of blur decreases, reaching a minimum near the merry-go-round. Therefore, the plane of focus of the camera in this scene is the merry-go-round. Our method effectively captures the differences in blur levels. Although the ranking is not entirely accurate, it produces a sufficiently good blur map for deblurring the image. The deblurred image demonstrates successful removal of spatially varying blur. Figure \ref{fig:plot15} (b) illustrates another example with only two levels of blur. Our method successfully captures the differences in blur levels. In the deblurred image, we can clearly see the patterns on the ground that were not clear in the input image.
 
-```{r plot15,warning=FALSE,echo=FALSE,out.width='110%',out.height= '180%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation: First Column for input blurry image, second column for estimated blur radius map and third column for deblurred image using estimated map in second column"}
+Figure \ref{fig:plot15} (c) presents an example with multiple blur levels. The woman closer to the camera appears more blurred, and the level of blur decreases as we move towards the back until the fourth person. After that, it increases again. The estimated blur map also reflects these variations. Although the wall in the background should be the most blurred, our blur map does not show this. However, the resulting deblurred image is sufficiently sharp. Figure \ref{fig:plot15} (d) presents another example of multiple blur levels, and our method is able to identify them nearly accurately.
 
-knitr::include_graphics("images/col1.png")
+The input images in Figure \ref{fig:plot16} are from @levin2007image. In each case, the blur maps depict the nearly correct blur level estimation, and the deblurred images also show improvement. Figure \ref{fig:plot17} (a),(b) presents close-ups of faces from \ref{fig:plot16} (a),(c) respectively before and after deblurring, demonstrating the improvement achieved. The deblurred images are not smooth, but we can achieve smoothness using other deconvolution algorithms, For example putting $L_p$ penalty on deblurred image gradients [@levin2007image]. But those are much slower compared to Richardson-Lucy. 
+
+Finally, in Figure \ref{fig:plot17} we show some comparisons from examples given in @zhu2013. A notable improvement is the accurate identification of boundaries between objects in the blur maps. Our method clearly depicts the differences in blur levels, such as between the cattle in (e), the individuals and buildings in (d). While in [@zhu2013] those details are not there. The ranking is not entirely correct, but it provides a better representation of 3D geometric information compared to [@zhu2013]. This is possible because we have done pre-segmentation, instead of post-segmentation. 
+
+```{r plot15,warning=FALSE,echo=FALSE,out.width='100%',out.height= '180%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation: First Column for input blurry image, second column for estimated blur radius map and third column for deblurred image using estimated map in second column"}
+
+knitr::include_graphics("images/12.1.png")
 ```
 
-```{r plot16,warning=FALSE,echo=FALSE,out.width='110%',out.height= '160%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation: First Column for input blurry image, second column for estimated blur radius map and third column for deblurred image using estimated map in second column"}
+```{r plot16,warning=FALSE,echo=FALSE,out.width='100%',out.height= '180%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation: First Column for input blurry image, second column for estimated blur radius map and third column for deblurred image using estimated map in second column"}
 
-knitr::include_graphics("images/col2.png")
+knitr::include_graphics("images/12.2.png")
 ```
 
+```{r plot17,warning=FALSE,echo=FALSE,out.width='100%',out.height= '160%',fig.align='center',echo=FALSE,fig.cap = "Closeups and Comparison with our method with \\cite{zhu2013}: (a), (b) shows improvment after deblurring and (c), (d), (e), (f) are comparison of methods"}
 
-Figure \ref{fig:plot15} (a) illustrates an example demonstrating varying levels of blur. The two persons appear blurred because they are closer to the camera. Moving away from the persons towards the merry-go-round, the level of blur decreases, reaching a minimum near the merry-go-round. Therefore, the plane of focus of the camera in this scene is the merry-go-round. Our method effectively captures the differences in blur levels. Although the ranking is not entirely accurate, it produces a sufficiently good blur map for deblurring the image. Using the estimated radius map, we apply the Richardson-Lucy algorithm for deblurring. The resulting deblurred image demonstrates successful removal of spatially varying blur. 
+knitr::include_graphics("images/12.3.png")
+```
 
-Figure \ref{fig:plot15} (b) illustrates another example with only two levels of blur. Our method successfully captures the differences in blur levels. In the deblurred image, we can clearly see the patterns on the ground that were not clear in the input image.
-
-Figure \ref{fig:plot15} (c) presents a challenging example with multiple blur levels. The woman closer to the camera appears more blurred, and the level of blur decreases as we move towards the back until the fourth person. After that, it increases again. The estimated blur map also reflects these variations. Although the wall in the background should be the most blurred, our blur map does not show this. However, the resulting deblurred image is sufficiently sharp.
-
-The input images in Figure \ref{fig:plot16} are from @levin2007image. In Figure \ref{fig:plot16} (a), the girl in the back is more blurred compared to the girl in front. The generated blur map reflects this difference. **Figure** presents close-ups of the girl's face in the back before and after deblurring, demonstrating the improvement achieved. Figures \ref{fig:plot16} (b), (c) & (d) depict results for other images.
-
-Finally, in **Figure** we show some comparisons on examples given in @zhu2013.
-
-[TODO: Texture effect, more smooth blur map]
 
 # Discussion
 
-Advantages, Limitations, choice of kappa. 
+In this project, we proposed a new method to estimate spatially varying blur from a single image. We initially aimed to estimate the blur level for segments identified by SAM using the maximum likelihood procedure. However, due to the issue of zero padding with ML estimation, we developed an ad hoc procedure based on the idea of decorrelation loss.
 
-# Future Work
+Our initial goal was to estimate depth using the blur level as a surrogate. However, this is an ill-posed problem because, for a given value of $r$ (i.e., $c_{diam}/2$), there can be two different values of $d$, as seen in Equation \ref{eq:4.1}. However, the blur maps can be considered as depth maps if the object closest to the image is the sharpest in the scene. The images in Figure \ref{fig:plot16} are examples of this, where the corresponding blur map can be viewed as depth map.
+
+The ranking in blur maps is not entirely correct. One common issue is identifying the blur level of background objects. Additionally, segments with very little texture often result in underestimation of the blur radius. This issue is common to most passive algorithms but can be mitigated using a post-segmentation approach with neighboring pixel information. In [@zhu2013; @levin2007image], the initial blur map estimate also had ambiguities, but after MRF smoothing, a reasonable blur map was obtained. We need to think whether a post-estimation modification can improve our blur maps.
+
+In this project, we only considered the disc kernel for simulation and the circular Cauchy kernel with $\kappa = 0.5$ for real image applications. However, we can generalize it for any spherically symmetric kernel. The choice of $\kappa$ is based on empirical observations, but we can also treat $\kappa$ as a parameter and incorporate into estimation procedure.
+
+The blur maps estimated by our method clearly depict the differences in blur levels and between objects, unlike [@zhu2013; @levin2007image]. This improvement is mainly due to segmenting the image into meaningful objects and using that for estimation. It reduces computation time significantly. Currently our R implementation takes around 10 minutes to process a $1000 \times 1000$ image, 3 minutes for segmentation using SAM, and 7 minutes for blur map estimation on Google Colab Platform with CPU run time. In contrast, other methods based on estimation of blur level for each pixel separately take around 1 hour and 30 minutes on the same platform and run time. This demonstrates a significant improvement in computation time.
+
+# Supplementary Materials
+
+A R package implementing our estimation procedure is available on Github and the code for computation using SAM is also available ([https://github.com/ShrayanRoy/DepthR](https://github.com/ShrayanRoy/DepthR)). A description of functions of package will be added shortly. 
 
 # Acknowledgment
 
 # References
 
+# Appendix
 
+[TODO: Richardson Lucy Algo]
 
