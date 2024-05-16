@@ -296,7 +296,7 @@ Some approaches we tried to address this issue are the following.
 
 \begin{equation}
 \label{eq:9.1}
-L(\boldsymbol{\theta}) \propto \frac{1}{\sqrt{\text{det}(\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I})}}\exp\left( -\frac{1}{2}y^T (\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I} )^{-1} y\right)
+L(\boldsymbol{\theta}) \propto \frac{1}{\sqrt{\text{det}(\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I})}}\exp\left( -\frac{1}{2}\text{Vec}(y)^T (\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I} )^{-1} \text{Vec}(y)\right)
 \end{equation}
 
 The parameter $\boldsymbol{\theta}$ determines $\boldsymbol{A_k}$. To evaluate the likelihood function using (\ref{eq:9.1}), we need to calculate the inverse and determinant of the matrix $\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I}$. Although this matrix is sparse, it is still potentially large, and evaluating the likelihood for multiple values of $\theta$ for each segment is impractical.}
