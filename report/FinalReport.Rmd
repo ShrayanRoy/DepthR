@@ -26,7 +26,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 \begin{abstract} 
 \small{Estimating depth map from a single photograph is an intriguing problem with many interesting practical applications. Levin et al. \cite{levin2007image} proposed a method which requires a modified camera with a specialized coded aperture. However, this approach is not applicable in practice since it requires modifying the camera before capturing the image, which may not always be feasible. We aim to explore whether similar tasks can be done using standard cameras. We have formulated simple parametric models for depth blurring, which we hope will lead to more efficient estimates.}\\
- \small{ \textbf{Keywords:} Auto Regressive Prior, Blur Kernel, Depth Map, Image Segmentation }
+
+\small{ \textbf{Keywords:} Auto Regressive Prior, Blur Kernel, Depth Map, Image Segmentation }
 \end{abstract}
 
 # Introduction
@@ -98,25 +99,25 @@ To apply these priors, we must express the blur model in terms of image gradient
   \boldsymbol{\delta_v}\otimes\boldsymbol{b} = \boldsymbol{\delta_v} \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon}) =  k \otimes(\boldsymbol{\delta_v} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon})
 \end{equation}
 
-To keep the notations simple, we will henceforth take the model by combining (\ref{eq:3.3}) and (\ref{eq:3.4})
+To keep the notations simple, we will henceforth represent both (\ref{eq:3.3}) and (\ref{eq:3.4}) in the generic form
 
 \begin{equation}
  \label{eq:3.5}
- \boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n}
+ \boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n},
 \end{equation} 
 
-Where, $\boldsymbol{y}$ is the horizontal (or, vertical) gradient of observed blurred image. $\boldsymbol{x}$ and $\boldsymbol{n}$ is the same for latent image and noise. By virtue of the *Convolution Theorem*, we rewrite (\ref{eq:3.5}) in the frequency domain as
+where $\boldsymbol{y}$ is the horizontal (or vertical) gradient of observed blurred image, and $\boldsymbol{x}$ and $\boldsymbol{n}$ are the same for latent image and noise. By virtue of the *Convolution Theorem*, we can rewrite (\ref{eq:3.5}) in the frequency domain as
 
 \begin{equation}
   \label{eq:3.6}
-  \boldsymbol{Y} = \boldsymbol{K} \odot \boldsymbol{X} + \boldsymbol{N}
+  \boldsymbol{Y} = \boldsymbol{K} \odot \boldsymbol{X} + \boldsymbol{N},
 \end{equation}
 
-Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Transform*'s of $\boldsymbol{y,k,x}$ and $\boldsymbol{n}$ respectively. $\odot$ indicates the *element wise product* operator. $\forall \ \boldsymbol{\omega} = (\omega_1,\omega_2)$ we have
+where $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Transform*'s of $\boldsymbol{y,k,x}$ and $\boldsymbol{n}$ respectively, and $\odot$ indicates the *element wise product* operator. For all $\boldsymbol{\omega} = (\omega_1,\omega_2)$ we have
 
 \begin{equation}
   \label{eq:3.7}
-  \boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}
+  \boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}.
 \end{equation}
 
 \textbf{Remark:} In practice the size of the blur kernel $\boldsymbol{k}$ is much smaller compared to the latent image $\boldsymbol{l}$ and $\boldsymbol{x}$. But for (\ref{eq:3.6}), the size of $\boldsymbol{K}$ must be the same as the size of $\boldsymbol{X}$. Thus, we pad $\boldsymbol{k}$ symmetrically with zeros to make of same size as $\boldsymbol{x}$ and then take DFT.
@@ -124,37 +125,38 @@ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Trans
 
 ## Prior on Fourier coefficients
 
-If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}). Then by orthogonality of DFT, $\boldsymbol{X_{\omega}}$'s must be IID complex normal when $\alpha = 2$ and uncorrelated and asymptotically complex normal when $\alpha \neq 2$ by CLT of @peligrad2010. When elements of $\boldsymbol{x}$ are correlated, $\boldsymbol{X_{\omega}}$'s are still asymptotically independent and complex normal; however, depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ known explicitly.
+If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}), then by orthogonality of DFT, $\boldsymbol{X_{\omega}}$'s must be IID complex normal when $\alpha = 2$. Even for $\alpha neq 2$, $\boldsymbol{X_{\omega}}$'s are  uncorrelated and asymptotically complex normal by the CLT of @peligrad2010. When elements of $\boldsymbol{x}$ are correlated, $\boldsymbol{X_{\omega}}$'s are still asymptotically independent and complex normal; however, depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ known explicitly.
 
-For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. We need to assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$. Then we get equation (\ref{eq:3.9}) as model for blur. This assumption is more or less true, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). We apply the priors discussed above to these specific patches of the image.
-
+For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. If we assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$, then we get equation (\ref{eq:3.9}) as blur model. 
 \begin{equation}
  \label{eq:3.9}
  \boldsymbol{y[t']} = (\boldsymbol{k_t} \ \otimes \ \boldsymbol{x})\boldsymbol{[t']} \ + \ \boldsymbol{n[t']} \ \ \ \forall \boldsymbol{t'} \in \boldsymbol{\eta_t}
 \end{equation}
 
+In practice, we expect this assumption to be approximately true if the patch size is small, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). We can then apply the priors discussed above to these specific patches of the image.
+
+
 # Parametric Models for Blur Kernel
 
-From a single point source, light rays emit in different directions and fall on the lens of camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object ($d$) in a given camera setting are related as given in [@barsky2003]:
+From a single point source, light rays emit in different directions and fall on the lens of camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object ($d$) in a given camera setting are related as follows [@barsky2003]:
 
 \begin{equation}
  \label{eq:4.1}
  c_{diam} = a_{diam}f \left|\frac{d - d_{focus}}{d(d_{focus} - f)}\right| \approx a_{diam}f \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|
 \end{equation}
 
-In a given camera setting (i.e., fixed $a_{diam}$ and $f$)^[For most cameras, $d_{focus} >> f$, hence the approximation.], $c_{diam} \propto \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$. As we move away from the plane of focus on either side, we encounter a similar type of $c_{diam}$. Thus, from the diameter of the blur circle, it is challenging to accurately estimate the depth $d$ of an object in an image. Because for each value of $c_{diam}$, two possible values of $d$ exist. It is evident from (\ref{eq:4.1}) that, the support of PSF in our case must be circular rather than square. Due to *diffraction* caused by the camera lens and the boundaries of the circular aperture, we expect the intensity distribution of light to be spherical symmetrically distributed over the circular support. Keeping all these in mind we propose the following models for blur kernel.
+In a given camera setting (i.e., fixed $a_{diam}$ and $f$),^[For most cameras, $d_{focus} >> f$, hence the approximation.] $c_{diam} \propto \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$. Assuming a circular camera aperture, we expect the support of the PSF to be circular and intensity distribution of light to be spherical symmetrically distributed over the circular support. Keeping all these in mind we propose the following models for blur kernel.
 
 ```{r plot_4,warning=FALSE,echo=FALSE,out.width='70%',out.height= '30%',fig.align='center',echo=FALSE,fig.cap="Thin Lens Model of Camera and Circle of Confusion $c_{diam}$ in a given camera setting"}
 
 knitr::include_graphics("images/4.1.png")
 ```
 
-
-\textbf{1. Disc Kernel:} It is the simplest model for blur kernel. The assumption being that uniform spread of light over disc. We characterize the kernel using the parameter $r$. 
+\textbf{1. Disc Kernel:} This is the simplest blur model, which assumes uniform spread of light over a circular disc. We characterize the kernel using the parameter $r$, which corresponds to $c_{diam} / 2$ in (\ref{eq:4.1}).
 
 $$k(x,y) = \frac{1}{\pi r^2} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
-\textbf{2. Circular Gaussian Kernel:} An obvious choice of kernel in any scientific study is the the widely used Gaussian/Normal distribution. Here, we will consider a truncated version of it over circular region. We characterize the kernel using the radius of circle $r$ and scale parameter $h$.
+\textbf{2. Circular Gaussian Kernel:} Another standard choice of kernel the widely used Gaussian/Normal distribution. Here, we will consider a truncated version of it over a circular region. We characterize the kernel using the radius of circle $r$ and scale parameter $h$.
 
 $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
@@ -162,10 +164,16 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
   $$k(x,y) = \frac{C_{h,r}}{2\pi}\frac{h}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
-\textbf{4. Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$.
-      $$k(x,y) = \frac{C_{h}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$
+<!-- SKIP this -->
+
+<!-- \textbf{4. Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$. -->
+<!--       $$k(x,y) = \frac{C_{h}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$ -->
 
 \textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times r$ with $\kappa$ depending upon particular camera. This implies that we cannot change $h$ and $r$ independently.
+
+Note that each value of $c_{diam}$ corresponds to two possible values of the depth $d$, either closer to or further away from the camera relative to the focal plane. Thus, from the diameter of the blur circle, which is the parameter we estimate, it is impossible to distinguish between these two possibilities.
+
+
 
 # Maximum Likelihood Estimation of Blur Kernel Parameters
 
@@ -190,12 +198,12 @@ The above considerations are only for gradients in a particular direction, i.e.,
  L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta}) = f_{\theta}(|Y_{h,\omega}|^2,\forall \omega) \times f_{\theta}(|Y_{v,\omega'}|^2,\forall \omega')
 \end{equation} 
 
-Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})$, or equivalently $\log L(\boldsymbol{\theta}) = \log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})$. We do this by numerically optimizing the objective (log-likelhood) function. For the spatially varying case, we can simply apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain, or to segments identified by segmentation algorithms.
+Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})$, or equivalently $\log L(\boldsymbol{\theta}) = \log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})$. We do this by numerically optimizing the objective (log-likelhood) function. For the spatially varying case, we can apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain.
 
 # Choice of Tuning Parameters in ML Estimation
 
 
-The log-likelihood, defined in (\ref{eq:5.2}), is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. This parameter is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log-likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the disc kernel. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.20 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.005$ constant.
+The log-likelihood, defined in (\ref{eq:5.2}), is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. This parameter is involved in the expression for $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log-likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the disc kernel. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.20 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.005$ constant.
 
 
 ```{r plot6,warning=FALSE,echo=FALSE,out.width='83%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 3$, (c) Disc Kernel with $r = 3$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
@@ -261,7 +269,7 @@ We used SAM for automatic segmentation. In this mode, SAM considers bounding box
 # Challenges in ML Estimation
 
 
-To estimate the blur map we need to apply the maximum likelihood procedure to image segments identified by SAM. But it is not that straight forward. Because the maximum likelihood procedure is defined for rectangular arrays. But the image segments are of irregular shape. As a result we need to fill/pad the segments with zeros to make it a rectangular array. Although it seems very obvious to do, but it actually deteriorates the estimation quality of blur kernel parameters. The issue arises because the discrete Fourier transform (DFT) distributes frequency content across all spatial locations. Consequently, even though zeros are introduced in the spatial domain through padding, they do not equate to zeros in the frequency domain. Thus, the zero padded/filled regions contribute to the likelihood calculation, often biasing the estimation towards selecting smaller values of the radius i.e. $r$. To address the issue of zero padding, we have attempted several approaches. Below, we have listed them:
+For post-segmentation estimation of the blur map, we need to apply the maximum likelihood procedure to each image segment identified by SAM. Unfortunately, this is not straightforward, because the maximum likelihood procedure as outlined above requires rectangular images, whereas the image segments obtained are of irregular shape. The obvious solution is to fill / pad the segments with zeros to make it a rectangular array; however, this approach  actually deteriorates the estimation quality of blur kernel parameters. The issue arises because the discrete Fourier transform (DFT) distributes frequency content across all spatial locations. Consequently, even though zeros are introduced in the spatial domain through padding, they do not equate to zeros in the frequency domain. Thus, the zero padded/filled regions contribute to the likelihood calculation, often biasing the estimation towards selecting smaller values of the radius i.e. $r$. To address the issue of zero padding, we have attempted several approaches. Below, we have listed them:
 
 * Instead of utilizing segments identified by SAM, an alternative approach involves using bounding boxes corresponding to these segments for blur estimation. However, bounding boxes may encompass objects with vastly different depths, leading to significantly varied blur levels within the same box. In such scenarios, we've observed that the sub-area of the box with the least level of blur tends to dominate the Fourier spectrum. 
 
