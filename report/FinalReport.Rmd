@@ -59,7 +59,7 @@ When light rays spread from a single point source and hit the camera lens, they 
 
 Where $\boldsymbol{k}$ is an $m \times n$ blur kernel, $\boldsymbol{l}$ is the $(M + m) \times (N + n)$ *true latent image* which we want to estimate, $\boldsymbol{\epsilon}$ is an $M \times N$ matrix of noise, and $\otimes$ denotes the *convolution* operator (By *convolution* we mean *valid* convolution). Reconstructing the latent image from an observed blurred image is called the **image deconvolution problem**. Depending on whether the blur kernel is known or unknown, we classify it as *non-blind deconvolution* or *blind deconvolution* problem. In either case, it is an ill-posed problem because the number of parameters is larger than the number of observations $MN$. One solution to this is to assume a prior for the latent image $\boldsymbol{l}$.
 
-```{r svar,warning=FALSE,echo=FALSE,out.width='85%',out.height='75%',fig.align='center',echo=FALSE,fig.cap = "Example of Spatially Varying Blur: Each patch exhibits a distinct level of blur."}
+```{r svar,warning=FALSE,echo=FALSE,out.width='82%',out.height='70%',fig.align='center',echo=FALSE,fig.cap = "Example of Spatially Varying Blur: Each patch exhibits a distinct level of blur."}
 knitr::include_graphics("images/2.1.png")
 
 ```
@@ -247,7 +247,7 @@ We have developed a procedure for estimating blur kernel parameters for images w
 
 In Figure \ref{fig:plot110}, we have tried to estimate spatially varying blur for image of moon. But, instead of estimating the blur level for each pixel, we divided the image into 56 equal parts and for each part, we estimated the blur kernel using the maximum likelihood procedure assuming circular Cauchy kernel with $\kappa = 0.5$ to estimate the blur radius. The estimated blur kernels are overlaid on the image, part by part, for visualization. As expected, the blur radius map is spherically symmetric with minimum value at the center and it increases as we move away from center.
 
-In Figure \ref{fig:plot11}, we have conducted a simple experiment using spatially varying blur with a disc kernel on a $255\times255$ image. We have used local patches of size $51\times 51$ for estimation of blur radius for each pixel. Both the original and estimated blur maps are shown. It is evident that the estimated blur map closely resembles the original blur map except for the transition regions, with mean squared error 0.492.
+In Figure \ref{fig:plot11}, we have conducted a simple experiment using spatially varying blur with a disc kernel on a $255\times255$ image. We have used local patches of size $51\times 51$ for estimation of blur radius for each pixel. Both the original and estimated blur maps are shown. It is evident that the estimated blur map closely resembles the original blur map except for the transition regions.
 
 ```{r plot11,warning=FALSE,echo=FALSE,out.width='85%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation Under Locally Constant Assumption: (a) Spatially Varying Blurred Image, (b) Latent Blurmap, (c) Estimated Blurmap"}
 
