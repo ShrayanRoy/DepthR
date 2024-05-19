@@ -27,8 +27,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 \begin{abstract} 
-\small{Estimating depth map from a single photograph is an intriguing problem with many interesting practical applications. Levin et al. \cite{levin2007image} proposed a method which requires a modified camera with a specialized coded aperture. However, this approach is not applicable in practice since it requires modifying the camera before capturing the image, which may not always be feasible. We aim to explore whether similar tasks can be done using standard cameras. We have formulated simple parametric models for depth blurring, which we hope will lead to more efficient estimates.}\\
- \small{ \textbf{Keywords:} AR Prior, Blur Kernel, Depth Map, Image Segmentation, Decorrelation Loss }
+\small{Estimating depth map from a single photograph is an intriguing problem with many interesting practical applications. Levin et al \cite{levin2007image} proposed a method which requires a modified camera with a specialized coded aperture. However, this approach is not applicable in practice since it requires modifying the camera before capturing the image, which may not always be feasible. We aim to explore whether similar tasks can be done using standard cameras. We have formulated simple parametric models for depth blurring, which we hope will lead to more efficient estimates.}\\
+
+\small{ \textbf{Keywords:} Auto Regressive Prior, Blur Kernel, Depth Map, Image Segmentation }
 \end{abstract}
 
 # Introduction
@@ -41,7 +42,8 @@ Depth estimation based on single image is a more challenging problem because we 
 
 In this project, we will explore whether a somewhat different approach can be used for the same problem. Instead of using a MRF approach for depth segmentation, we plan to start with modern high-performance segmentation algorithms such as Segment Anything [@sam2023]. Our hope is that if blurring is uniform within each segmented portion, it will be easier to estimate the blur kernel without a special coded aperture. We follow the approach developed by @nandy2021dependent to estimate the blur kernel, using in particular the locally dependent gradient prior proposed by them. However, instead of their nonparametric approach, we formulate and use simple parametric models for depth blurring, which we hope will lead to more efficient estimates for smaller image segments.
 
-```{r,warning=FALSE,echo=FALSE,out.width='89%',out.height = '99%',fig.align='center',echo=FALSE,fig.cap = "Example of Depth Map from \\cite{levin2007image}. Original image (Left panel) and corresponding Depth map (right panel)"}
+
+```{r,warning=FALSE,echo=FALSE,out.width='90%',out.height = '100%',fig.align='center',echo=FALSE,fig.cap = "Example of Depth Map from \\cite{levin2007image}. Original image (Left panel) and corresponding Depth map (right panel)"}
 knitr::include_graphics("images/1.1.png")
 
 ```
@@ -57,7 +59,7 @@ When light rays spread from a single point source and hit the camera lens, they 
 
 Where $\boldsymbol{k}$ is an $m \times n$ blur kernel, $\boldsymbol{l}$ is the $(M + m) \times (N + n)$ *true latent image* which we want to estimate, $\boldsymbol{\epsilon}$ is an $M \times N$ matrix of noise, and $\otimes$ denotes the *convolution* operator (By *convolution* we mean *valid* convolution). Reconstructing the latent image from an observed blurred image is called the **image deconvolution problem**. Depending on whether the blur kernel is known or unknown, we classify it as *non-blind deconvolution* or *blind deconvolution* problem. In either case, it is an ill-posed problem because the number of parameters is larger than the number of observations $MN$. One solution to this is to assume a prior for the latent image $\boldsymbol{l}$.
 
-```{r svar,warning=FALSE,echo=FALSE,out.width='80%',out.height = '70%',fig.align='center',echo=FALSE,fig.cap = "Example of Spatially Varying Blur: Each patch exhibits a distinct level of blur."}
+```{r svar,warning=FALSE,echo=FALSE,out.width='82%',out.height='70%',fig.align='center',echo=FALSE,fig.cap = "Example of Spatially Varying Blur: Each patch exhibits a distinct level of blur."}
 knitr::include_graphics("images/2.1.png")
 
 ```
@@ -99,25 +101,25 @@ To apply these priors, we must express the blur model in terms of image gradient
   \boldsymbol{\delta_v}\otimes\boldsymbol{b} = \boldsymbol{\delta_v} \otimes(\boldsymbol{k} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon}) =  k \otimes(\boldsymbol{\delta_v} \ \otimes \ \boldsymbol{l}) \ + \ (\boldsymbol{\delta_v}\otimes \boldsymbol{\epsilon})
 \end{equation}
 
-To keep the notations simple, we will henceforth take the model by combining (\ref{eq:3.3}) and (\ref{eq:3.4})
+To keep the notations simple, we will henceforth represent both (\ref{eq:3.3}) and (\ref{eq:3.4}) in the generic form
 
 \begin{equation}
  \label{eq:3.5}
- \boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n}
+ \boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n},
 \end{equation} 
 
-Where, $\boldsymbol{y}$ is the horizontal (or, vertical) gradient of observed blurred image. $\boldsymbol{x}$ and $\boldsymbol{n}$ is the same for latent image and noise. By virtue of the *Convolution Theorem*, we rewrite (\ref{eq:3.5}) in the frequency domain as
+where $\boldsymbol{y}$ is the horizontal (or vertical) gradient of observed blurred image, and $\boldsymbol{x}$ and $\boldsymbol{n}$ are the same for latent image and noise. By virtue of the *Convolution Theorem*, we can rewrite (\ref{eq:3.5}) in the frequency domain as
 
 \begin{equation}
   \label{eq:3.6}
-  \boldsymbol{Y} = \boldsymbol{K} \odot \boldsymbol{X} + \boldsymbol{N}
+  \boldsymbol{Y} = \boldsymbol{K} \odot \boldsymbol{X} + \boldsymbol{N},
 \end{equation}
 
-Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Transform*'s of $\boldsymbol{y,k,x}$ and $\boldsymbol{n}$ respectively. $\odot$ indicates the *element wise product* operator. $\forall \ \boldsymbol{\omega} = (\omega_1,\omega_2)$ we have
+where $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Transform*'s of $\boldsymbol{y,k,x}$ and $\boldsymbol{n}$ respectively, and $\odot$ indicates the *element wise product* operator. For all $\boldsymbol{\omega} = (\omega_1,\omega_2)$ we have
 
 \begin{equation}
   \label{eq:3.7}
-  \boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}
+  \boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}.
 \end{equation}
 
 \textbf{Remark:} In practice the size of the blur kernel $\boldsymbol{k}$ is much smaller compared to the latent image $\boldsymbol{l}$ and $\boldsymbol{x}$. But for (\ref{eq:3.6}), the size of $\boldsymbol{K}$ must be the same as the size of $\boldsymbol{X}$. Thus, we pad $\boldsymbol{k}$ symmetrically with zeros to make of same size as $\boldsymbol{x}$ and then take DFT.
@@ -125,37 +127,38 @@ Where, $\boldsymbol{Y,K,X}$ and $\boldsymbol{N}$ are the *Discrete Fourier Trans
 
 ## Prior on Fourier coefficients
 
-If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}). Then by orthogonality of DFT, $\boldsymbol{X_{\omega}}$'s must be IID complex normal when $\alpha = 2$ and uncorrelated and asymptotically complex normal when $\alpha \neq 2$ by CLT of @peligrad2010. When elements of $\boldsymbol{x}$ are correlated, $\boldsymbol{X_{\omega}}$'s are still asymptotically independent and complex normal; however, depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ known explicitly.
+If the elements of $\boldsymbol{x}$ are zero mean IID random variables with pdf (\ref{eq:3.1}), then by orthogonality of DFT, $\boldsymbol{X_{\omega}}$'s must be IID complex normal when $\alpha = 2$. Even for $\alpha \neq 2$, $\boldsymbol{X_{\omega}}$'s are  uncorrelated and asymptotically complex normal by the CLT of @peligrad2010. When elements of $\boldsymbol{x}$ are correlated, $\boldsymbol{X_{\omega}}$'s are still asymptotically independent and complex normal; however, depending on the correlation structure, the variance is no longer constant and depends on the specific frequency ${\omega}$. We will use either the IID prior, or the simple AR prior of @nandy2021dependent, for which $Var(\boldsymbol{X_{\omega}}) = g_{\omega}\sigma^2$ with the form of $g_{\omega}$ known explicitly.
 
-For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. We need to assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$. Then we get equation (\ref{eq:3.9}) as model for blur. This assumption is more or less true, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). We apply the priors discussed above to these specific patches of the image.
-
+For spatially varying blur, it is not immediately clear how we can express (\ref{eq:2.2}) in terms of image gradients. If we assume that the blur kernel $\boldsymbol{k_t}$ is shift invariant in a neighborhood ${\boldsymbol{\eta_t}}$ of size $p_1(\boldsymbol{t}) \times p_2(\boldsymbol{t})$ containing $\boldsymbol{t}$, then we get equation (\ref{eq:3.9}) as blur model. 
 \begin{equation}
  \label{eq:3.9}
  \boldsymbol{y[t']} = (\boldsymbol{k_t} \ \otimes \ \boldsymbol{x})\boldsymbol{[t']} \ + \ \boldsymbol{n[t']} \ \ \ \forall \boldsymbol{t'} \in \boldsymbol{\eta_t}
 \end{equation}
 
+In practice, we expect this assumption to be approximately true if the patch size is small, because we expect objects in small local patches to have same depth and hence same level of blur (Figure \ref{fig:svar}). We can then apply the priors discussed above to these specific patches of the image.
+
+
 # Parametric Models for Blur Kernel
 
-From a single point source, light rays emit in different directions and fall on the lens of camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object ($d$) in a given camera setting are related as given in [@barsky2003]:
+From a single point source, light rays emit in different directions and fall on the lens of camera. The diffracted rays by the lens then form a circular shape on the camera sensor plane, which is called the *Circle of Confusion* or *Blur Circle* (Fig \ref{fig:plot_4}). The diameter of the blur circle ($c_{diam}$) and the depth of an object ($d$) in a given camera setting are related as follows [@barsky2003]:
 
 \begin{equation}
  \label{eq:4.1}
  c_{diam} = a_{diam}f \left|\frac{d - d_{focus}}{d(d_{focus} - f)}\right| \approx a_{diam}f \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|
 \end{equation}
 
-In a given camera setting (i.e., fixed $a_{diam}$ and $f$)^[For most cameras, $d_{focus} >> f$, hence the approximation.], $c_{diam} \propto \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$. As we move away from the plane of focus on either side, we encounter a similar type of $c_{diam}$. Thus, from the diameter of the blur circle, it is challenging to accurately estimate the depth $d$ of an object in an image. Because for each value of $c_{diam}$, two possible values of $d$ exist. It is evident from (\ref{eq:4.1}) that, the support of PSF in our case must be circular rather than square. Due to *diffraction* caused by the camera lens and the boundaries of the circular aperture, we expect the intensity distribution of light to be spherical symmetrically distributed over the circular support. Keeping all these in mind we propose the following models for blur kernel.
+In a given camera setting (i.e., fixed $a_{diam}$ and $f$),^[For most cameras, $d_{focus} >> f$, hence the approximation.] $c_{diam} \propto \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$. It is evident from (\ref{eq:4.1}) that, the support of PSF in our case must be circular rather than square. Due to *diffraction* caused by the camera lens and the boundaries of the circular aperture, we expect the intensity distribution of light to be spherical symmetrically distributed over the circular support. Keeping all these in mind we propose the following models for blur kernel.
 
 ```{r plot_4,warning=FALSE,echo=FALSE,out.width='70%',out.height= '30%',fig.align='center',echo=FALSE,fig.cap="Thin Lens Model of Camera and Circle of Confusion $c_{diam}$ in a given camera setting"}
 
 knitr::include_graphics("images/4.1.png")
 ```
 
-
-\textbf{1. Disc Kernel:} It is the simplest model for blur kernel. The assumption being that uniform spread of light over disc. We characterize the kernel using the parameter $r$. 
+\textbf{1. Disc Kernel:} This is the simplest blur model, which assumes uniform spread of light over a circular disc. We characterize the kernel using the parameter $r$, which corresponds to $c_{diam} / 2$ in (\ref{eq:4.1}).
 
 $$k(x,y) = \frac{1}{\pi r^2} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
-\textbf{2. Circular Gaussian Kernel:} An obvious choice of kernel in any scientific study is the the widely used Gaussian/Normal distribution. Here, we will consider a truncated version of it over circular region. We characterize the kernel using the radius of circle $r$ and scale parameter $h$.
+\textbf{2. Circular Gaussian Kernel:} Another standard choice of kernel the widely used Gaussian/Normal distribution. Here, we will consider a truncated version of it over a circular region. We characterize the kernel using the radius of circle $r$ and scale parameter $h$.
 
 $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
@@ -163,10 +166,16 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
   $$k(x,y) = \frac{C_{h,r}}{2\pi}\frac{h}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
-\textbf{4. Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$.
-      $$k(x,y) = \frac{C_{h}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$
+<!-- SKIP this -->
+
+<!-- \textbf{4. Rectangular Gaussian Kernel:}  We can also consider a truncated Gaussian kernel defined over a finite square grid $S_h$, characterized by $h$. In this scenario, we have only one parameter $h$. -->
+<!--       $$k(x,y) = \frac{C_{h}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}}\text{I}_{\{ (x,y) \in S_h\}}$$ -->
 
 \textbf{Remark:} The parameter $r$ in both the Circular Gaussian and Circular Cauchy kernel characterizes the radius of the blur circle (i.e., $c_{diam}/2$). For a given camera setting, there exists a relation between $h$ and $r$, namely $h = \kappa \times r$ with $\kappa$ depending upon particular camera. This implies that we cannot change $h$ and $r$ independently.
+
+Note that each value of $c_{diam}$ corresponds to two possible values of the depth $d$, either closer to or further away from the camera relative to the focal plane. Thus, from the diameter of the blur circle, which is the parameter we estimate, it is impossible to distinguish between these two possibilities.
+
+
 
 # Maximum Likelihood Estimation of Blur Kernel Parameters
 
@@ -191,14 +200,15 @@ The above considerations are only for gradients in a particular direction, i.e.,
  L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta}) = f_{\theta}(|Y_{h,\omega}|^2,\forall \omega) \times f_{\theta}(|Y_{v,\omega'}|^2,\forall \omega')
 \end{equation} 
 
-Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})$, or equivalently $\log L(\boldsymbol{\theta}) = \log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})$. We do this by numerically optimizing the objective (log-likelhood) function. For the spatially varying case, we can simply apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain, or to segments identified by segmentation algorithms.
+Our goal is to find the $\boldsymbol{\theta}$ maximizing $L(\boldsymbol{\theta})$, or equivalently $\log L(\boldsymbol{\theta}) = \log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})$. We do this by numerically optimizing the objective (log-likelhood) function. For the spatially varying case, we can apply this procedure to local patches $\boldsymbol{\eta_t}$ for all pixel locations $\boldsymbol{t}$ in the image domain.
 
 # Choice of Tuning Parameters in ML Estimation
 
-The log-likelihood, defined in (\ref{eq:5.2}), is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. This parameter is involved in the expression $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log-likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the disc kernel. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.20 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.005$ constant.
+
+The log-likelihood, defined in (\ref{eq:5.2}), is a complicated function of the blur kernel parameter $\boldsymbol{\theta}$. This parameter is involved in the expression for $\lambda_{\omega}$ through $|K_{\omega}|^2$, which itself is a complicated function of $\boldsymbol{\theta}$. Therefore, before we start using any optimization method to find the maximizer of the log-likelihood, we should investigate the behavior of $L(\boldsymbol{\theta})$ as a function of $\boldsymbol{\theta}$. For this, we conducted simulated experiments as shown in Figure \ref{fig:plot6}. For now, we will focus on the disc kernel. We considered a sequence of values for $r$ ranging from 1 to 4 with a step size of $\Delta{r} = 0.05$, and for $\sigma$ ranging from 0.01 to 0.20 with a step size of $\Delta{\sigma} = 0.01$, while keeping $\eta = 0.005$ constant.
 
 
-```{r plot6,warning=FALSE,echo=FALSE,out.width='83%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 3$, (c) Disc Kernel with $r = 3$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
+```{r plot6,warning=FALSE,echo=FALSE,out.width='87%',out.height= '60%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 3$, (c) Disc Kernel with $r = 3$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
 
 knitr::include_graphics("images/6.3_new.png")
 ```
@@ -207,7 +217,7 @@ In Figure \ref{fig:plot6}, (a) shows the original sharp image of size $101 \time
 
 Simply looking for global maxima is not the solution. Choice of the prior parameter $\sigma$ significantly affects the performance of ML Estimation. In the Bayesian Paradigm, this is quite common. If we can choose $\sigma$ such that the maximizer of the log-likelihood for that given $\sigma$ closely matches the true parameter, then we are done. To find a reasonable value of $\sigma$ we use simulation. We consider six sharp images of size $255 \times 255$ and true parameter values $r_{true} = 1, 3, 5$ to simulate defocus blur. For each $r_{true}$ value and fixed patch size, we randomly select five patches from each image and plot the estimated $r$ as a function of $\sigma$ for each random patch. We have considered patch sizes $51 \times 51$, $101 \times 101$, and $201 \times 201$.
 
-```{r plot7,warning=FALSE,echo=FALSE,out.width='83%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 2$, (c) Disc Kernel with $r = 2$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
+```{r plot7,warning=FALSE,echo=FALSE,out.width='87%',out.height= '60%',fig.align='center',echo=FALSE,fig.cap = "(a) 101 $\\times$ 101 Sharp Image, (b) Blurred Image Using disc kernel with $r = 2$, (c) Disc Kernel with $r = 2$, (d) Levelplot of log likelihood as a function of $\\sigma$ and $r$"}
 
 knitr::include_graphics("images/6.2_new.png")
 ```
@@ -232,7 +242,12 @@ knitr::include_graphics("images/6.6_new.png")
 
 # Considerations in Spatially Varying Blur Estimation
 
-We have developed a procedure for estimating blur kernel parameters for images with uniform blur. However, real-world images often exhibit spatially varying blur, where the level of blur varies from pixel to pixel. To address this, one reasonable assumption is that the level of blur remains locally constant within a small patch around each pixel. By applying our estimation procedure to each local patch, we can obtain the blur level for each pixel, as described in Equation (\ref{eq:3.9}). This results in an estimated blur map for the image. However, the generated blur map will not be smooth, as illustrated in Figure \ref{fig:plot11}. We conducted a simple experiment using spatially varying blur with a disc kernel on a $255\times255$ image. Both the original and estimated blur maps are shown. We used local patches of size $51\times 51$ for estimation. It is evident that the estimated blur map closely resembles the original blur map except for the transition regions, with a mean squared error 0.492.
+
+We have developed a procedure for estimating blur kernel parameters for images with uniform blur. However, real-world images often exhibit spatially varying blur, where the level of blur varies from pixel to pixel. To address this, one reasonable assumption is that the level of blur remains locally constant within a small patch around each pixel. By applying our estimation procedure to each local patch, we can obtain the blur level for each pixel, as described in Equation (\ref{eq:3.9}). This results in an estimated blur map for the image.
+
+In Figure \ref{fig:plot110}, we have tried to estimate spatially varying blur for image of moon. But, instead of estimating the blur level for each pixel, we divided the image into 56 equal parts and for each part, we estimated the blur kernel using the maximum likelihood procedure assuming circular Cauchy kernel with $\kappa = 0.5$ to estimate the blur radius. The estimated blur kernels are overlaid on the image, part by part, for visualization. As expected, the blur radius map is spherically symmetric with minimum value at the center and it increases as we move away from center.
+
+In Figure \ref{fig:plot11}, we have conducted a simple experiment using spatially varying blur with a disc kernel on a $255\times255$ image. We have used local patches of size $51\times 51$ for estimation of blur radius for each pixel. Both the original and estimated blur maps are shown. It is evident that the estimated blur map closely resembles the original blur map except for the transition regions.
 
 ```{r plot11,warning=FALSE,echo=FALSE,out.width='85%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation Under Locally Constant Assumption: (a) Spatially Varying Blurred Image, (b) Latent Blurmap, (c) Estimated Blurmap"}
 
@@ -241,46 +256,70 @@ knitr::include_graphics("images/7.1.png")
 
 The estimated blur map is clearly not smooth, particularly for transition regions between two blur levels. To obtain a smoother blur map, we need to employ *Markov Random Field Smoothing*. The idea is to solve a penalized problem, penalizing the difference between blur levels on neighboring pixels. An adaptive weighting, primarily based on RGB distance between pixels, is used in literature to obtain a smoothed blur map. But, this entire procedure is time-consuming and fails in situations where a local patch contains pixels with very different depth values.
 
-The assumption of locally constant blur is not always valid. In real images, level of blur tends to remain constant for different objects within the image, as it is the objects themselves that vary in distance from the camera, not the individual pixels. Figure \ref{fig:svar} provides an example illustrating this phenomenon, where different birds in the image exhibit varying levels of blur.
+
+```{r plot110,warning=FALSE,echo=FALSE,out.width='90%',out.height= '160%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur for Moon: (a) Image of Moon, (b) Blur radius map using circular cauchy kernel with $\\kappa = 0.5$ (black for small radius and white for large), (c) Estimated blur kernels are overlaid on the image part by part"}
+
+knitr::include_graphics("images/moon_map.png")
+```
+
+
+The assumption of locally constant level of blur is not always valid. In real images, level of blur tends to remain constant for different objects within the image, as it is the objects themselves that vary in distance from the camera, not the individual pixels. Figure \ref{fig:svar} provides an example illustrating this phenomenon, where different birds in the image exhibit varying levels of blur.
 
 Therefore, instead of attempting to estimate the blur level for each pixel, a more effective approach would be to estimate the blur level for each distinct object in the image. By segmenting the image into meaningful objects (such as birds in Figure \ref{fig:svar}), and estimating the blur level for each segment, we can generate a more accurate blur map easily.
 
 # Segment Anything
 
+
 We used Segment Anything (SAM), developed by Meta AI in 2023, for image segmentation. SAM offers versatile modes of use, including automatic and guided segmentation (Figure \ref{fig:plot12}). It employs a unique network architecture akin to language models like *ChatGPT* and *Google Bard*, utilizing an image encoder for embedding computation, a prompt encoder for prompt embedding, and a lightweight decoder for mask prediction. SAM's data engine collected over 1.1 billion high-quality masks resulting in the *SA-1B dataset*, a significant contribution to image processing field. SAM's promptable architecture enables zero-shot learning and effectively handles various downstream tasks. Several domain specific modifications of SAM are available such as @sammodi1 and @sammodi2.
 
-```{r plot12,warning=FALSE,echo=FALSE,out.width='90%',out.height= '55%',fig.align='center',echo=FALSE,fig.cap = "Automatic and Guided Segmentation Using Segment Anything Model"}
+```{r plot12,warning=FALSE,echo=FALSE,out.width='80%',out.height= '45%',fig.align='center',echo=FALSE,fig.cap = "Automatic and Guided Segmentation Using Segment Anything Model"}
 
 knitr::include_graphics("images/8.1.png")
 ```
 
-We have used SAM for automatic segmentation. In this mode, SAM considers bounding boxes aimed at identifying and segmenting objects within an image efficiently. After identifying the bounding boxes, SAM produces three possible masks for each bounding box along with a confidence score. We require both the bounding boxes and masks for our purpose. However, in the presence of a small number of observations (i.e., pixels), our ML estimation procedure may produce poor results. Therefore, we filtered out the small segments based on the size of the bounding box and the confidence score. 
+We used SAM for automatic segmentation. In this mode, SAM considers bounding boxes aimed at identifying and segmenting objects within an image efficiently. After identifying the bounding boxes, SAM produces three possible masks for each bounding box along with a confidence score. We require both the bounding boxes and masks for our purpose. However, in the presence of a small number of observations (i.e., pixels), our ML estimation procedure may produce poor results. Therefore, we filtered out the small segments based on the size of the bounding box and the confidence score. 
 
-# Challenges in ML Estimation
+# Challenges in Post-Segmentation ML Estimation
 
-To estimate the blur map we need to apply the maximum likelihood procedure to image segments identified by SAM. But it is not that straight forward. Because the maximum likelihood procedure is defined for rectangular arrays. But the image segments are of irregular shape. As a result we need to fill/pad the segments with zeros to make it a rectangular array. Although it seems very obvious to do, but it actually deteriorates the estimation quality of blur kernel parameters. The issue arises because the discrete Fourier transform (DFT) distributes frequency content across all spatial locations. Consequently, even though zeros are introduced in the spatial domain through padding, they do not equate to zeros in the frequency domain. Thus, the zero padded/filled regions contribute to the likelihood calculation, often biasing the estimation towards selecting smaller values of the radius i.e. $r$. To address the issue of zero padding, we have attempted several approaches. Below, we have listed them:
 
-* Instead of utilizing segments identified by SAM, an alternative approach involves using bounding boxes corresponding to these segments for blur estimation. However, bounding boxes may encompass objects with vastly different depths, leading to significantly varied blur levels within the same box. In such scenarios, we've observed that the sub-area of the box with the least level of blur tends to dominate the Fourier spectrum. 
+For post-segmentation estimation of the blur map, we need to apply the maximum likelihood procedure to each image segment identified by SAM. Unfortunately, this is not straightforward, because the maximum likelihood procedure as outlined above requires rectangular images, whereas the image segments obtained are of irregular shape. The obvious solution is to fill / pad the segments with zeros to make it a rectangular array; however, this approach typically leads to bias towards selecting smaller values of the radius $r$. The issue arises because the discrete Fourier transform (DFT) combines frequency content from across all spatial locations, implicitly assuming stationarity of the gradients, which no longer holds.
 
-* Another strategy is to decompose irregularly shaped segments into smaller, regular shapes and apply the estimation procedure to these sub regions. However, this approach is challenging to implement due to the highly irregular nature of segments.
+Some approaches we tried to address this issue are the following.
 
-* Instead of working in the frequency domain, we can work in the spatial domain. For this we express (\ref{eq:3.5}) as $\text{Vec}(\boldsymbol{y}) = \boldsymbol{A_k} \text{Vec}(\boldsymbol{x}) + \text{Vec}(\boldsymbol{n})$, where $\text{Vec}(.)$ represents the corresponding vectorized versions of image matrices. We then formulate the maximum likelihood procedure as previously done in the frequency domain. However, this approach is computationally infeasible. To understand why, we assume IID prior on image gradients $\boldsymbol{x}$, with further elements of $\boldsymbol{n}$ also being independent. Then, $\text{Vec}(\boldsymbol{y})$ follows a multivariate normal distribution $\text{MVN}(\boldsymbol{0},\sigma^2A_kA^{T}_k + \eta^2I)$. To create a maximum likelihood procedure, we need to calculate the likelihood as a function of $\boldsymbol{k}$, i.e. as a function of $r$. However, this requires the calculation of an $MN \times MN$ matrix $\sigma^2A_kA^{T}_k + \eta^2I$ multiple times. Which makes it difficult to implement. 
+\begin{itemize}
+
+\item {Instead of utilizing the irregular segments identified by SAM, we tried using the corresponding bounding boxes as inputs. However, bounding boxes may encompass objects with vastly different depths, leading to significantly varied blur levels within the same box. In such scenarios, we've observed that the sub-area of the box with the least level of blur tends to dominate the Fourier spectrum.} 
+
+\item {Another strategy is to decompose irregularly shaped segments into smaller, rectangular regions and apply the estimation procedure to these sub regions. However, this approach possibly discards a large proportion of the available data depending on how irregular the segment is.}
+
+\item { Instead of working in the frequency domain, we can work in the spatial domain. As convolution is a linear operator, we can express (\ref{eq:3.5}) as $\text{vec}(\boldsymbol{y}) = \boldsymbol{A_k} \text{vec}(\boldsymbol{x}) + \text{vec}(\boldsymbol{n})$, where $\text{vec}(.)$ represents the corresponding vectorized versions of image segments, and $\boldsymbol{A_k}$ is a matrix determined by the blur kernel $\boldsymbol{k}$. We can then formulate the maximum likelihood procedure as previously done in the frequency domain. However, this approach is computationally infeasible. To understand why, we first consider the simpler IID prior on image gradients $\boldsymbol{x}$, assuming further that elements of $\boldsymbol{n}$ are also independent. Then, $\text{vec}(\boldsymbol{y})$ follows a multivariate normal distribution $\text{MVN}(\boldsymbol{0}, \sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I})$. To form a maximum likelihood estimation procedure, we need to calculate the likelihood (given $\boldsymbol{y}$) as a function of $\boldsymbol{\theta}$ (which characterizes the blur kernel $\boldsymbol{k}$). For observed image gradient $\boldsymbol{y}$ the likelihood is given by
+
+\begin{equation}
+\label{eq:9.1}
+L(\boldsymbol{\theta}) \propto \frac{1}{\sqrt{\text{det}(\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I})}}\exp\left( -\frac{1}{2}\text{Vec}(y)^T (\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I} )^{-1} \text{Vec}(y)\right)
+\end{equation}
+
+The parameter $\boldsymbol{\theta}$ determines $\boldsymbol{A_k}$. To evaluate the likelihood function using (\ref{eq:9.1}), we need to calculate the inverse and determinant of the matrix $\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I}$. Although this matrix is sparse, it is still potentially large, and evaluating the likelihood for multiple values of $\theta$ for each segment is impractical.}
+
+\end{itemize}
+
+In the next section, we describe an ad hoc alternative loss function that is simpler to evaluate.
 
 
 # Decorrelation Loss Function
 
-It is evident from the preceding section that relying on methods involving padding or filling zeros to transform irregularly shaped segments into rectangular arrays is unreliable. Instead, our method should solely depend on the pixel values within the identified image segments. An obvious choice is to collect those pixel values in matrix and use that for analysis. However this is not theoretically valid. Because the spatial dependency of the pixels in image carries information about the blur kernel parameters. Arranging them without maintaining their spatial order would destroy their dependency structure. This leads to the idea of *Decorrelation Loss Function*.
+<!-- It is evident from the preceding discussion that relying on methods involving padding or filling zeros to transform irregularly shaped segments into rectangular arrays is unreliable. Instead, our method should solely depend on the pixel values within the identified image segments. An obvious choice is to collect those pixel values in matrix and use that for analysis. However this is not theoretically valid. Because the spatial dependency of the pixels in image carries information about the blur kernel parameters. Arranging them without maintaining their spatial order would destroy their dependency structure. This leads to the idea of *Decorrelation Loss Function*. -->
 
-For an observed blurred image $\boldsymbol{y}$, if the true blur kernel is $\boldsymbol{k_{r_0}}$, it is evident from Equation (\ref{eq:3.5}) that deconvolving $\boldsymbol{y}$ using $\boldsymbol{k_{r_0}}$ would yield a quantity $\boldsymbol{x_{r_0}}$ closely resembling the original sharp image $\boldsymbol{x}$. Consequently, the autocorrelation function of the horizontal and vertical gradients of $\boldsymbol{x_{r_0}}$ would exhibit small values. To empirically validate this, we simulated defocus blur on a $255 \times 255$ image using a disc kernel of radius $r_{\text{true}} = 3$. We have used a deconvolution procedure similar to wiener filtering to obtain $\boldsymbol{x_r}$. For comparison, we have plotted ACF for blurred image gradients, deconvoluted gradients using $r = 2,3,4$ and also of sharp images in Figure \ref{fig:plot13}.
+For an observed blurred image $\boldsymbol{y}$, if the true blur kernel is $\boldsymbol{k_{r_0}}$, it is evident from Equation (\ref{eq:3.5}) that deconvolving $\boldsymbol{y}$ using $\boldsymbol{k_{r_0}}$ would yield a quantity $\boldsymbol{x_{r_0}}$ closely resembling the latent sharp image gradient $\boldsymbol{x}$. Consequently, the autocorrelation function of the horizontal and vertical gradients of $\boldsymbol{x_{r_0}}$ would exhibit smaller values compared to the blurred image gradient. To empirically validate this, we simulated defocus blur on a $255 \times 255$ image using a disc kernel of radius $r_{\text{true}} = 3$. We have used a deconvolution procedure similar to Wiener filtering to obtain $\boldsymbol{x_r}$. For comparison, we have plotted ACF for blurred image gradients, deconvoluted gradients using $r = 2,3,4$ and also of sharp images in Figure \ref{fig:plot13}.
 
-```{r plot13,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "Motivation for Decorrelation loss: Top row indicates acf for sharp image gradients, second row for blurred image gradients and last three rows for deconvoluted gradients"}
+```{r plot13,warning=FALSE,echo=FALSE,out.width='100%',out.height= '100%',fig.align='center',echo=FALSE,fig.cap = "Motivation for Decorrelation loss: Top row indicates ACF for sharp image gradients, second row for blurred image gradients and last three rows for deconvoluted gradients. The correct value of the radius is 3."}
 
 knitr::include_graphics("images/10.1.png")
 ```
 
 For $r = 2$, we can see that ACF values are much smaller compared to the blurred image, and for $r = 4$, at some lags, the ACF takes on large values. But for the true value of $r$, we observe a substantial decrease in ACF values in all directions as expected. It is to be noted that for small values of radius, we have a similar type of decrease in along direction ACF values.
 
-Based on these observations, we consider sum of squared acfs in all directions as loss function. It captures the amount of correlation present in image gradients after deconvoluting using $\boldsymbol{k_r}$. We call it *Decorrelation Loss*. For true value of $r$, we expect this to be small. We have used the following theorem for deconvolution step.
+Based on these observations, we consider sum of squared ACFs in all directions as loss function. It captures the amount of correlation present in image gradients after deconvoluting using $\boldsymbol{k_r}$. We call it *Decorrelation Loss*. For true value of $r$, we expect this to be small. We have used the following theorem for deconvolution step.
 
 \textbf{Theorem:} \textit{If $\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}$ with $\boldsymbol{X_{\omega}} \sim \mathcal{CN}(0,\sigma^2g_{\omega})$ and $\boldsymbol{N_{\omega}} \sim \mathcal{CN}(0,\eta^2h_{\omega})$ independently. Then, the conditional expectation of $\boldsymbol{X_{\omega}}$ given $\boldsymbol{Y_{\omega}},\boldsymbol{K_{\omega}}$ is given by}
 
@@ -291,34 +330,37 @@ Based on these observations, we consider sum of squared acfs in all directions a
 
 Using Equation (\ref{eq:10.1}) we have obtained the deconvoluted versions of both the horizontal and vertical gradients in the frequency domain, and then performed an Inverse Discrete Fourier Transform (IDFT) to obtain their spatial domain counterparts, denoted by $\boldsymbol{x_{h,r}}$ and $\boldsymbol{x_{v,r}}$ respectively. Then, we calculate the autocorrelation function (ACF) along and across the gradient directions for both the horizontal and vertical deconvoluted gradients. Typically, considering only the ACFs along the direction is sufficient. However, we have observed that including both along and across direction ACFs results in more stable outcomes. We select the value of $r$ that minimizes the decorrelation loss.
 
-For image segments, we slightly modify the procedure. We perform deconvolution of bounding boxes corresponding to the image segments and instead of calculating acf for all pixels within that bounding box, we only consider the pixels that belong to the image segment corresponding to that bounding box. 
+For image segments, we slightly modify the procedure. We perform deconvolution of bounding boxes corresponding to the image segments and instead of calculating the ACF for all pixels within that bounding box, we only consider the pixels that belong to the image segment corresponding to that bounding box. 
 
-Choice of the parameters $\sigma$ and $\eta$ are also important. We have conducted an experiment similar to maximum likelihood case to obtain optimal choice of parameters and the results are similar. Choice of $\rho_1$ and $\rho_2$ are also important. The default choices are $\rho_1 = 0.5$ and $\rho_2 = 0.5$.
+The choice of the parameters $\sigma$ and $\eta$ are also important. We have conducted an experiment similar to maximum likelihood case to obtain optimal choice of parameters and the results are similar. Choice of $\rho_1$ and $\rho_2$ are also important. The default choices are $\rho_1 = 0.5$ and $\rho_2 = 0.5$.
 
 # Simulated Experiments
 
-A simulated experiment is illustrated in Figure \ref{fig:plot14}, which allows us to quantitatively test the performance of the proposed method. We start with a sharp original RGB image and apply SAM to identify the image segments. SAM considers different bounding boxes and produces three possible masks for each such bounding box along with their confidence scores. We discard small segments based on the size of the bounding box and the confidence score of the corresponding mask. Afterward, we simulate defocus blur based on these masks using a disc kernel, employing the model in (\ref{eq:3.9}) and considering the segments as neighbors of the pixel they belong to. The latent blur map and generated blurred image are shown in Figure \ref{fig:plot14} (a) and (c). We apply the above-discussed method to the gray scale version of the blurred image with $\sigma = 0.10$, $\eta = 0.005$, and $\rho = (0.5,0.5)$ as the choice of tuning parameters. The estimated blur map is shown in Figure \ref{fig:plot14} (d). We have used a grid-search procedure with step size $\Delta{r} = 0.1$ to search for optimal $r$. The mean squared error of the estimated blur map with respect to the latent map is 0.421.
+A simulated experiment is illustrated in Figure \ref{fig:plot14}, which allows us to quantitatively test the performance of the proposed method. We start with a sharp original RGB image and apply SAM to identify the image segments. SAM considers different bounding boxes and produces three possible masks for each such bounding box along with their confidence scores. We discard small segments based on the size of the bounding box and the confidence score of the corresponding mask. Afterward, we simulate defocus blur based on these masks using a disc kernel, employing the model in (\ref{eq:3.9}) and considering the segments as neighbors of the pixel they belong to. The latent blur map and generated blurred image are shown in Figure \ref{fig:plot14} (a) and (c). We apply the above-discussed method to the gray scale version of the blurred image with $\sigma = 0.10$, $\eta = 0.005$, and $\rho = (0.5,0.5)$ as the choice of tuning parameters. The estimated blur map is shown in Figure \ref{fig:plot14} (d). We have used a grid-search procedure with step size $\Delta{r} = 0.1$ to search for optimal $r$. 
 
-```{r plot14,warning=FALSE,echo=FALSE,out.width='76%',out.height= '51%',fig.align='center',echo=FALSE,fig.cap = "Simulated Experiment: (a) Simulated input image with spatially varying blur, (b) Deblurred image based on estimate in (d), (c) Latent blur map, (d) Estimated blur map"}
+<!-- The mean squared error of the estimated blur map with respect to the latent map is 0.421. -->
+
+```{r plot14,warning=FALSE,echo=FALSE,out.width='70%',out.height= '60%',fig.align='center',echo=FALSE,fig.cap = "Simulated Experiment: (a) Simulated input image with spatially varying blur, (b) Deblurred image based on estimate in (d), (c) Latent blur map, (d) Estimated blur map"}
 
 knitr::include_graphics("images/11.1.png")
 ```
 
 Notice that except for some regions, the estimated blur map closely resembles the latent blur map. The discrepancy is mainly for small segments. Using the estimated blur map and blur kernels generated by the disc function, we performed spatially varying deconvolution using Richardson Lucy algorithm with number of iterations 30. The deblurred image is shown in Figure \ref{fig:plot14} (b). We can see that the spatially varying blur is successfully removed from the image. The PSNR of the estimate $\boldsymbol{\hat{x}}$ of the sharp image $\boldsymbol{x}$ is 54.47 dB, which is quite high.
 
+
 # Application on Real Images
 
 We applied the procedure described above to real images, and the results are shown in Figure \ref{fig:plot15},\ref{fig:plot16} and \ref{fig:plot17}. We have also included the deblurred images obtained using *Richardson-Lucy Algorithm* [@Richard72]. Since these images are sourced externally, calibrated blur kernels corresponding to them are unavailable. While blur from an ideal lens with a circular aperture can be modeled by a disc kernel in the absence of diffraction effects, real-world scenarios involve diffraction. In our experience, disc kernels can produce sufficiently accurate blur maps for real images, but the loss curves may not be stable. Alternatively, circular kernels perform well in producing stable blur maps suitable for deconvolution. For the results presented here, we used a circular Cauchy kernel with $\kappa = 0.5$ to estimate the radius map (i.e., $r$). We have used $\sigma = 0.10$, $\eta = 0.010$, and $\rho = (0.5, 0.5)$ for blur radius estimation in all cases, along with 30 iterations for deblurring using Richardson-Lucy algorithm.
 
-Figure \ref{fig:plot15} (a) illustrates an example demonstrating varying levels of blur. The two persons appear blurred because they are closer to the camera. Moving away from the persons towards the merry-go-round, the level of blur decreases, reaching a minimum near the merry-go-round. Therefore, the plane of focus of the camera in this scene is the merry-go-round. Our method effectively captures the differences in blur levels. Although the ranking is not entirely accurate, it produces a sufficiently good blur map for deblurring the image. The deblurred image demonstrates successful removal of spatially varying blur. Figure \ref{fig:plot15} (b) illustrates another example with only two levels of blur. Our method successfully captures the differences in blur levels. In the deblurred image, we can clearly see the patterns on the ground that were not clear in the input image.
+Figure \ref{fig:plot15} (a) illustrates an example demonstrating varying levels of blur. The two persons appear blurred because they are closer to the camera. Moving away from the persons towards the merry-go-round, the level of blur decreases, reaching a minimum near the merry-go-round. Therefore, the plane of focus of the camera in this scene is the merry-go-round. Our method effectively captures the differences in blur levels. Although the ranking is not entirely accurate, it produces a sufficiently good blur map for deblurring the image. The deblurred image demonstrates successful removal of spatially varying blur. Figure \ref{fig:plot15} (b) illustrates another example with only two levels of blur. Our method captures the differences in blur levels. In the deblurred image, we can clearly see the patterns on the ground that were not clear in input image.
 
 Figure \ref{fig:plot15} (c) presents an example with multiple blur levels. The woman closer to the camera appears more blurred, and the level of blur decreases as we move towards the back until the fourth person. After that, it increases again. The estimated blur map also reflects these variations. Although the wall in the background should be the most blurred, our blur map does not show this. However, the resulting deblurred image is sufficiently sharp. Figure \ref{fig:plot15} (d) presents another example of multiple blur levels, and our method is able to identify them nearly accurately.
 
 The input images in Figure \ref{fig:plot16} are from @levin2007image. In each case, the blur maps depict the nearly correct blur level estimation, and the deblurred images also show improvement. Figure \ref{fig:plot17} (a),(b) presents close-ups of faces from \ref{fig:plot16} (a),(c) respectively before and after deblurring, demonstrating the improvement achieved. The deblurred images are not smooth, but we can achieve smoothness using other deconvolution algorithms, For example putting $L_p$ penalty on deblurred image gradients [@nandy2021dependent]. But those are much slower compared to Richardson-Lucy. 
 
-Finally, in Figure \ref{fig:plot17} we show some comparisons from examples given in @zhu2013. A notable improvement is the accurate identification of boundaries between objects in the blur maps. Our method clearly depicts the differences in blur levels, such as between the cattle in (e), the individuals and buildings in (d). While in [@zhu2013] those details are not there. The ranking is not entirely correct, but it provides a better representation of 3D geometric information compared to [@zhu2013]. This is possible because we have done pre-segmentation, instead of post-segmentation. 
+Finally, in Figure \ref{fig:plot17} we show some comparisons from examples given in @zhu2013. A notable improvement is the accurate identification of boundaries between objects in the blur maps, which is a consequence of using SAM to perform pre-segmentation. Our method clearly depicts the differences in blur levels, such as between the cattle in (e), the individuals and buildings in (d), whereas these details are absent in [@zhu2013]. The ranking is not entirely correct, but it provides a better representation of 3D geometric information compared to [@zhu2013].
 
-```{r plot15,warning=FALSE,echo=FALSE,out.width='100%',out.height= '180%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation: First Column for input blurry image, second column for estimated blur radius map and third column for deblurred image using estimated blur radius map in second column"}
+```{r plot15,warning=FALSE,echo=FALSE,out.width='100%',out.height= '200%',fig.align='center',echo=FALSE,fig.cap = "Spatially Varying Blur Estimation: First Column for input blurry image, second column for estimated blur radius map and third column for deblurred image using estimated blur radius map in second column"}
 
 knitr::include_graphics("images/12.1.png")
 ```
@@ -342,18 +384,26 @@ Our initial goal was to estimate depth using the blur level as a surrogate. Howe
 
 The ranking in blur maps is not entirely correct. One common issue is identifying the blur level of background objects. Additionally, segments with very little texture often result in underestimation of the blur radius. This issue is common to most passive algorithms but can be mitigated using a post-segmentation approach with neighboring pixel information. In [@zhu2013], the initial blur map estimate also had ambiguities, but after MRF smoothing, they have obtained a reasonable blur map. We need to think whether a post-estimation modification can remove the ambiguities in our blur maps.
 
-In this project, we only considered the disc kernel for simulation and the circular cauchy kernel with $\kappa = 0.5$ for real image applications. However, we can generalize it for any spherically symmetric kernel. The choice of $\kappa$ is based on empirical observations, but we can also treat $\kappa$ as a parameter and incorporate into estimation procedure. Theoretically, for a single image, the choice of $\kappa$ should be the same for all segments (pixels), and one needs to consider this while estimating $\kappa$.
+In this project, we only considered the disc kernel for simulation and the circular cauchy kernel with $\kappa = 0.5$ for real image applications. However, we can generalize it for any spherically symmetric kernel. The choice of $\kappa$ is based on empirical observations, but we can also treat $\kappa$ as a parameter and incorporate into estimation procedure. For a single image, the choice of $\kappa$ should be the same for all segments (pixels), and one needs to consider this while estimating $\kappa$.
 
 The choice of tuning parameters $\sigma$, $\eta$, and $\rho$ is crucial. We based our selection of these parameters on a simulation study. However, when dealing with real images, we may need to examine them more closely. It's true that selecting the right tuning parameters can improve our blur map estimation process. But it is hard to isolate the effects of each tuning parameter individually because of their confounding effect. 
 
 The blur maps estimated by our method clearly depict the differences in blur levels and boundaries between objects in image, unlike those in [@zhu2013; @levin2007image]. This improvement is mainly due to segmenting the image into meaningful objects and using that for estimation. It reduces computation time significantly. Because, instead of estimating for each pixel separately, we estimate only for segments, which is significantly fewer than the number of pixels. Currently our R implementation takes around 7 minutes to perform the estimation step for a $1000 \times 1000$ image on CPU run time and additional 3 minutes for segmentation using SAM on GPU run time in Google Colab Platform. In contrast, methods based on estimating the blur level for each pixel separately take around 1 hour and 30 minutes only for the initial blur map estimation on the same platform and run time. This demonstrates a significant improvement in computation time.
 
-# Supplementary Materials
+# Supplementary Materials: `DepthR`
 
-A R package implementing our estimation procedure is available on Github (`DepthR`: https://github.com/ShrayanRoy/DepthR) and the code for segmentation using SAM is also available.
+A R package implementing our estimation procedure is available on Github named `DepthR` (https://github.com/ShrayanRoy/DepthR). It has implementation of both maximum likelihood procedure and decorrelation loss. The code for segmentation using SAM is also available.
 
+# Acknowledgement
 
-# Acknowledgment
+First and foremost, I would like to express my heartfelt gratitude to my supervisor Dr. Deepayan Sarkar, for his unwavering support and deep involvement throughout my project. His exemplary mentorship and expertise were instrumental in the successful completion of my work.
+
+I am indebted to the faculty members at ISI Delhi and Kolkata for their continuous support throughout my M.Stat Programme, nurturing my growth at every step. Their guidance, both in and out of the classroom, provided the foundation upon which this thesis stands.
+
+Finally, I express my gratitude to my family and friends for their unwavering support and encouragement throughout this endeavor. Their belief in me fueled my determination to persevere.
+
+<!-- Specially, I would like to mention the name of Adrija Saha, for her constant encouragement throughout my whole academic journey.-->
+
+\newpage
 
 # References
-
