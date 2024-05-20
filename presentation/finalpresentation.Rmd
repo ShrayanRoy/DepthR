@@ -19,9 +19,6 @@ output:
       
 ---
 
-class: center, middle
-background-size: cover
-
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
 ```
@@ -36,9 +33,6 @@ xaringanExtra::use_panelset()
 }
 ```
 
-# Last time...
-
----
 
 # Depth Estimation
 
@@ -78,6 +72,11 @@ knitr::include_graphics("pimg/depfoc.png")
 
 * Use of Modern segmentation algorithms such as **Segment-Anything**.
 
+```{r ,warning=FALSE,echo=FALSE,out.width='87%',fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/our_idea.png")
+```
+
 ---
 
 # Proposed Parametric Models for Blur Kernel
@@ -87,38 +86,34 @@ knitr::include_graphics("pimg/depfoc.png")
 * **Uniform distribution** across a circular are defined by the radius of the circle, denoted by $r$.
 
 $$k(x,y) = \frac{1}{\pi r^2} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
-
 * **Gaussian distribution** across a circular area defined by the radius of the circle, denoted as $r$, and the scale parameter, represented as $h$.
 
 $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
+
 * **Cauchy distribution** across a circular area defined by the radius of the circle, denoted as $r$, and the scale parameter $h$.
 
-$$k(x,y) = \frac{C_{h,r}}{2\pi}\frac{h}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
+  $$k(x,y) = \frac{C_{h,r}}{2\pi}\frac{h}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
 
 ---
 
-# Blur Image Model [TODO: Modify]
+# Image Blurring Model
 
 * The blurred image can be viewed as **convolution** of original sharp image and blur kernel. 
 
-* The observed blurred image $\boldsymbol{b}$ of dimension $M \times N$ can be modeled as - 
+* The observed blurred image $\boldsymbol{b}$ of can be modeled in terms of its gradients as - 
 
-  $$\boldsymbol{b} = \boldsymbol{k} \ \otimes \ \boldsymbol{l} \ + \ \boldsymbol{\epsilon}$$
+  $$\boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n}$$
 Where,
 
-  * $\boldsymbol{k}$ is an $m \times n$ PSF / blur kernel.
+  * $\boldsymbol{k}$ is blur kernel and $\boldsymbol{x}$ is gradient of *true latent image*.
   
-  * $\boldsymbol{l}$ is the $(M + m) \times (N + n)$ *true latent image* which we want to estimate.
+  * $\boldsymbol{n}$ is gradient of noise and $\otimes$ denotes the *valid convolution* operator.
   
-  * $\boldsymbol{\epsilon}$ is an $M \times N$ matrix of noise.
-  
-  * $\otimes$ denotes the *valid convolution* operator.
+* Expressing the model in frequency domain as - 
 
-* Estimating both $\boldsymbol{l}$ and $\boldsymbol{k}$ using above model is called *blind deconvolution problem*.
+$$\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}  \  \ \  \forall \ \boldsymbol{\omega} = (\omega_1,\omega_2)$$  
+* We assume Nandy's Auto regressive prior on DFT coefficients $\boldsymbol{X_{\omega}}$.
 
-* Number of observations $MN$ is very large compared number of parameters $\implies$ **ill-posed problem** 
-
-* We assume AR Prior proposed by Nandy on gradients of $\boldsymbol{l}$ to deal with this.
 
 ---
 
@@ -142,7 +137,18 @@ $$L(\boldsymbol{\theta}) = L_h(\boldsymbol{\theta})\times L_v(\boldsymbol{\theta
 $$\hat{\theta} = \underset{\boldsymbol{\theta}}{\text{argmax}} \ \log L(\boldsymbol{\boldsymbol{\theta}}) = \underset{\theta}{\text{argmax}} \ \ \{\log L_h(\boldsymbol{\theta}) + \log L_v(\boldsymbol{\theta})\}$$
 ---
 
-## How to handle Spatially Varying Case ?
+## Choice of $\sigma$
+
+```{r ,warning=FALSE,echo=FALSE,out.width='100%',fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/sigexpall.png")
+```
+
+---
+
+# How to estimate Spatially Varying blur ?
+
+--
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='44%',fig.align='center',echo=FALSE}
 
@@ -151,7 +157,7 @@ knitr::include_graphics("pimg/moon.png")
 
 ---
 
-## How to handle Spatially Varying Case ?
+# How to estimate Spatially Varying blur ?
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='44%',fig.align='center',echo=FALSE}
 
@@ -164,11 +170,11 @@ knitr::include_graphics("pimg/moon_kern.png")
 
 * Real world images often exhibit spatially varying blur implying pixel to pixel varying blur level.
 
-* One reasonable assumption is locally constant blur within a small patch around each pixel.
+* Assume locally constant blur within a small patch around each pixel.
 
 --
 
-* By estimating blur level for each pixel we can obtain a reasonable blur map.
+* Estimating blur level for each pixel we can obtain a reasonable blur map.
 
 --
 
@@ -179,8 +185,6 @@ knitr::include_graphics("pimg/moon_kern.png")
 ---
 
 ## Experiment
-
-
 
 ```{r ,warning=FALSE,echo=FALSE,out.width='90%',out.height="90%",fig.align='center',echo=FALSE,fig.cap= "Figure: (a) Spatially Varying Blurred Image, (b) Latent Blurmap, (c) Estimated Blurmap"}
 
@@ -193,9 +197,11 @@ knitr::include_graphics("pimg/7.1.png")
 
 * The generated blur map is non-smooth and requires *MRF Smoothing* to obtain a smooth map.
 
+--
+
 * The entire procedure is time-consuming, even the initial blur map estimation also.
 
-* Fails in situations where local patch contains pixels with vastly different depth.
+* Boundary between different objects in image is not clear.
 
 --
 
@@ -232,23 +238,50 @@ knitr::include_graphics("pimg/couple.png")
 
 * But image segments obtained by SAM are of irregular shape.
 
+--
+
 * Obvious solution is to pad or fill with zeros to make rectangular array.
 
 * This approach leads to bias towards selecting small values of radius $r$.
 
-[TODO: image]
+```{r ,warning=FALSE,echo=FALSE,out.width='60%',out.height="40%",fig.align='center',echo=FALSE,fig.cap= "Figure: Zero padding to make rectangular array"}
+
+knitr::include_graphics("pimg/zero_pad.png")
+```
 
 ---
 
 ## Experiment
 
+* Simulated defocus blur using disc kernel with $r_{true} = 3$.
+
+```{r ,warning=FALSE,echo=FALSE,out.width='90%',out.height="80%",fig.align='center',echo=FALSE,fig.cap= "Figure: (a) Fourier Spectrum of Kernel, (b) Blurred Image, (c)  Fourier Spectrum of blurred image gradient"}
+
+knitr::include_graphics("pimg/zero_pad_prob.png")
+```
+
+---
+
+## Experiment
+
+* After zero padding of segmented image portion, the fourier spectrum of blur kernel is destroyed.
+
+```{r ,warning=FALSE,echo=FALSE,out.width='60%',out.height="40%",fig.align='center',echo=FALSE,fig.cap= "Figure: (a) Segmented Blurred Image, (b)  Fourier Spectrum of segmented blurred image gradient"}
+
+knitr::include_graphics("pimg/zero_pad_prob2.png")
+```
+
 ---
 
 # Challenges in Post-Segmentation ML Estimation
 
-* DFT combines frequency content across all spatial locations. 
+* DFT combines frequency content across all spatial locations.
+
+--
 
 * It implicitly assumes stationarity of the gradients, which doesn't hold here.
+
+--
 
 * To address this issue we have tried some approaches.
 
@@ -262,7 +295,11 @@ knitr::include_graphics("pimg/couple.png")
 
 * Sub-area of the box with least level of blur tends to dominate the Fourier spectrum.
 
-[TODO: Image]
+```{r ,warning=FALSE,echo=FALSE,out.width='47%',out.height="30%",fig.align='center',echo=FALSE,fig.cap= "Figure: Local Patch Containing pixels of different depth"}
+
+knitr::include_graphics("pimg/ap1.png")
+```
+
 
 ---
 
@@ -272,9 +309,15 @@ knitr::include_graphics("pimg/couple.png")
 
 * Apply estimation procedure to these sub regions.
 
+--
+
 * Discards a large proportion of available data depending on how irregular segment it is.
 
-[TODO: Image]
+```{r ,warning=FALSE,echo=FALSE,out.width='70%',out.height="30%",fig.align='center',echo=FALSE,fig.cap= "Figure: Irregular segments identified by SAM"}
+
+knitr::include_graphics("pimg/ap2.png")
+```
+
 
 ---
 
@@ -285,9 +328,13 @@ knitr::include_graphics("pimg/couple.png")
 * As convolution is linear operator, we can express $\boldsymbol{y} = \boldsymbol{k}\otimes \boldsymbol{x} + \boldsymbol{n}$ as 
 
 $$\text{vec}(\boldsymbol{y}) = \boldsymbol{A_k} \text{vec}(\boldsymbol{x}) + \text{vec}(\boldsymbol{n})$$
+
+--
+
 * Assuming simple IID normal prior on image gradients $\boldsymbol{x}$ and independence of elements of $\boldsymbol{n}$,
 
 $$\text{Vec}(\boldsymbol{y}) \sim \text{MVN}(\boldsymbol{0}, \sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I})$$
+--
 
 * To calculate maximum likelihood estimator, we need to calculate likelihood as a function of $\boldsymbol{\theta}$, i.e.
 
@@ -300,9 +347,13 @@ $$L(\boldsymbol{\theta}) \propto \frac{1}{\sqrt{\text{det}(\sigma^2 \boldsymbol{
 
 * Requires calculation of inverse and determinant of the matrix $\sigma^2 \boldsymbol{A_k} \boldsymbol{A_k}^{T} + \eta^2 \boldsymbol{I}$ multiple times.
 
+--
+
 * Although the matrix is sparse, it is still potentially large. 
 
 * Evaluating inverse and determinant for multiple values of $\boldsymbol{\theta}$ for each segment is impractical.
+
+--
 
 * Instead we propose an ad-hoc alternative loss function that is simpler to evaluate.
 
@@ -312,11 +363,17 @@ $$L(\boldsymbol{\theta}) \propto \frac{1}{\sqrt{\text{det}(\sigma^2 \boldsymbol{
 
 * For an observed blurred image $\boldsymbol{y}$, suppose the true blur kernel is $\boldsymbol{k_{\theta_0}}$.
 
+--
+
 * Deconvolving $\boldsymbol{y}$ using $\boldsymbol{k_{\theta_0}}$ should yield a quantity $\boldsymbol{x_{\theta_0}}$ close to latent sharp image gradient $\boldsymbol{x}$.
 
 * Along and across direction ACF of $\boldsymbol{x_{\theta_0}}$ will take smaller values compared to the blurred image gradient $\boldsymbol{y}$.
 
+--
+
 * Because, convolution using $\boldsymbol{k}$ increases the correlation among image gradients.
+
+--
 
 * We simulated defocus blur on a $255\times 255$ image using disc kernel with $r_{true} = 3$.
 
@@ -326,7 +383,19 @@ $$L(\boldsymbol{\theta}) \propto \frac{1}{\sqrt{\text{det}(\sigma^2 \boldsymbol{
 
 ## Experiment
 
-[TODO: Sharp Image gradient acf image]
+```{r ,warning=FALSE,echo=FALSE,out.width='75%',out.height="30%",fig.align='center',echo=FALSE,fig.cap= "Figure: ACF of sharp and blurred image gradients"}
+
+knitr::include_graphics("pimg/decorr1.png")
+```
+
+---
+
+## Experiment
+
+```{r ,warning=FALSE,echo=FALSE,out.height="63%",out.width='63%',fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/decorr2.png")
+```
 
 ---
 
@@ -338,15 +407,19 @@ $$\mathbb{E}[\boldsymbol{X_{\omega}}|\boldsymbol{Y_{\omega}},\boldsymbol{K_{\ome
 
 * Take Inverse DFT to obtain deconvoluted horizontal and vertical gradients denoted by $\boldsymbol{x_{h,\theta}}$ and $\boldsymbol{x_{v,\theta}}$.
 
+--
+
 * Consider sum of squared ACF in both along and across direction of gradients as loss function denoted by 
 
 $$\text{Decorr}(\boldsymbol{\theta}) = \text{Decorr}(\boldsymbol{x_{h,\theta}},\boldsymbol{x_{v,\theta}})$$
 
 * It captures the amount of correlation present in image gradients after deblurring using $\boldsymbol{k_\theta}$.
 
-* $\text{Decorr}(\boldsymbol{\theta})$ should be minimum for true value of $\boldsymbol{\theta}$.  
+--
 
-$$\hat{\boldsymbol{\theta}} = \underset{\boldsymbol{\theta}}{\text{argmin}} \ \ \text{Decorr}(\boldsymbol{x_{h,\theta}},\boldsymbol{x_{v,\theta}})$$
+* $\text{Decorr}(\boldsymbol{\theta})$ should be minimum for true value of $\boldsymbol{\theta}$.
+
+$$\hat{\boldsymbol{\theta}} = \underset{\boldsymbol{\theta}}{\text{argmin}} \ \text{Decorr}(\boldsymbol{x_{h,\theta}},\boldsymbol{x_{v,\theta}})$$
 
 ---
 
@@ -356,9 +429,11 @@ $$\hat{\boldsymbol{\theta}} = \underset{\boldsymbol{\theta}}{\text{argmin}} \ \ 
 
 --
 
-* Instead of calculating ACF for all pixels within that bounding box, consider only the pixels belonging to image segment corresponding to that bounding box.
+* Consider only the pixels belonging to image segment corresponding to that bounding box.
 
-* Use Decorrelation loss to find optimal value of $\boldsymbol{\theta}$.
+* Calculate ACF in both along and across direction only for those pixels.
+
+* Use decorrelation loss to find optimal value of $\boldsymbol{\theta}$.
 
 --
 
@@ -366,11 +441,13 @@ $$\hat{\boldsymbol{\theta}} = \underset{\boldsymbol{\theta}}{\text{argmin}} \ \ 
 
 * Used decorrelation loss to estimate blur radius map.
 
+* Deblurred the image based on estimated blur radius map using Richardson-Lucy Algorithm.
+
 ---
 
 ## Experiment
 
-```{r ,warning=FALSE,echo=FALSE,out.width='50%',out.height="50%",fig.align='center',echo=FALSE,fig.cap = "Figure: (a) Simulated input image with spatially varying blur, (b) Deblurred image based on estimate in (d), (c) Latent blur map, (d) Estimated blur map"}
+```{r ,warning=FALSE,echo=FALSE,out.width='50%',out.height="50%",fig.align='center',echo=FALSE,fig.cap = "Figure: (a) Simulated spatially varying blurred image, (b) Deblurred image based on estimated blur map, (c) Latent blur map, (d) Estimated blur map"}
 
 knitr::include_graphics("pimg/11.1.png")
 ```
@@ -379,18 +456,122 @@ knitr::include_graphics("pimg/11.1.png")
 
 # Application on Real Image
 
-[TODO: Include good examples, Refocusing]
+* We applied the procedure based on decorrelation loss to real world blurred images.
+
+* As images are sourced externally, calibrated blur kernels are unavailable.
+
+--
+
+* Blur from lens with circular aperture can be modeled by disc kernel in the absence of diffraction effects.
+
+--
+
+* But real world scenarios involve diffraction, so we required alternative choice of blur kernel.
+
+* Disc kernel can produce good enough blur map but loss curves may not be stable. 
+
+--
+
+* We have used circular cauchy kernel with $\kappa = 0.5$ to estimate blur radius map.
+
+* $\sigma = 0.10$, $\eta = 0.010$, and $\rho = (0.5, 0.5)$ used in all cases.
+
+---
+
+# Results
+
+```{r ,warning=FALSE,echo=FALSE,out.width='90%',out.height="100%",fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/real3.png")
+```
+
+---
+
+# Results
+
+```{r ,warning=FALSE,echo=FALSE,out.width='90%',out.height="100%",fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/real4.png")
+```
+
+---
+
+# Comparison With Zhu et al.
+
+```{r ,warning=FALSE,echo=FALSE,out.width='70%',out.height="100%",fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/real5.png")
+```
+
+---
+
+# Deblurred Images
+
+```{r ,warning=FALSE,echo=FALSE,out.width='90%',out.height="100%",fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/real1.png")
+
+knitr::include_graphics("pimg/real2.png")
+```
+
+---
+
+# Post Capture Refocusing
+
+```{r ,warning=FALSE,echo=FALSE,out.width='100%',out.height="100%",fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/refocus1.png")
+
+```
+
 
 ---
 
 # Discussion
 
+* We proposed a new method to estimate spatially varying blur based on single image of the scene.
+
+--
+
+* Due to issue of zero padding with ML estimation, we developed an ad hoc procedure based on Decorrelation Loss.
+
+--
+
+* Estimated blur maps clearly depict differences in blur levels & boundaries between objects in image.
+
+--
+
+* Ranking in blur maps are not entirely correct.
+
+   * Problem in identifying the blur level of background objects.
+
+   * Segments with little texture often result in underestimation of the blur radius.
+
+--
+   
+* Choice of $\kappa$ can be incorporated in estimation procedure.
+
+--
+ 
+* Hard to isolate effects of tuning parameter because of their confounding effect.
 
 ---
 
-# Supplementary Material: `DepthR`
+# Discussion
 
+* A significant reduction in computing time.
 
+* Because instead of estimating for all pixel separately we are estimating only for segments.
+
+--
+
+* Our R implementation takes around 7 minutes time for estimation step for $1000\times1000$ image.
+
+* SAM takes around 3 minutes for segmentation on GPU run time.
+
+--
+
+* Pixel by pixel blur estimation takes around 1 hr 30 minutes only for initial step.
 
 ---
 
@@ -419,3 +600,47 @@ background-size: cover
 # Thank You
 
 All codes and diagrams are available at [ShrayanRoy/DepthR](https://github.com/ShrayanRoy/DepthR)
+
+---
+
+# Appendix
+
+.panelset[
+.panel[.panel-name[Thin Lens Model]
+
+* From a single point source, light rays emit in different directions and fall on the lens of camera.
+
+* The lens bends light to form a circle on the camera sensor. It's called the *Blur Circle* or *Circle of Confusion*.
+
+* There is a relation between circle of confusion and depth of object in an image.
+
+$$c_{diam} = a_{diam}f \left|\frac{d - d_{focus}}{d(d_{focus} - f)}\right| \approx a_{diam}f \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$$
+
+* In a given camera settings, $c_{diam} \propto \left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$ 
+
+* For different values of $d$, we can have $\left|\frac{1}{d_{focus}} - \frac{1}{d}\right|$ same $\implies$ ill possed problem !
+
+]
+
+.panel[.panel-name[Objects Closer]
+
+* For objects closer to the camera than the plane of focus
+
+```{r ,warning=FALSE,echo=FALSE,out.width='80%',fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/d2.png")
+```
+
+]
+
+.panel[.panel-name[Objects Farther]
+
+* For objects farther from the camera than the plane of focus
+
+```{r ,warning=FALSE,echo=FALSE,out.width='75%',fig.align='center',echo=FALSE}
+
+knitr::include_graphics("pimg/d1.png")
+```
+
+]
+]
