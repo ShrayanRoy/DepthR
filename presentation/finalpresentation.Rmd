@@ -100,7 +100,7 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 
 * The blurred image can be viewed as **convolution** of original sharp image and blur kernel. 
 
-* The observed blurred image $\boldsymbol{b}$ of can be modeled in terms of its gradients as - 
+* The observed blurred image $\boldsymbol{b}$ can be modeled in terms of its gradients $\boldsymbol{x}$ as - 
 
   $$\boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n}$$
 Where,
