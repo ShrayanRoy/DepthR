@@ -19,6 +19,9 @@ output:
       
 ---
 
+class: center, middle
+background-size: cover
+
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
 ```
@@ -33,6 +36,9 @@ xaringanExtra::use_panelset()
 }
 ```
 
+# Last time...
+
+---
 
 # Depth: the third dimension
 
