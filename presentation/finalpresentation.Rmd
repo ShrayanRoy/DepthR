@@ -34,7 +34,7 @@ xaringanExtra::use_panelset()
 ```
 
 
-# Depth Estimation
+# Depth: the third dimension
 
 * Traditional photographs are two dimensional projections of a three dimensional scene.
 
@@ -93,27 +93,6 @@ $$k(x,y) = \frac{C_{h,r}}{2\pi h^2} e^{-\frac{x^2 + y^2}{2h^2}} \times \text{I}_
 * **Cauchy distribution** across a circular area defined by the radius of the circle, denoted as $r$, and the scale parameter $h$.
 
   $$k(x,y) = \frac{C_{h,r}}{2\pi}\frac{h}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$
-
----
-
-# Image Blurring Model
-
-* The blurred image can be viewed as **convolution** of original sharp image and blur kernel. 
-
-* The observed blurred image $\boldsymbol{b}$ can be modeled in terms of its gradients $\boldsymbol{x}$ as - 
-
-  $$\boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n}$$
-Where,
-
-  * $\boldsymbol{k}$ is blur kernel and $\boldsymbol{x}$ is gradient of *true latent image*.
-  
-  * $\boldsymbol{n}$ is gradient of noise and $\otimes$ denotes the *valid convolution* operator.
-  
-* Expressing the model in frequency domain as - 
-
-$$\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}  \  \ \  \forall \ \boldsymbol{\omega} = (\omega_1,\omega_2)$$  
-* We assume Nandy's Auto regressive prior on DFT coefficients $\boldsymbol{X_{\omega}}$.
-
 
 ---
 
@@ -234,7 +213,7 @@ knitr::include_graphics("pimg/couple.png")
 
 # Challenges in Post-Segmentation ML Estimation
 
-* Our ML estimation procedure requires images of rectangular shapes.
+* ML estimation procedure requires images of rectangular shapes.
 
 * But image segments obtained by SAM are of irregular shape.
 
@@ -242,12 +221,14 @@ knitr::include_graphics("pimg/couple.png")
 
 * Obvious solution is to pad or fill with zeros to make rectangular array.
 
-* This approach leads to bias towards selecting small values of radius $r$.
-
 ```{r ,warning=FALSE,echo=FALSE,out.width='60%',out.height="40%",fig.align='center',echo=FALSE,fig.cap= "Figure: Zero padding to make rectangular array"}
 
 knitr::include_graphics("pimg/zero_pad.png")
 ```
+
+--
+
+* This approach leads to bias towards selecting small values of radius $r$.
 
 ---
 
@@ -308,8 +289,6 @@ knitr::include_graphics("pimg/ap1.png")
 * Decompose irregularly shaped segments into smaller, rectangular regions.
 
 * Apply estimation procedure to these sub regions.
-
---
 
 * Discards a large proportion of available data depending on how irregular segment it is.
 

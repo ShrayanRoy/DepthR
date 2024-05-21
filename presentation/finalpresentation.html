@@ -44,7 +44,7 @@ class: center, middle, inverse, title-slide
 &lt;/style&gt;
 
 
-# Depth Estimation
+# Depth: the third dimension
 
 * Traditional photographs are two dimensional projections of a three dimensional scene.
 
@@ -100,27 +100,6 @@ class: center, middle, inverse, title-slide
 * **Cauchy distribution** across a circular area defined by the radius of the circle, denoted as `\(r\)`, and the scale parameter `\(h\)`.
 
   `$$k(x,y) = \frac{C_{h,r}}{2\pi}\frac{h}{(x^2 + y^2 + h^2)^{3/2}}\times \text{I}_{\{x^2 + y^2 \ \leq \ r^2\}}$$`
-
----
-
-# Image Blurring Model
-
-* The blurred image can be viewed as **convolution** of original sharp image and blur kernel. 
-
-* The observed blurred image `\(\boldsymbol{b}\)` can be modeled in terms of its gradients `\(\boldsymbol{x}\)` as - 
-
-  `$$\boldsymbol{y} = \boldsymbol{k} \ \otimes \ \boldsymbol{x} \ + \ \boldsymbol{n}$$`
-Where,
-
-  * `\(\boldsymbol{k}\)` is blur kernel and `\(\boldsymbol{x}\)` is gradient of *true latent image*.
-  
-  * `\(\boldsymbol{n}\)` is gradient of noise and `\(\otimes\)` denotes the *valid convolution* operator.
-  
-* Expressing the model in frequency domain as - 
-
-`$$\boldsymbol{Y_{\omega} = K_{\omega}X_{\omega} + N_{\omega}}  \  \ \  \forall \ \boldsymbol{\omega} = (\omega_1,\omega_2)$$`  
-* We assume Nandy's Auto regressive prior on DFT coefficients `\(\boldsymbol{X_{\omega}}\)`.
-
 
 ---
 
@@ -232,7 +211,7 @@ Where,
 
 # Challenges in Post-Segmentation ML Estimation
 
-* Our ML estimation procedure requires images of rectangular shapes.
+* ML estimation procedure requires images of rectangular shapes.
 
 * But image segments obtained by SAM are of irregular shape.
 
@@ -240,12 +219,14 @@ Where,
 
 * Obvious solution is to pad or fill with zeros to make rectangular array.
 
-* This approach leads to bias towards selecting small values of radius `\(r\)`.
-
 &lt;div class="figure" style="text-align: center"&gt;
 &lt;img src="pimg/zero_pad.png" alt="Figure: Zero padding to make rectangular array" width="60%" height="40%" /&gt;
 &lt;p class="caption"&gt;Figure: Zero padding to make rectangular array&lt;/p&gt;
 &lt;/div&gt;
+
+--
+
+* This approach leads to bias towards selecting small values of radius `\(r\)`.
 
 ---
 
@@ -306,8 +287,6 @@ Where,
 * Decompose irregularly shaped segments into smaller, rectangular regions.
 
 * Apply estimation procedure to these sub regions.
-
---
 
 * Discards a large proportion of available data depending on how irregular segment it is.
 
