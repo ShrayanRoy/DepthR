@@ -137,6 +137,8 @@ background-size: cover
 
 # How to estimate Spatially Varying blur ?
 
+* Real world images often exhibit spatially varying blur implying pixel to pixel varying blur level.
+
 --
 
 &lt;img src="pimg/moon.png" width="44%" style="display: block; margin: auto;" /&gt;
@@ -145,13 +147,13 @@ background-size: cover
 
 # How to estimate Spatially Varying blur ?
 
+* Real world images often exhibit spatially varying blur implying pixel to pixel varying blur level.
+
 &lt;img src="pimg/moon_kern.png" width="44%" style="display: block; margin: auto;" /&gt;
 
 ---
 
 # Spatially Varying Blur Estimation
-
-* Real world images often exhibit spatially varying blur implying pixel to pixel varying blur level.
 
 * Assume locally constant blur within a small patch around each pixel.
 
@@ -225,10 +227,7 @@ background-size: cover
 
 * Obvious solution is to pad or fill with zeros to make rectangular array.
 
-&lt;div class="figure" style="text-align: center"&gt;
-&lt;img src="pimg/zero_pad.png" alt="Figure: Zero padding to make rectangular array" width="60%" height="40%" /&gt;
-&lt;p class="caption"&gt;Figure: Zero padding to make rectangular array&lt;/p&gt;
-&lt;/div&gt;
+&lt;img src="pimg/zero_pad.png" width="65%" height="40%" style="display: block; margin: auto;" /&gt;
 
 --
 
@@ -344,17 +343,13 @@ background-size: cover
 
 # Decorrelation Loss
 
-* For an observed blurred image `\(\boldsymbol{y}\)`, suppose the true blur kernel is `\(\boldsymbol{k_{\theta_0}}\)`.
+* For an observed blurred image gradient `\(\boldsymbol{y}\)`, suppose the true blur kernel is `\(\boldsymbol{k_{\theta_0}}\)`.
 
 --
 
 * Deconvolving `\(\boldsymbol{y}\)` using `\(\boldsymbol{k_{\theta_0}}\)` should yield a quantity `\(\boldsymbol{x_{\theta_0}}\)` close to latent sharp image gradient `\(\boldsymbol{x}\)`.
 
 * Along and across direction ACF of `\(\boldsymbol{x_{\theta_0}}\)` will take smaller values compared to the blurred image gradient `\(\boldsymbol{y}\)`.
-
---
-
-* Because, convolution using `\(\boldsymbol{k}\)` increases the correlation among image gradients.
 
 --
 
@@ -381,17 +376,11 @@ background-size: cover
 
 # Decorrelation Loss
 
-* For deconvolution step we used conditional mean of `\(\boldsymbol{X_{\omega}}\)` given `\(\boldsymbol{Y_{\omega}}\)` and `\(\boldsymbol{K_{\omega}}\)` i.e.
-
-`$$\mathbb{E}[\boldsymbol{X_{\omega}}|\boldsymbol{Y_{\omega}},\boldsymbol{K_{\omega}}] = \frac{\sigma^2g_{\omega}\boldsymbol{K_{\omega}Y_{\omega}}}{\eta^2h_{\omega} + \sigma^2g_{\omega}|\boldsymbol{K_{\omega}}|^2}$$`
-
-* Take Inverse DFT to obtain deconvoluted horizontal and vertical gradients denoted by `\(\boldsymbol{x_{h,\theta}}\)` and `\(\boldsymbol{x_{v,\theta}}\)`.
-
---
 
 * Consider sum of squared ACF in both along and across direction of gradients as loss function denoted by 
 
 `$$\text{Decorr}(\boldsymbol{\theta}) = \text{Decorr}(\boldsymbol{x_{h,\theta}},\boldsymbol{x_{v,\theta}})$$`
+`\(\ \ \ \ \text{ }\)` Where, `\(\boldsymbol{x_{h,\theta}}\)` and `\(\boldsymbol{x_{v,\theta}}\)` denotes deconvoluted horizontal and vertical gradients respectively.
 
 * It captures the amount of correlation present in image gradients after deblurring using `\(\boldsymbol{k_\theta}\)`.
 
@@ -400,6 +389,11 @@ background-size: cover
 * `\(\text{Decorr}(\boldsymbol{\theta})\)` should be minimum for true value of `\(\boldsymbol{\theta}\)`.
 
 `$$\hat{\boldsymbol{\theta}} = \underset{\boldsymbol{\theta}}{\text{argmin}} \ \text{Decorr}(\boldsymbol{x_{h,\theta}},\boldsymbol{x_{v,\theta}})$$`
+--
+
+* For deconvolution step we used conditional mean of `\(\boldsymbol{X_{\omega}}\)` given `\(\boldsymbol{Y_{\omega}}\)` and `\(\boldsymbol{K_{\omega}}\)` i.e.
+
+`$$\mathbb{E}[\boldsymbol{X_{\omega}}|\boldsymbol{Y_{\omega}},\boldsymbol{K_{\omega}}] = \frac{\sigma^2g_{\omega}\boldsymbol{K_{\omega}Y_{\omega}}}{\eta^2h_{\omega} + \sigma^2g_{\omega}|\boldsymbol{K_{\omega}}|^2}$$`
 
 ---
 
@@ -489,15 +483,7 @@ background-size: cover
 
 ---
 
-# Discussion
-
-* We proposed a new method to estimate spatially varying blur based on single image of the scene.
-
---
-
-* Due to issue of zero padding with ML estimation, we developed an ad hoc procedure based on Decorrelation Loss.
-
---
+# Comment
 
 * Estimated blur maps clearly depict differences in blur levels &amp; boundaries between objects in image.
 
@@ -511,17 +497,15 @@ background-size: cover
 
 --
    
-* Choice of `\(\kappa\)` can be incorporated in estimation procedure.
+* Further improvement is possible by choosing suitable tuning parameter.
 
---
- 
 * Hard to isolate effects of tuning parameter because of their confounding effect.
 
 ---
 
-# Discussion
+# Computation time
 
-* A significant reduction in computing time.
+* This results in a significant reduction in computing time.
 
 * Because instead of estimating for all pixel separately we are estimating only for segments.
 
@@ -531,9 +515,11 @@ background-size: cover
 
 * SAM takes around 3 minutes for segmentation on GPU run time.
 
+* Pixel by pixel blur estimation takes around 1 hr 30 minutes only for initial step.
+
 --
 
-* Pixel by pixel blur estimation takes around 1 hr 30 minutes only for initial step.
+* A R package implementing our estimation procedure is available on github : [DepthR](https://github.com/ShrayanRoy/DepthR)
 
 ---
 
@@ -553,6 +539,8 @@ https://digitalcommons.isical.ac.in/doctoral-theses/7/
 * Deepayan Sarkar and Kaustav Nandy. rip: Image Processing in R. New Delhi, India, 2021. url: https://github.com/deepayan/rip.
 
 * Xiang Zhu et al. “Estimating Spatially Varying Defocus Blur From A Single Image”. In: (2013). issn: 1941-0042. url: http://dx.doi.org/10.1109/TIP.2013.2279316.
+
+*  William Hadley Richardson. “Bayesian-Based Iterative Method of Image Restoration". In: (1972). doi: http://dx.doi.org/10.1145/1276377.127646
 
 ---
 
