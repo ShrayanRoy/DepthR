@@ -1,9 +1,8 @@
 
 
 
-# Utilities for finding blur kernel based on idea of decorrelation penalty
+# Utilities for finding blur kernel based on idea of decorrelation Loss
 # The idea is adhoc, more theoretical development is needed
-
 
 # Function for calculation of deconvolution step of the algorithm
 

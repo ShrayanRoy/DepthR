@@ -3,7 +3,6 @@
 # Utilities for finding blur kernel based on idea of decorrelation loss
 # In the case of spatially varying blur
 
-
 # Function for calculation of deconvolution step of the algorithm
 # x: gradient of observed blurred image
 # k: blur kernel
