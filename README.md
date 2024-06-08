@@ -1,6 +1,3 @@
----
-title: "DepthR"
----
 
 # DepthR
 
@@ -14,8 +11,8 @@ Install the package using the following R code.
 
 ## Some Examples of Estimated Blurred Maps
 
-<img src="report/images/12.1.png" style="float:right; height:200px;" />
+<img src="report/images/12.1.png" style="float:right; height:1000px;" />
 
 ## Comparison with Zhu et al.
 
-<img src="presentation/pimg/real5.png" style="float:right; height:200px;" />
+<img src="presentation/pimg/real5.png" style="float:right; height:1000px;" />
