@@ -21,8 +21,7 @@ Install the package using the following R code.
 ## References
 
 * Kaustav Nandy. “Locally Dependent Natural Image Priors for Non-blind and Blind
- Image Deconvolution”. PhD thesis. Indian Statistical Institute, 2021. url: https :
- //digitalcommons.isical.ac.in/doctoral-theses/7/
+ Image Deconvolution”. PhD thesis. Indian Statistical Institute, 2021. url: https://digitalcommons.isical.ac.in/doctoral-theses/7/
  
 * Xiang Zhu et al. “Estimating Spatially Varying Defocus Blur From A Single Image”. In: (2013). issn: 1941-0042. url: http://dx.doi.org/10.1109/TIP.2013.2279316.
 
