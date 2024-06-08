@@ -65,3 +65,41 @@ findloglkd <- function(y, kern = c("norm", "circnorm", "cauchy", "disc", "tcauch
 
   return(likdata)
 }
+
+
+# Function to estimate blur kernel parameters based on continuous grid search
+# yimg: Input observed image
+# kern: Used blur kernel model
+# interval: Search Interval for radius
+
+BlurParamEst <- function(yimg,kern = c("norm", "circnorm", "cauchy", "disc", "tcauchy"),kap = 1,
+                         rho = c(0.3,0.6), interval = c(1,8), sigma = 0.10, eta = 0.005,thres = 1e-05){
+
+  dx.h <- rip.conv(yimg, rip.grad$x,"valid")
+  dx.v <- rip.conv(yimg, rip.grad$y,"valid")
+  Xh <- Mod(rip.ndft(dx.h))
+  Xv <- Mod(rip.ndft(dx.v))
+  G <- g.autoreg(yimg,rho = rho)
+  Hh <- h.theoretical(dim(Xh))$h
+  Hv <- h.theoretical(dim(Xv))$v
+
+  lkdfunc <- function(param){
+    kk <- blurkernel("cauchy",rad = param,kap =  1)
+    likval <- lkd_gen(Xh,kk = kk,G = G$h,H = Hh,sigma = sigma,eta = eta,thres = thres) +
+      lkd_gen(Xv,kk = kk,G = G$v,H = Hv,sigma = sigma,eta = eta,thres = thres)
+
+    return(likval)
+  }
+
+  gridStepSearch(lkdfunc,lower_bound = interval[1],upper_bound = interval[2],max_iter = 10)$x
+
+}
+
+# Optimal Choice of parameters obtained from experiments
+# Less noisy image: sigma = 0.10, eta = 0.005
+# More noisy image: sigma = 0.10, eta = 0.010
+
+
+
+
+
